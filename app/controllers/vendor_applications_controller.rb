@@ -14,6 +14,11 @@ class VendorApplicationsController < ApplicationController
 
   def show
     authorize! :read, @vendor_application
+    
+    respond_to do |format|
+      format.html
+      format.json { render json: @vendor_application }
+    end
   end
 
   def new
@@ -27,7 +32,7 @@ class VendorApplicationsController < ApplicationController
     authorize! :create, @vendor_application
 
     if @vendor_application.save
-      redirect_to @festival, notice: '出店申請が送信されました。'
+      redirect_to [@festival, @vendor_application], notice: '出店申請が送信されました。'
     else
       render :new, status: :unprocessable_entity
     end
@@ -41,7 +46,7 @@ class VendorApplicationsController < ApplicationController
     authorize! :update, @vendor_application
 
     if @vendor_application.update(vendor_application_params)
-      redirect_to @festival, notice: '出店申請が更新されました。'
+      redirect_to [@festival, @vendor_application], notice: '出店申請が更新されました。'
     else
       render :edit, status: :unprocessable_entity
     end

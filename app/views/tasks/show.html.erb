@@ -1,0 +1,92 @@
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1><%= @task.title %></h1>
+    <span class="badge bg-<%= task_status_color(@task.status) %> fs-6">
+      <%= task_status_text(@task.status) %>
+    </span>
+    <span class="badge bg-<%= task_priority_color(@task.priority) %> fs-6 ms-2">
+      <%= task_priority_text(@task.priority) %>
+    </span>
+  </div>
+  <div class="btn-group">
+    <% if can? :update, @task %>
+      <%= link_to "編集", edit_festival_task_path(@festival, @task), class: "btn btn-outline-primary" %>
+    <% end %>
+    <% if can? :destroy, @task %>
+      <%= link_to "削除", festival_task_path(@festival, @task), method: :delete, 
+                  data: { confirm: "本当に削除しますか？" }, 
+                  class: "btn btn-outline-danger" %>
+    <% end %>
+    <%= link_to "お祭りに戻る", festival_path(@festival), class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">タスク詳細</h5>
+      </div>
+      <div class="card-body">
+        <% if @task.description.present? %>
+          <p class="card-text"><%= simple_format(@task.description) %></p>
+        <% end %>
+        
+        <dl class="row">
+          <dt class="col-sm-3">期限</dt>
+          <dd class="col-sm-9">
+            <%= @task.due_date.strftime("%Y年%m月%d日 %H:%M") %>
+            <% if @task.overdue? %>
+              <span class="badge bg-danger ms-2">期限切れ</span>
+            <% elsif @task.due_soon? %>
+              <span class="badge bg-warning ms-2">期限間近</span>
+            <% end %>
+          </dd>
+          
+          <dt class="col-sm-3">優先度</dt>
+          <dd class="col-sm-9">
+            <span class="badge bg-<%= task_priority_color(@task.priority) %>">
+              <%= task_priority_text(@task.priority) %>
+            </span>
+          </dd>
+          
+          <dt class="col-sm-3">ステータス</dt>
+          <dd class="col-sm-9">
+            <span class="badge bg-<%= task_status_color(@task.status) %>">
+              <%= task_status_text(@task.status) %>
+            </span>
+          </dd>
+          
+          <dt class="col-sm-3">担当者</dt>
+          <dd class="col-sm-9"><%= @task.user.display_name %></dd>
+          
+          <dt class="col-sm-3">作成日</dt>
+          <dd class="col-sm-9"><%= @task.created_at.strftime("%Y年%m月%d日 %H:%M") %></dd>
+          
+          <% if @task.updated_at != @task.created_at %>
+            <dt class="col-sm-3">更新日</dt>
+            <dd class="col-sm-9"><%= @task.updated_at.strftime("%Y年%m月%d日 %H:%M") %></dd>
+          <% end %>
+        </dl>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">お祭り情報</h5>
+      </div>
+      <div class="card-body">
+        <h6 class="card-title"><%= @festival.name %></h6>
+        <p class="card-text">
+          <small class="text-muted">
+            <%= @festival.start_date.strftime("%Y年%m月%d日") %> - 
+            <%= @festival.end_date.strftime("%Y年%m月%d日") %>
+          </small>
+        </p>
+        <%= link_to "お祭り詳細", festival_path(@festival), class: "btn btn-outline-primary btn-sm" %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -38,6 +38,11 @@ class TasksController < ApplicationController
 
   def show
     authorize! :read, @task
+    
+    respond_to do |format|
+      format.html
+      format.json { render json: @task }
+    end
   end
 
   def new
@@ -51,7 +56,7 @@ class TasksController < ApplicationController
     authorize! :create, @task
 
     if @task.save
-      redirect_to @festival, notice: 'タスクが作成されました。'
+      redirect_to [@festival, @task], notice: 'タスクが作成されました。'
     else
       render :new, status: :unprocessable_entity
     end
@@ -65,7 +70,7 @@ class TasksController < ApplicationController
     authorize! :update, @task
 
     if @task.update(task_params)
-      redirect_to @festival, notice: 'タスクが更新されました。'
+      redirect_to [@festival, @task], notice: 'タスクが更新されました。'
     else
       render :edit, status: :unprocessable_entity
     end

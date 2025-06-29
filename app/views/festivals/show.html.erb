@@ -6,7 +6,7 @@
     </span>
   </div>
   <div class="btn-group">
-    <%= link_to gantt_festival_path(@festival), class: "btn btn-outline-success" do %>
+    <%= link_to festival_gantt_path(@festival), class: "btn btn-outline-success" do %>
       <i class="bi bi-calendar-range"></i> ガントチャート
     <% end %>
     <% if can? :update, @festival %>

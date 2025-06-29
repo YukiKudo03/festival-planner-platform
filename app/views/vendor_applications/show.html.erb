@@ -1,0 +1,88 @@
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1><%= @vendor_application.business_name %></h1>
+    <span class="badge bg-<%= vendor_status_color(@vendor_application.status) %> fs-6">
+      <%= vendor_status_text(@vendor_application.status) %>
+    </span>
+  </div>
+  <div class="btn-group">
+    <% if can? :update, @vendor_application %>
+      <%= link_to "編集", edit_festival_vendor_application_path(@festival, @vendor_application), class: "btn btn-outline-primary" %>
+    <% end %>
+    <% if can? :destroy, @vendor_application %>
+      <%= link_to "削除", festival_vendor_application_path(@festival, @vendor_application), method: :delete, 
+                  data: { confirm: "本当に削除しますか？" }, 
+                  class: "btn btn-outline-danger" %>
+    <% end %>
+    <%= link_to "お祭りに戻る", festival_path(@festival), class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">出店申請詳細</h5>
+      </div>
+      <div class="card-body">
+        <dl class="row">
+          <dt class="col-sm-3">事業名</dt>
+          <dd class="col-sm-9"><%= @vendor_application.business_name %></dd>
+          
+          <dt class="col-sm-3">事業種別</dt>
+          <dd class="col-sm-9"><%= @vendor_application.business_type %></dd>
+          
+          <dt class="col-sm-3">説明</dt>
+          <dd class="col-sm-9">
+            <% if @vendor_application.description.present? %>
+              <%= simple_format(@vendor_application.description) %>
+            <% else %>
+              <span class="text-muted">説明がありません</span>
+            <% end %>
+          </dd>
+          
+          <dt class="col-sm-3">要求事項</dt>
+          <dd class="col-sm-9">
+            <% if @vendor_application.requirements.present? %>
+              <%= simple_format(@vendor_application.requirements) %>
+            <% else %>
+              <span class="text-muted">特別な要求事項はありません</span>
+            <% end %>
+          </dd>
+          
+          <dt class="col-sm-3">申請者</dt>
+          <dd class="col-sm-9"><%= @vendor_application.user.display_name %></dd>
+          
+          <dt class="col-sm-3">申請日</dt>
+          <dd class="col-sm-9"><%= @vendor_application.created_at.strftime("%Y年%m月%d日 %H:%M") %></dd>
+          
+          <% if @vendor_application.updated_at != @vendor_application.created_at %>
+            <dt class="col-sm-3">更新日</dt>
+            <dd class="col-sm-9"><%= @vendor_application.updated_at.strftime("%Y年%m月%d日 %H:%M") %></dd>
+          <% end %>
+        </dl>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">お祭り情報</h5>
+      </div>
+      <div class="card-body">
+        <h6 class="card-title"><%= @festival.name %></h6>
+        <p class="card-text">
+          <small class="text-muted">
+            <%= @festival.start_date.strftime("%Y年%m月%d日") %> - 
+            <%= @festival.end_date.strftime("%Y年%m月%d日") %>
+          </small>
+        </p>
+        <p class="card-text">
+          <small class="text-muted">会場: <%= @festival.location %></small>
+        </p>
+        <%= link_to "お祭り詳細", festival_path(@festival), class: "btn btn-outline-primary btn-sm" %>
+      </div>
+    </div>
+  </div>
+</div>
