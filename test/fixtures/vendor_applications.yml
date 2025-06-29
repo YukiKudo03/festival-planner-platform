@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+food_truck:
+  festival: summer_festival
+  user: vendor
+  business_name: Tasty Food Truck
+  business_type: Food Service
+  description: Authentic street food and beverages
+  requirements: Electrical outlet, water access
+  status: 0
+
+craft_booth:
+  festival: summer_festival
+  user: volunteer
+  business_name: Local Crafts
+  business_type: Handicrafts
+  description: Handmade local crafts and souvenirs
+  requirements: Covered area, tables
+  status: 0

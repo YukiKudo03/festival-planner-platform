@@ -1,0 +1,90 @@
+<div class="row">
+  <div class="col-lg-8">
+    <div class="hero-section bg-primary text-white rounded p-5 mb-4">
+      <h1 class="display-4">お祭り企画支援プラットフォーム</h1>
+      <p class="lead">地域のお祭り企画・準備・運営を統合的に支援するプラットフォーム</p>
+      <% unless user_signed_in? %>
+        <%= link_to "今すぐ始める", new_user_registration_path, class: "btn btn-light btn-lg" %>
+      <% end %>
+    </div>
+
+    <% if user_signed_in? %>
+      <div class="row">
+        <% unless current_user.platform_visitor? %>
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <i class="bi bi-calendar-event"></i>
+                  私のお祭り
+                </h5>
+                <p class="card-text">企画・運営中のお祭り</p>
+                <%= link_to "すべて表示", festivals_path, class: "btn btn-primary" %>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <i class="bi bi-check-square"></i>
+                  私のタスク
+                </h5>
+                <p class="card-text">担当タスクと進捗状況</p>
+                <%= link_to "すべて表示", tasks_path, class: "btn btn-primary" %>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <div class="col-md-12">
+            <div class="card mb-4">
+              <div class="card-body text-center">
+                <h5 class="card-title">
+                  <i class="bi bi-search"></i>
+                  お祭りを探す
+                </h5>
+                <p class="card-text">地域のお祭り情報を検索・閲覧できます</p>
+                <%= link_to "お祭りを探す", public_festivals_path, class: "btn btn-primary btn-lg" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="bi bi-star"></i>
+          プラットフォーム機能
+        </h5>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled">
+          <li class="mb-3">
+            <i class="bi bi-calendar-event text-primary"></i>
+            <strong>イベント管理</strong><br>
+            <small class="text-muted">お祭りの企画から当日運営まで</small>
+          </li>
+          <li class="mb-3">
+            <i class="bi bi-people text-primary"></i>
+            <strong>関係者連携</strong><br>
+            <small class="text-muted">実行委員・ボランティア・出店者の協力体制</small>
+          </li>
+          <li class="mb-3">
+            <i class="bi bi-check-square text-primary"></i>
+            <strong>タスク管理</strong><br>
+            <small class="text-muted">進捗可視化と効率的な準備</small>
+          </li>
+          <li class="mb-3">
+            <i class="bi bi-shop text-primary"></i>
+            <strong>出店管理</strong><br>
+            <small class="text-muted">出店申請から配置管理まで</small>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

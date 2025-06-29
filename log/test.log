@@ -1,0 +1,613 @@
+  [1m[35mSQL (0.1ms)[0m  [1m[35mSET search_path TO public[0m
+  [1m[35m (70.3ms)[0m  [1m[35mDROP DATABASE IF EXISTS "festival_planner_platform_test"[0m
+  [1m[35m (63.7ms)[0m  [1m[35mCREATE DATABASE "festival_planner_platform_test" ENCODING = 'unicode'[0m
+  [1m[35mSQL (6.5ms)[0m  [1m[35mCREATE EXTENSION IF NOT EXISTS "plpgsql" SCHEMA pg_catalog[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "festivals" CASCADE[0m
+  [1m[35m (2.8ms)[0m  [1m[35mCREATE TABLE "festivals" ("id" bigserial primary key, "name" character varying, "description" text, "start_date" timestamp(6), "end_date" timestamp(6), "location" character varying, "budget" decimal, "status" integer, "user_id" bigint NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_festivals_on_user_id" ON "festivals" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "tasks" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "tasks" ("id" bigserial primary key, "title" character varying, "description" text, "due_date" timestamp(6), "priority" integer, "status" integer, "user_id" bigint NOT NULL, "festival_id" bigint NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_tasks_on_festival_id" ON "tasks" ("festival_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_tasks_on_user_id" ON "tasks" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "users" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "users" ("id" bigserial primary key, "email" character varying DEFAULT '' NOT NULL, "encrypted_password" character varying DEFAULT '' NOT NULL, "reset_password_token" character varying, "reset_password_sent_at" timestamp(6), "remember_created_at" timestamp(6), "first_name" character varying, "last_name" character varying, "phone" character varying, "bio" text, "role" integer DEFAULT 0, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_email" ON "users" ("email")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_reset_password_token" ON "users" ("reset_password_token")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "vendor_applications" CASCADE[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE TABLE "vendor_applications" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "user_id" bigint NOT NULL, "business_name" character varying, "business_type" character varying, "description" text, "requirements" text, "status" integer, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_festival_id" ON "vendor_applications" ("festival_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_user_id" ON "vendor_applications" ("user_id")[0m
+  [1m[35m (1.1ms)[0m  [1m[35mALTER TABLE "festivals" ADD CONSTRAINT "fk_rails_e798b43fcb"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "tasks" ADD CONSTRAINT "fk_rails_89d2a3e6ba"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "tasks" ADD CONSTRAINT "fk_rails_4d2a9e4d7e"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "vendor_applications" ADD CONSTRAINT "fk_rails_37c4f63f62"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "vendor_applications" ADD CONSTRAINT "fk_rails_62503e48bf"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL PRIMARY KEY)[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[35m (0.3ms)[0m  [1m[32mINSERT INTO "schema_migrations" (version) VALUES (20250629005146)[0m
+  [1m[35m (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" (version) VALUES
+(20250629005142),
+(20250629005137),
+(20250629005049);[0m
+  [1m[35m (3.1ms)[0m  [1m[35mCREATE TABLE "ar_internal_metadata" ("key" character varying NOT NULL PRIMARY KEY, "value" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.8ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::InternalMetadata Create (0.7ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('environment', 'test', '2025-06-29 11:18:42.600377', '2025-06-29 11:18:42.600380') RETURNING "key"[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.2ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::InternalMetadata Load (0.6ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::InternalMetadata Create (0.2ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('schema_sha1', '723a807037e23cc5af45989c975ca89281502424', '2025-06-29 11:18:42.608992', '2025-06-29 11:18:42.608995') RETURNING "key"[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.2ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.3ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.709988', '2025-06-29 11:18:42.709988'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.709988', '2025-06-29 11:18:42.709988');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.719040', '2025-06-29 11:18:42.719040'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.719040', '2025-06-29 11:18:42.719040');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.720868', '2025-06-29 11:18:42.720868'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.720868', '2025-06-29 11:18:42.720868');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.721505', '2025-06-29 11:18:42.721505'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.721505', '2025-06-29 11:18:42.721505')[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.1ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.750747', '2025-06-29 11:18:42.750747'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.750747', '2025-06-29 11:18:42.750747');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.750810', '2025-06-29 11:18:42.750810'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.750810', '2025-06-29 11:18:42.750810');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.750837', '2025-06-29 11:18:42.750837'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.750837', '2025-06-29 11:18:42.750837');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.750856', '2025-06-29 11:18:42.750856'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.750856', '2025-06-29 11:18:42.750856')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.4ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.755419', '2025-06-29 11:18:42.755419'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.755419', '2025-06-29 11:18:42.755419');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.755466', '2025-06-29 11:18:42.755466'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.755466', '2025-06-29 11:18:42.755466');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.755492', '2025-06-29 11:18:42.755492'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.755492', '2025-06-29 11:18:42.755492');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.755510', '2025-06-29 11:18:42.755510'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.755510', '2025-06-29 11:18:42.755510')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.1ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.760284', '2025-06-29 11:18:42.760284'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.760284', '2025-06-29 11:18:42.760284');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.760349', '2025-06-29 11:18:42.760349'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.760349', '2025-06-29 11:18:42.760349');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.760381', '2025-06-29 11:18:42.760381'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.760381', '2025-06-29 11:18:42.760381');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.760405', '2025-06-29 11:18:42.760405'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.760405', '2025-06-29 11:18:42.760405')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.2ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.764450', '2025-06-29 11:18:42.764450'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.764450', '2025-06-29 11:18:42.764450');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.764489', '2025-06-29 11:18:42.764489'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.764489', '2025-06-29 11:18:42.764489');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.764515', '2025-06-29 11:18:42.764515'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.764515', '2025-06-29 11:18:42.764515');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.764531', '2025-06-29 11:18:42.764531'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.764531', '2025-06-29 11:18:42.764531')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.1ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.768840', '2025-06-29 11:18:42.768840'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.768840', '2025-06-29 11:18:42.768840');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.768876', '2025-06-29 11:18:42.768876'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.768876', '2025-06-29 11:18:42.768876');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.768900', '2025-06-29 11:18:42.768900'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.768900', '2025-06-29 11:18:42.768900');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.768916', '2025-06-29 11:18:42.768916'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.768916', '2025-06-29 11:18:42.768916')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.1ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.773008', '2025-06-29 11:18:42.773008'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.773008', '2025-06-29 11:18:42.773008');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.773042', '2025-06-29 11:18:42.773042'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.773042', '2025-06-29 11:18:42.773042');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.773069', '2025-06-29 11:18:42.773069'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.773069', '2025-06-29 11:18:42.773069');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.773085', '2025-06-29 11:18:42.773085'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.773085', '2025-06-29 11:18:42.773085')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.1ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.777197', '2025-06-29 11:18:42.777197'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.777197', '2025-06-29 11:18:42.777197');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.777232', '2025-06-29 11:18:42.777232'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.777232', '2025-06-29 11:18:42.777232');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.777256', '2025-06-29 11:18:42.777256'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.777256', '2025-06-29 11:18:42.777256');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.777270', '2025-06-29 11:18:42.777270'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.777270', '2025-06-29 11:18:42.777270')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.0ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.781814', '2025-06-29 11:18:42.781814'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.781814', '2025-06-29 11:18:42.781814');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.781850', '2025-06-29 11:18:42.781850'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.781850', '2025-06-29 11:18:42.781850');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.781874', '2025-06-29 11:18:42.781874'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.781874', '2025-06-29 11:18:42.781874');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.781889', '2025-06-29 11:18:42.781889'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.781889', '2025-06-29 11:18:42.781889')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.0ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.785452', '2025-06-29 11:18:42.785452'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.785452', '2025-06-29 11:18:42.785452');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.785482', '2025-06-29 11:18:42.785482'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.785482', '2025-06-29 11:18:42.785482');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.785505', '2025-06-29 11:18:42.785505'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.785505', '2025-06-29 11:18:42.785505');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.785519', '2025-06-29 11:18:42.785519'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.785519', '2025-06-29 11:18:42.785519')[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.7ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.789141', '2025-06-29 11:18:42.789141'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.789141', '2025-06-29 11:18:42.789141');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.789179', '2025-06-29 11:18:42.789179'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.789179', '2025-06-29 11:18:42.789179');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.789202', '2025-06-29 11:18:42.789202'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.789202', '2025-06-29 11:18:42.789202');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.789218', '2025-06-29 11:18:42.789218'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.789218', '2025-06-29 11:18:42.789218')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.1ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.797167', '2025-06-29 11:18:42.797167'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.797167', '2025-06-29 11:18:42.797167');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.797206', '2025-06-29 11:18:42.797206'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.797206', '2025-06-29 11:18:42.797206');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.797231', '2025-06-29 11:18:42.797231'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.797231', '2025-06-29 11:18:42.797231');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.797247', '2025-06-29 11:18:42.797247'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.797247', '2025-06-29 11:18:42.797247')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (2.1ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.808372', '2025-06-29 11:18:42.808372'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.808372', '2025-06-29 11:18:42.808372');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.808441', '2025-06-29 11:18:42.808441'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.808441', '2025-06-29 11:18:42.808441');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.809410', '2025-06-29 11:18:42.809410'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.809410', '2025-06-29 11:18:42.809410');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.809436', '2025-06-29 11:18:42.809436'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.809436', '2025-06-29 11:18:42.809436')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.1ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.824305', '2025-06-29 11:18:42.824305'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.824305', '2025-06-29 11:18:42.824305');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.824364', '2025-06-29 11:18:42.824364'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.824364', '2025-06-29 11:18:42.824364');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.824395', '2025-06-29 11:18:42.824395'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.824395', '2025-06-29 11:18:42.824395');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.824413', '2025-06-29 11:18:42.824413'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.824413', '2025-06-29 11:18:42.824413')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (0.9ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.828820', '2025-06-29 11:18:42.828820'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.828820', '2025-06-29 11:18:42.828820');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.828863', '2025-06-29 11:18:42.828863'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.828863', '2025-06-29 11:18:42.828863');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.828889', '2025-06-29 11:18:42.828889'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.828889', '2025-06-29 11:18:42.828889');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.828906', '2025-06-29 11:18:42.828906'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.828906', '2025-06-29 11:18:42.828906')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.0ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.832638', '2025-06-29 11:18:42.832638'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.832638', '2025-06-29 11:18:42.832638');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.832677', '2025-06-29 11:18:42.832677'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.832677', '2025-06-29 11:18:42.832677');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.832702', '2025-06-29 11:18:42.832702'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.832702', '2025-06-29 11:18:42.832702');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.832718', '2025-06-29 11:18:42.832718'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.832718', '2025-06-29 11:18:42.832718')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.1ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.836649', '2025-06-29 11:18:42.836649'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.836649', '2025-06-29 11:18:42.836649');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.836692', '2025-06-29 11:18:42.836692'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.836692', '2025-06-29 11:18:42.836692');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.836718', '2025-06-29 11:18:42.836718'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.836718', '2025-06-29 11:18:42.836718');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.836735', '2025-06-29 11:18:42.836735'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.836735', '2025-06-29 11:18:42.836735')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.0ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.840775', '2025-06-29 11:18:42.840775'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.840775', '2025-06-29 11:18:42.840775');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.840831', '2025-06-29 11:18:42.840831'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.840831', '2025-06-29 11:18:42.840831');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.840862', '2025-06-29 11:18:42.840862'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.840862', '2025-06-29 11:18:42.840862');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.840881', '2025-06-29 11:18:42.840881'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.840881', '2025-06-29 11:18:42.840881')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.8ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.845191', '2025-06-29 11:18:42.845191'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.845191', '2025-06-29 11:18:42.845191');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.845235', '2025-06-29 11:18:42.845235'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.845235', '2025-06-29 11:18:42.845235');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.845260', '2025-06-29 11:18:42.845260'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.845260', '2025-06-29 11:18:42.845260');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.845275', '2025-06-29 11:18:42.845275'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.845275', '2025-06-29 11:18:42.845275')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.0ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.850068', '2025-06-29 11:18:42.850068'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.850068', '2025-06-29 11:18:42.850068');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.850107', '2025-06-29 11:18:42.850107'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.850107', '2025-06-29 11:18:42.850107');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.850302', '2025-06-29 11:18:42.850302'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.850302', '2025-06-29 11:18:42.850302');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.850319', '2025-06-29 11:18:42.850319'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.850319', '2025-06-29 11:18:42.850319')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.0ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.853873', '2025-06-29 11:18:42.853873'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.853873', '2025-06-29 11:18:42.853873');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.853905', '2025-06-29 11:18:42.853905'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.853905', '2025-06-29 11:18:42.853905');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.853929', '2025-06-29 11:18:42.853929'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.853929', '2025-06-29 11:18:42.853929');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.853944', '2025-06-29 11:18:42.853944'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.853944', '2025-06-29 11:18:42.853944')[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (1.0ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 980190962, '2025-06-29 11:18:42.858051', '2025-06-29 11:18:42.858051'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:37', '2025-06-29 09:51:37', 'MyString', 9.99, 1, 298486374, '2025-06-29 11:18:42.858051', '2025-06-29 11:18:42.858051');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (980190962, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 980190962, 980190962, '2025-06-29 11:18:42.858090', '2025-06-29 11:18:42.858090'), (298486374, 'MyString', 'MyText', '2025-06-29 09:51:42', 1, 1, 298486374, 298486374, '2025-06-29 11:18:42.858090', '2025-06-29 11:18:42.858090');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (980190962, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.858117', '2025-06-29 11:18:42.858117'), (298486374, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, '2025-06-29 11:18:42.858117', '2025-06-29 11:18:42.858117');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (980190962, 980190962, 980190962, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.858134', '2025-06-29 11:18:42.858134'), (298486374, 298486374, 298486374, 'MyString', 'MyString', 'MyText', 'MyText', 1, '2025-06-29 11:18:42.858134', '2025-06-29 11:18:42.858134')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.7ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (3.8ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (261517381, 'Summer Festival 2025', 'Annual summer festival in the town center', '2025-08-29 11:19:42', '2025-08-31 11:19:42', 'Town Center Park', 100000.0, 0, 110775223, '2025-06-29 11:19:42.604098', '2025-06-29 11:19:42.604098'), (634782663, 'Winter Illumination', 'Beautiful winter lights display', '2025-12-29 11:19:42', '2026-01-29 11:19:42', 'Main Street', 50000.0, 0, 135138680, '2025-06-29 11:19:42.604098', '2025-06-29 11:19:42.604098');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (281287169, 'Book venue for summer festival', 'Contact town hall for venue reservation', '2025-07-29 11:19:42', 2, 0, 110775223, 261517381, '2025-06-29 11:19:42.611469', '2025-06-29 11:19:42.611469'), (101509242, 'Contact potential sponsors', 'Reach out to local businesses for sponsorship', '2025-07-20 11:19:42', 1, 0, 289464028, 261517381, '2025-06-29 11:19:42.611469', '2025-06-29 11:19:42.611469');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (135138680, 'admin@test.com', '$2a$04$nlctxSuRFvcECZ1MHT2QouK8Wndun9X48YWfsoIVfICW8wait5lki', DEFAULT, DEFAULT, DEFAULT, 'Admin', 'User', DEFAULT, DEFAULT, 4, '2025-06-29 11:19:42.613806', '2025-06-29 11:19:42.613806'), (110775223, 'committee@test.com', '$2a$04$sGjP6MrMHd.dAlex1QWfk.1zmq6jpkD9e8QtDFAlQUXzBKaQ2zNAi', DEFAULT, DEFAULT, DEFAULT, 'Committee', 'Member', DEFAULT, DEFAULT, 3, '2025-06-29 11:19:42.613806', '2025-06-29 11:19:42.613806'), (891433977, 'vendor@test.com', '$2a$04$Ke2Nmblzhi/ByYpxlvzyWuP1XCKsEoo7ze3MifcS5InhyOYvPWn2S', DEFAULT, DEFAULT, DEFAULT, 'Vendor', 'User', DEFAULT, DEFAULT, 2, '2025-06-29 11:19:42.613806', '2025-06-29 11:19:42.613806'), (289464028, 'volunteer@test.com', '$2a$04$Dar3PvRAWmFpTAmfPqc//OV5qc3QeJIbDXPFHCFGIFUFYsoHU0jlS', DEFAULT, DEFAULT, DEFAULT, 'Volunteer', 'User', DEFAULT, DEFAULT, 1, '2025-06-29 11:19:42.613806', '2025-06-29 11:19:42.613806');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (1017984736, 261517381, 891433977, 'Tasty Food Truck', 'Food Service', 'Authentic street food and beverages', 'Electrical outlet, water access', 0, '2025-06-29 11:19:42.615184', '2025-06-29 11:19:42.615184'), (594050124, 261517381, 289464028, 'Local Crafts', 'Handicrafts', 'Handmade local crafts and souvenirs', 'Covered area, tables', 0, '2025-06-29 11:19:42.615184', '2025-06-29 11:19:42.615184')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[35m (1.4ms)[0m  [1m[35mALTER TABLE "users" ENABLE TRIGGER ALL;ALTER TABLE "festivals" ENABLE TRIGGER ALL;ALTER TABLE "tasks" ENABLE TRIGGER ALL;ALTER TABLE "vendor_applications" ENABLE TRIGGER ALL;ALTER TABLE "schema_migrations" ENABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" ENABLE TRIGGER ALL[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (269.7ms)[0m  [1m[35mdo $$
+  declare r record;
+BEGIN
+FOR r IN (
+  SELECT FORMAT(
+    'UPDATE pg_catalog.pg_constraint SET convalidated=false WHERE conname = ''%1$I'' AND connamespace::regnamespace = ''%2$I''::regnamespace; ALTER TABLE %2$I.%3$I VALIDATE CONSTRAINT %1$I;',
+    constraint_name,
+    table_schema,
+    table_name
+  ) AS constraint_check
+  FROM information_schema.table_constraints WHERE constraint_type = 'FOREIGN KEY'
+)
+  LOOP
+    EXECUTE (r.constraint_check);
+  END LOOP;
+END;
+$$;
+[0m
+  [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+-----------------------------------------
+TasksControllerTest: test_should_get_show
+-----------------------------------------
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+------------------------------------------
+TasksControllerTest: test_should_get_index
+------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+-------------------------------------------
+TasksControllerTest: test_should_get_update
+-------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
+----------------------------------------
+TasksControllerTest: test_should_get_new
+----------------------------------------
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+-----------------------------------------
+TasksControllerTest: test_should_get_edit
+-----------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+-------------------------------------------
+TasksControllerTest: test_should_get_create
+-------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+--------------------------------------------
+TasksControllerTest: test_should_get_destroy
+--------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+-----------------------------------------
+HomeControllerTest: test_should_get_index
+-----------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+---------------------------------------------
+FestivalsControllerTest: test_should_get_show
+---------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+----------------------------------------------
+FestivalsControllerTest: test_should_get_index
+----------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+-----------------------------------------------
+FestivalsControllerTest: test_should_get_update
+-----------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+--------------------------------------------
+FestivalsControllerTest: test_should_get_new
+--------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+---------------------------------------------
+FestivalsControllerTest: test_should_get_edit
+---------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+-----------------------------------------------
+FestivalsControllerTest: test_should_get_create
+-----------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+------------------------------------------------
+FestivalsControllerTest: test_should_get_destroy
+------------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+------------------------------------------------------
+VendorApplicationsControllerTest: test_should_get_show
+------------------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+-------------------------------------------------------
+VendorApplicationsControllerTest: test_should_get_index
+-------------------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+--------------------------------------------------------
+VendorApplicationsControllerTest: test_should_get_update
+--------------------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+-----------------------------------------------------
+VendorApplicationsControllerTest: test_should_get_new
+-----------------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+------------------------------------------------------
+VendorApplicationsControllerTest: test_should_get_edit
+------------------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+--------------------------------------------------------
+VendorApplicationsControllerTest: test_should_get_create
+--------------------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+---------------------------------------------------------
+VendorApplicationsControllerTest: test_should_get_destroy
+---------------------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.0ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.7ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (2.6ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (261517381, 'Summer Festival 2025', 'Annual summer festival in the town center', '2025-08-29 11:20:09', '2025-08-31 11:20:09', 'Town Center Park', 100000.0, 0, 110775223, '2025-06-29 11:20:09.685240', '2025-06-29 11:20:09.685240'), (634782663, 'Winter Illumination', 'Beautiful winter lights display', '2025-12-29 11:20:09', '2026-01-29 11:20:09', 'Main Street', 50000.0, 0, 135138680, '2025-06-29 11:20:09.685240', '2025-06-29 11:20:09.685240');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (281287169, 'Book venue for summer festival', 'Contact town hall for venue reservation', '2025-07-29 11:20:09', 2, 0, 110775223, 261517381, '2025-06-29 11:20:09.692565', '2025-06-29 11:20:09.692565'), (101509242, 'Contact potential sponsors', 'Reach out to local businesses for sponsorship', '2025-07-20 11:20:09', 1, 0, 289464028, 261517381, '2025-06-29 11:20:09.692565', '2025-06-29 11:20:09.692565');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (135138680, 'admin@test.com', '$2a$04$.oPb3Y9hAMwMhiLIDjzXBeujtKDuzcB/r.LXrOkA8.uFLLGjb/hE6', DEFAULT, DEFAULT, DEFAULT, 'Admin', 'User', DEFAULT, DEFAULT, 4, '2025-06-29 11:20:09.695180', '2025-06-29 11:20:09.695180'), (110775223, 'committee@test.com', '$2a$04$IMQ.aO8FkjIyFqc6JREXMuEUMCvXrJC2EU/uSdrpZd3F2qr1rPa/C', DEFAULT, DEFAULT, DEFAULT, 'Committee', 'Member', DEFAULT, DEFAULT, 3, '2025-06-29 11:20:09.695180', '2025-06-29 11:20:09.695180'), (891433977, 'vendor@test.com', '$2a$04$0BKJ4Ec4OiFUYjIrjQnUQ.5m32C8zq.6z0KEEdnQ0GpND.z7i1b5u', DEFAULT, DEFAULT, DEFAULT, 'Vendor', 'User', DEFAULT, DEFAULT, 2, '2025-06-29 11:20:09.695180', '2025-06-29 11:20:09.695180'), (289464028, 'volunteer@test.com', '$2a$04$u7pz9dlZ5tktLki1MBmKFu4BekDNVgqTjYDQkMgoPKVd9TAw0hCdy', DEFAULT, DEFAULT, DEFAULT, 'Volunteer', 'User', DEFAULT, DEFAULT, 1, '2025-06-29 11:20:09.695180', '2025-06-29 11:20:09.695180');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (1017984736, 261517381, 891433977, 'Tasty Food Truck', 'Food Service', 'Authentic street food and beverages', 'Electrical outlet, water access', 0, '2025-06-29 11:20:09.696315', '2025-06-29 11:20:09.696315'), (594050124, 261517381, 289464028, 'Local Crafts', 'Handicrafts', 'Handmade local crafts and souvenirs', 'Covered area, tables', 0, '2025-06-29 11:20:09.696315', '2025-06-29 11:20:09.696315')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" ENABLE TRIGGER ALL;ALTER TABLE "festivals" ENABLE TRIGGER ALL;ALTER TABLE "tasks" ENABLE TRIGGER ALL;ALTER TABLE "vendor_applications" ENABLE TRIGGER ALL;ALTER TABLE "schema_migrations" ENABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" ENABLE TRIGGER ALL[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (6.7ms)[0m  [1m[35mdo $$
+  declare r record;
+BEGIN
+FOR r IN (
+  SELECT FORMAT(
+    'UPDATE pg_catalog.pg_constraint SET convalidated=false WHERE conname = ''%1$I'' AND connamespace::regnamespace = ''%2$I''::regnamespace; ALTER TABLE %2$I.%3$I VALIDATE CONSTRAINT %1$I;',
+    constraint_name,
+    table_schema,
+    table_name
+  ) AS constraint_check
+  FROM information_schema.table_constraints WHERE constraint_type = 'FOREIGN KEY'
+)
+  LOOP
+    EXECUTE (r.constraint_check);
+  END LOOP;
+END;
+$$;
+[0m
+  [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+-----------------------------------------
+HomeControllerTest: test_should_get_index
+-----------------------------------------
+Started GET "/" for 127.0.0.1 at 2025-06-29 20:20:09 +0900
+Processing by HomeController#index as HTML
+Completed 401 Unauthorized in 15ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 7.4ms)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.2ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.8ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (2.7ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (261517381, 'Summer Festival 2025', 'Annual summer festival in the town center', '2025-08-29 11:20:23', '2025-08-31 11:20:23', 'Town Center Park', 100000.0, 0, 110775223, '2025-06-29 11:20:23.316331', '2025-06-29 11:20:23.316331'), (634782663, 'Winter Illumination', 'Beautiful winter lights display', '2025-12-29 11:20:23', '2026-01-29 11:20:23', 'Main Street', 50000.0, 0, 135138680, '2025-06-29 11:20:23.316331', '2025-06-29 11:20:23.316331');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (281287169, 'Book venue for summer festival', 'Contact town hall for venue reservation', '2025-07-29 11:20:23', 2, 0, 110775223, 261517381, '2025-06-29 11:20:23.324853', '2025-06-29 11:20:23.324853'), (101509242, 'Contact potential sponsors', 'Reach out to local businesses for sponsorship', '2025-07-20 11:20:23', 1, 0, 289464028, 261517381, '2025-06-29 11:20:23.324853', '2025-06-29 11:20:23.324853');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (135138680, 'admin@test.com', '$2a$04$pNS35s8wVAAx0c4bX6M1kugZzLKZ2nkl5OLze9ZwD6xisQa2FwdC2', DEFAULT, DEFAULT, DEFAULT, 'Admin', 'User', DEFAULT, DEFAULT, 4, '2025-06-29 11:20:23.327687', '2025-06-29 11:20:23.327687'), (110775223, 'committee@test.com', '$2a$04$HU7w0k3psQQzfBUOZRIlO.0qPci.2PQoXAf4P9K9hJv/QoL91fN9C', DEFAULT, DEFAULT, DEFAULT, 'Committee', 'Member', DEFAULT, DEFAULT, 3, '2025-06-29 11:20:23.327687', '2025-06-29 11:20:23.327687'), (891433977, 'vendor@test.com', '$2a$04$ywGa7vt3nEq2weguZgia9OHujlTyx7cDPZjugKVj5bt4ZhguE8XHK', DEFAULT, DEFAULT, DEFAULT, 'Vendor', 'User', DEFAULT, DEFAULT, 2, '2025-06-29 11:20:23.327687', '2025-06-29 11:20:23.327687'), (289464028, 'volunteer@test.com', '$2a$04$UaV7bDpML9LLYM4LCgs6nO1hftgU.dGYugQWKi2DASbsfz36qu0rS', DEFAULT, DEFAULT, DEFAULT, 'Volunteer', 'User', DEFAULT, DEFAULT, 1, '2025-06-29 11:20:23.327687', '2025-06-29 11:20:23.327687');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (1017984736, 261517381, 891433977, 'Tasty Food Truck', 'Food Service', 'Authentic street food and beverages', 'Electrical outlet, water access', 0, '2025-06-29 11:20:23.328978', '2025-06-29 11:20:23.328978'), (594050124, 261517381, 289464028, 'Local Crafts', 'Handicrafts', 'Handmade local crafts and souvenirs', 'Covered area, tables', 0, '2025-06-29 11:20:23.328978', '2025-06-29 11:20:23.328978')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" ENABLE TRIGGER ALL;ALTER TABLE "festivals" ENABLE TRIGGER ALL;ALTER TABLE "tasks" ENABLE TRIGGER ALL;ALTER TABLE "vendor_applications" ENABLE TRIGGER ALL;ALTER TABLE "schema_migrations" ENABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" ENABLE TRIGGER ALL[0m
+  [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (6.7ms)[0m  [1m[35mdo $$
+  declare r record;
+BEGIN
+FOR r IN (
+  SELECT FORMAT(
+    'UPDATE pg_catalog.pg_constraint SET convalidated=false WHERE conname = ''%1$I'' AND connamespace::regnamespace = ''%2$I''::regnamespace; ALTER TABLE %2$I.%3$I VALIDATE CONSTRAINT %1$I;',
+    constraint_name,
+    table_schema,
+    table_name
+  ) AS constraint_check
+  FROM information_schema.table_constraints WHERE constraint_type = 'FOREIGN KEY'
+)
+  LOOP
+    EXECUTE (r.constraint_check);
+  END LOOP;
+END;
+$$;
+[0m
+  [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+--------------------------------------------------------
+HomeControllerTest: test_should_get_index_when_logged_in
+--------------------------------------------------------
+  [1m[36mUser Load (0.5ms)[0m  [1m[34mSELECT "users".* FROM "users" WHERE "users"."id" = $1 LIMIT $2[0m  [["id", 135138680], ["LIMIT", 1]]
+Started GET "/" for 127.0.0.1 at 2025-06-29 20:20:23 +0900
+Processing by HomeController#index as HTML
+  Rendering layout layouts/application.html.erb
+  Rendering home/index.html.erb within layouts/application
+  Rendered home/index.html.erb within layouts/application (Duration: 0.7ms | GC: 0.2ms)
+  Rendered layout layouts/application.html.erb (Duration: 23.0ms | GC: 4.8ms)
+Completed 200 OK in 34ms (Views: 25.0ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 5.3ms)
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+----------------------------------------------------------------------
+HomeControllerTest: test_should_redirect_to_sign_in_when_not_logged_in
+----------------------------------------------------------------------
+Started GET "/" for 127.0.0.1 at 2025-06-29 20:20:23 +0900
+Processing by HomeController#index as HTML
+Completed 401 Unauthorized in 1ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.4ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (1.4ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mFixtures Load (3.3ms)[0m  [1m[31mDELETE FROM "festivals";
+DELETE FROM "tasks";
+DELETE FROM "users";
+DELETE FROM "vendor_applications";
+INSERT INTO "festivals" ("id", "name", "description", "start_date", "end_date", "location", "budget", "status", "user_id", "created_at", "updated_at") VALUES (261517381, 'Summer Festival 2025', 'Annual summer festival in the town center', '2025-08-29 11:49:48', '2025-08-31 11:49:48', 'Town Center Park', 100000.0, 0, 110775223, '2025-06-29 11:49:48.928169', '2025-06-29 11:49:48.928169'), (634782663, 'Winter Illumination', 'Beautiful winter lights display', '2025-12-29 11:49:48', '2026-01-29 11:49:48', 'Main Street', 50000.0, 0, 135138680, '2025-06-29 11:49:48.928169', '2025-06-29 11:49:48.928169');
+INSERT INTO "tasks" ("id", "title", "description", "due_date", "priority", "status", "user_id", "festival_id", "created_at", "updated_at") VALUES (281287169, 'Book venue for summer festival', 'Contact town hall for venue reservation', '2025-07-29 11:49:48', 2, 0, 110775223, 261517381, '2025-06-29 11:49:48.936671', '2025-06-29 11:49:48.936671'), (101509242, 'Contact potential sponsors', 'Reach out to local businesses for sponsorship', '2025-07-20 11:49:48', 1, 0, 289464028, 261517381, '2025-06-29 11:49:48.936671', '2025-06-29 11:49:48.936671');
+INSERT INTO "users" ("id", "email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at") VALUES (135138680, 'admin@test.com', '$2a$04$7HliYu.2vEPO6935mNPmZuFomhJ4qHg.h3ORL3efctOOI3d.ScjDu', DEFAULT, DEFAULT, DEFAULT, 'Admin', 'User', DEFAULT, DEFAULT, 4, '2025-06-29 11:49:48.939445', '2025-06-29 11:49:48.939445'), (110775223, 'committee@test.com', '$2a$04$FjUuERIED6aLW6Z.UWGUMuwnMBbAM1hk6aqjUFmqT5UdT.zPrOMvq', DEFAULT, DEFAULT, DEFAULT, 'Committee', 'Member', DEFAULT, DEFAULT, 3, '2025-06-29 11:49:48.939445', '2025-06-29 11:49:48.939445'), (891433977, 'vendor@test.com', '$2a$04$6KmjQ//J4l0C9ogZyJ42auq0D807CaKn395Lo0Ti6OwprXEOCcpea', DEFAULT, DEFAULT, DEFAULT, 'Vendor', 'User', DEFAULT, DEFAULT, 2, '2025-06-29 11:49:48.939445', '2025-06-29 11:49:48.939445'), (289464028, 'volunteer@test.com', '$2a$04$8ngMK9rdkcpI3y3WzXRDf.MhZ4DWvz1IqpLfmhlY77H10Vm.serqu', DEFAULT, DEFAULT, DEFAULT, 'Volunteer', 'User', DEFAULT, DEFAULT, 1, '2025-06-29 11:49:48.939445', '2025-06-29 11:49:48.939445');
+INSERT INTO "vendor_applications" ("id", "festival_id", "user_id", "business_name", "business_type", "description", "requirements", "status", "created_at", "updated_at") VALUES (1017984736, 261517381, 891433977, 'Tasty Food Truck', 'Food Service', 'Authentic street food and beverages', 'Electrical outlet, water access', 0, '2025-06-29 11:49:48.940713', '2025-06-29 11:49:48.940713'), (594050124, 261517381, 289464028, 'Local Crafts', 'Handicrafts', 'Handmade local crafts and souvenirs', 'Covered area, tables', 0, '2025-06-29 11:49:48.940713', '2025-06-29 11:49:48.940713')[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" ENABLE TRIGGER ALL;ALTER TABLE "festivals" ENABLE TRIGGER ALL;ALTER TABLE "tasks" ENABLE TRIGGER ALL;ALTER TABLE "vendor_applications" ENABLE TRIGGER ALL;ALTER TABLE "schema_migrations" ENABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" ENABLE TRIGGER ALL[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.6ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (7.6ms)[0m  [1m[35mdo $$
+  declare r record;
+BEGIN
+FOR r IN (
+  SELECT FORMAT(
+    'UPDATE pg_catalog.pg_constraint SET convalidated=false WHERE conname = ''%1$I'' AND connamespace::regnamespace = ''%2$I''::regnamespace; ALTER TABLE %2$I.%3$I VALIDATE CONSTRAINT %1$I;',
+    constraint_name,
+    table_schema,
+    table_name
+  ) AS constraint_check
+  FROM information_schema.table_constraints WHERE constraint_type = 'FOREIGN KEY'
+)
+  LOOP
+    EXECUTE (r.constraint_check);
+  END LOOP;
+END;
+$$;
+[0m
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+-------------------------------------------
+TasksControllerTest: test_should_get_update
+-------------------------------------------
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+----------------------------------------
+TasksControllerTest: test_should_get_new
+----------------------------------------
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+--------------------------------------------
+TasksControllerTest: test_should_get_destroy
+--------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+-----------------------------------------
+TasksControllerTest: test_should_get_edit
+-----------------------------------------
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+------------------------------------------
+TasksControllerTest: test_should_get_index
+------------------------------------------
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+-------------------------------------------
+TasksControllerTest: test_should_get_create
+-------------------------------------------
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+-----------------------------------------
+TasksControllerTest: test_should_get_show
+-----------------------------------------
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m

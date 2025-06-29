@@ -1,0 +1,161 @@
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1><%= @festival.name %></h1>
+    <span class="badge bg-<%= festival_status_color(@festival.status) %> fs-6">
+      <%= festival_status_text(@festival.status) %>
+    </span>
+  </div>
+  <div class="btn-group">
+    <%= link_to gantt_festival_path(@festival), class: "btn btn-outline-success" do %>
+      <i class="bi bi-calendar-range"></i> ガントチャート
+    <% end %>
+    <% if can? :update, @festival %>
+      <%= link_to "編集", edit_festival_path(@festival), class: "btn btn-outline-primary" %>
+    <% end %>
+    <%= link_to "一覧に戻る", festivals_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <!-- Festival Details -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">お祭り詳細</h5>
+      </div>
+      <div class="card-body">
+        <% if @festival.description.present? %>
+          <p class="card-text"><%= simple_format(@festival.description) %></p>
+        <% end %>
+        
+        <dl class="row">
+          <dt class="col-sm-3">開催期間</dt>
+          <dd class="col-sm-9">
+            <%= @festival.start_date.strftime("%Y年%m月%d日 %H:%M") %> - 
+            <%= @festival.end_date.strftime("%Y年%m月%d日 %H:%M") %>
+            <small class="text-muted">(<%= @festival.duration_days %>日間)</small>
+          </dd>
+          
+          <dt class="col-sm-3">開催場所</dt>
+          <dd class="col-sm-9"><%= @festival.location %></dd>
+          
+          <% if @festival.budget.present? %>
+            <dt class="col-sm-3">予算</dt>
+            <dd class="col-sm-9">¥<%= number_with_delimiter(@festival.budget) %></dd>
+          <% end %>
+          
+          <dt class="col-sm-3">主催者</dt>
+          <dd class="col-sm-9"><%= @festival.user.display_name %></dd>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Tasks Section -->
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">タスク</h5>
+        <% if can? :create, Task %>
+          <%= link_to "新しいタスク", new_festival_task_path(@festival), class: "btn btn-primary btn-sm" %>
+        <% end %>
+      </div>
+      <div class="card-body">
+        <% if @tasks.any? %>
+          <div class="progress mb-3">
+            <div class="progress-bar" role="progressbar" 
+                 style="width: <%= @festival.progress_percentage %>%"
+                 aria-valuenow="<%= @festival.progress_percentage %>" 
+                 aria-valuemin="0" aria-valuemax="100">
+              <%= @festival.progress_percentage %>%
+            </div>
+          </div>
+          
+          <% @tasks.group_by(&:status).each do |status, tasks| %>
+            <h6 class="mt-3"><%= task_status_text(status) %> (<%= tasks.count %>)</h6>
+            <% tasks.each do |task| %>
+              <div class="card task-priority-<%= task.priority %> mb-2">
+                <div class="card-body py-2">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <strong><%= task.title %></strong>
+                      <small class="text-muted">
+                        - <%= task.user.display_name %>
+                        - 期限: <%= task.due_date.strftime("%m/%d %H:%M") %>
+                      </small>
+                    </div>
+                    <div>
+                      <span class="badge bg-<%= task_priority_color(task.priority) %>">
+                        <%= task_priority_text(task.priority) %>
+                      </span>
+                      <% if can? :update, task %>
+                        <%= link_to "編集", edit_festival_task_path(@festival, task), class: "btn btn-outline-secondary btn-sm" %>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        <% else %>
+          <p class="text-muted">まだタスクがありません。</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <!-- Vendor Applications -->
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">出店申請</h5>
+        <% if can? :create, VendorApplication %>
+          <%= link_to "申請", new_festival_vendor_application_path(@festival), class: "btn btn-primary btn-sm" %>
+        <% end %>
+      </div>
+      <div class="card-body">
+        <% if @vendor_applications.any? %>
+          <% @vendor_applications.group_by(&:status).each do |status, applications| %>
+            <h6><%= vendor_status_text(status) %> (<%= applications.count %>)</h6>
+            <% applications.each do |application| %>
+              <div class="card mb-2">
+                <div class="card-body py-2">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <strong><%= application.business_name %></strong><br>
+                      <small class="text-muted"><%= application.user.display_name %></small>
+                    </div>
+                    <span class="badge bg-<%= vendor_status_color(application.status) %>">
+                      <%= vendor_status_text(application.status) %>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        <% else %>
+          <p class="text-muted">出店申請はまだありません。</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">統計</h5>
+      </div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-6">
+            <div class="border-end">
+              <h3 class="mb-0"><%= @tasks.count %></h3>
+              <small class="text-muted">総タスク数</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <h3 class="mb-0"><%= @vendor_applications.count %></h3>
+            <small class="text-muted">出店申請数</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

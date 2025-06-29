@@ -1,0 +1,73 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>お祭り一覧</h1>
+  <% if can? :create, Festival %>
+    <%= link_to "新しいお祭りを作成", new_festival_path, class: "btn btn-primary" %>
+  <% end %>
+</div>
+
+<% if @festivals.empty? %>
+  <div class="text-center py-5">
+    <i class="bi bi-calendar-event fs-1 text-muted"></i>
+    <h3 class="text-muted mt-3">お祭りがまだありません</h3>
+    <p class="text-muted">最初のお祭りを企画してみましょう！</p>
+    <% if can? :create, Festival %>
+      <%= link_to "お祭りを作成", new_festival_path, class: "btn btn-primary" %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="row">
+    <% @festivals.each do |festival| %>
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card festival-card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <h5 class="card-title"><%= festival.name %></h5>
+              <span class="badge bg-<%= festival_status_color(festival.status) %>">
+                <%= festival_status_text(festival.status) %>
+              </span>
+            </div>
+            
+            <p class="card-text text-muted">
+              <%= truncate(festival.description, length: 100) %>
+            </p>
+            
+            <div class="mb-3">
+              <small class="text-muted">
+                <i class="bi bi-calendar"></i>
+                <%= festival.start_date.strftime("%Y年%m月%d日") %> - 
+                <%= festival.end_date.strftime("%Y年%m月%d日") %>
+              </small>
+            </div>
+            
+            <div class="mb-3">
+              <small class="text-muted">
+                <i class="bi bi-geo-alt"></i>
+                <%= festival.location %>
+              </small>
+            </div>
+            
+            <% if festival.tasks.any? %>
+              <div class="progress mb-3" style="height: 8px;">
+                <div class="progress-bar" role="progressbar" 
+                     style="width: <%= festival.progress_percentage %>%"
+                     aria-valuenow="<%= festival.progress_percentage %>" 
+                     aria-valuemin="0" aria-valuemax="100">
+                </div>
+              </div>
+              <small class="text-muted">進捗: <%= festival.progress_percentage %>%</small>
+            <% end %>
+          </div>
+          
+          <div class="card-footer bg-transparent">
+            <div class="d-flex justify-content-between">
+              <%= link_to "詳細", festival, class: "btn btn-outline-primary btn-sm" %>
+              <% if can? :update, festival %>
+                <%= link_to "編集", edit_festival_path(festival), class: "btn btn-outline-secondary btn-sm" %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

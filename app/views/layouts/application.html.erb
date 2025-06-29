@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Festival Planner Platform" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="spa-layout">
+    <% if user_signed_in? %>
+      <!-- SPA Layout for authenticated users -->
+      <div class="spa-container">
+        <!-- Top Navigation Bar -->
+        <nav class="top-nav bg-white shadow-sm">
+          <div class="nav-content">
+            <button class="sidebar-toggle" data-controller="sidebar" data-action="click->sidebar#toggle">
+              <i class="bi bi-list"></i>
+            </button>
+            <%= link_to "お祭り企画プラットフォーム", root_path, class: "navbar-brand" %>
+            
+            <div class="user-menu">
+              <div class="dropdown" data-controller="dropdown" data-action="click@window->dropdown#hide">
+                <button class="user-avatar" data-action="click->dropdown#toggle">
+                  <i class="bi bi-person-circle"></i>
+                  <span><%= current_user.display_name %></span>
+                </button>
+                <ul class="dropdown-menu" data-dropdown-target="menu">
+                  <li><%= link_to "プロフィール", edit_user_registration_path, class: "dropdown-item" %></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <%= form_with url: destroy_user_session_path, method: :delete, local: true, class: "d-inline" do |form| %>
+                      <%= form.submit "サインアウト", class: "dropdown-item btn btn-link p-0 border-0 text-start w-100" %>
+                    <% end %>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" data-controller="sidebar navigation" data-sidebar-target="sidebar">
+          <div class="sidebar-content">
+            <div class="sidebar-header">
+              <h5>ナビゲーション</h5>
+            </div>
+            <ul class="sidebar-nav">
+              <!-- Dashboard - Always visible -->
+              <li class="nav-item">
+                <%= link_to root_path, class: "nav-link", data: { "turbo-frame": "main-content", "navigation-target": "link", "action": "click->navigation#navigate" } do %>
+                  <i class="bi bi-house"></i>
+                  <span>ダッシュボード</span>
+                <% end %>
+              </li>
+
+              <!-- System Admin only -->
+              <% if current_user.system_admin? %>
+                <li class="nav-item">
+                  <%= link_to admin_dashboard_path, class: "nav-link", data: { "turbo-frame": "main-content", "navigation-target": "link", "action": "click->navigation#navigate" } do %>
+                    <i class="bi bi-speedometer2"></i>
+                    <span>システム管理</span>
+                  <% end %>
+                </li>
+                <li class="nav-item">
+                  <%= link_to admin_users_path, class: "nav-link", data: { "turbo-frame": "main-content", "navigation-target": "link", "action": "click->navigation#navigate" } do %>
+                    <i class="bi bi-people"></i>
+                    <span>ユーザー管理</span>
+                  <% end %>
+                </li>
+                <li class="nav-item">
+                  <%= link_to admin_monitoring_path, class: "nav-link", data: { "turbo-frame": "main-content", "navigation-target": "link", "action": "click->navigation#navigate" } do %>
+                    <i class="bi bi-activity"></i>
+                    <span>システム監視</span>
+                  <% end %>
+                </li>
+              <% end %>
+
+              <!-- Platform Visitor - Public Festival View -->
+              <% if current_user.platform_visitor? %>
+                <li class="nav-item">
+                  <%= link_to public_festivals_path, class: "nav-link", data: { "turbo-frame": "main-content", "navigation-target": "link", "action": "click->navigation#navigate" } do %>
+                    <i class="bi bi-search"></i>
+                    <span>お祭りを探す</span>
+                  <% end %>
+                </li>
+              <% else %>
+                <!-- Regular Users (not platform_visitor) -->
+                <li class="nav-item">
+                  <%= link_to festivals_path, class: "nav-link", data: { "turbo-frame": "main-content", "navigation-target": "link", "action": "click->navigation#navigate" } do %>
+                    <i class="bi bi-calendar-event"></i>
+                    <span>お祭り</span>
+                  <% end %>
+                </li>
+                <li class="nav-item">
+                  <%= link_to tasks_path, class: "nav-link", data: { "turbo-frame": "main-content", "navigation-target": "link", "action": "click->navigation#navigate" } do %>
+                    <i class="bi bi-check-square"></i>
+                    <span>タスク</span>
+                  <% end %>
+                </li>
+                <li class="nav-item">
+                  <%= link_to vendor_applications_path, class: "nav-link", data: { "turbo-frame": "main-content", "navigation-target": "link", "action": "click->navigation#navigate" } do %>
+                    <i class="bi bi-shop"></i>
+                    <span>出店申請</span>
+                  <% end %>
+                </li>
+              <% end %>
+
+              <!-- Public Festivals for all logged-in users -->
+              <% unless current_user.platform_visitor? %>
+                <li class="nav-item">
+                  <%= link_to public_festivals_path, class: "nav-link", data: { "turbo-frame": "main-content", "navigation-target": "link", "action": "click->navigation#navigate" } do %>
+                    <i class="bi bi-globe"></i>
+                    <span>公開お祭り</span>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+          <div class="content-wrapper">
+            <% flash.each do |type, message| %>
+              <div class="alert alert-<%= type == 'notice' ? 'success' : 'danger' %> alert-dismissible fade show" role="alert">
+                <%= message %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            <% end %>
+
+            <%= turbo_frame_tag "main-content" do %>
+              <%= yield %>
+            <% end %>
+          </div>
+        </main>
+      </div>
+    <% else %>
+      <!-- Traditional layout for unauthenticated users -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+          <%= link_to "お祭り企画プラットフォーム", root_path, class: "navbar-brand" %>
+          
+          <div class="navbar-nav ms-auto">
+            <%= link_to "サインイン", new_user_session_path, class: "nav-link" %>
+            <%= link_to "アカウント作成", new_user_registration_path, class: "nav-link" %>
+          </div>
+        </div>
+      </nav>
+
+      <main class="container my-4">
+        <% flash.each do |type, message| %>
+          <div class="alert alert-<%= type == 'notice' ? 'success' : 'danger' %> alert-dismissible fade show" role="alert">
+            <%= message %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        <% end %>
+
+        <%= yield %>
+      </main>
+    <% end %>
+  </body>
+</html>

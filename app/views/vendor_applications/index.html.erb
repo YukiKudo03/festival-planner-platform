@@ -1,0 +1,58 @@
+<h1>マイ出店申請</h1>
+
+<% if @vendor_applications.empty? %>
+  <div class="text-center py-5">
+    <i class="bi bi-shop fs-1 text-muted"></i>
+    <h3 class="text-muted mt-3">出店申請がありません</h3>
+    <p class="text-muted">お祭りページから出店申請を行えます。</p>
+    <%= link_to "お祭り一覧", festivals_path, class: "btn btn-primary" %>
+  </div>
+<% else %>
+  <div class="row">
+    <% @vendor_applications.group_by(&:status).each do |status, applications| %>
+      <div class="col-lg-4 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <%= vendor_status_text(status) %> 
+              <span class="badge bg-<%= vendor_status_color(status) %>"><%= applications.count %></span>
+            </h5>
+          </div>
+          <div class="card-body">
+            <% applications.each do |application| %>
+              <div class="card mb-3">
+                <div class="card-body">
+                  <h6 class="card-title">
+                    <%= application.business_name %>
+                    <small class="text-muted">(<%= application.business_type %>)</small>
+                  </h6>
+                  
+                  <p class="card-text text-muted small">
+                    <%= truncate(application.description, length: 100) %>
+                  </p>
+                  
+                  <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                      <%= application.festival.name %><br>
+                      <%= application.festival.start_date.strftime("%Y年%m月%d日") %>
+                    </small>
+                    <span class="badge bg-<%= vendor_status_color(application.status) %>">
+                      <%= vendor_status_text(application.status) %>
+                    </span>
+                  </div>
+                  
+                  <div class="mt-2">
+                    <%= link_to "詳細", [application.festival, application], class: "btn btn-outline-primary btn-sm" %>
+                    <% if can? :update, application %>
+                      <%= link_to "編集", edit_festival_vendor_application_path(application.festival, application), class: "btn btn-outline-secondary btn-sm" %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

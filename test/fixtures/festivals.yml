@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+summer_festival:
+  name: Summer Festival 2025
+  description: Annual summer festival in the town center
+  start_date: <%= 2.months.from_now %>
+  end_date: <%= 2.months.from_now + 2.days %>
+  location: Town Center Park
+  budget: 100000
+  status: planning
+  user: committee_member
+
+winter_festival:
+  name: Winter Illumination
+  description: Beautiful winter lights display
+  start_date: <%= 6.months.from_now %>
+  end_date: <%= 6.months.from_now + 1.month %>
+  location: Main Street
+  budget: 50000
+  status: planning
+  user: admin

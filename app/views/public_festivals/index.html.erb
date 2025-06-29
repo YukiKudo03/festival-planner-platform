@@ -1,0 +1,124 @@
+<% content_for :title, "公開お祭り一覧" %>
+
+<div class="row">
+  <div class="col-12">
+    <h1 class="mb-4">
+      <i class="bi bi-search"></i>
+      お祭りを探す
+    </h1>
+  </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="card mb-4">
+  <div class="card-body">
+    <%= form_with url: public_festivals_path, method: :get, local: true, class: "row g-3" do |form| %>
+      <div class="col-md-4">
+        <%= form.text_field :location, placeholder: "地域・場所で検索", 
+                            value: params[:location], 
+                            class: "form-control" %>
+      </div>
+      <div class="col-md-3">
+        <%= form.date_field :start_date, 
+                            value: params[:start_date], 
+                            class: "form-control",
+                            placeholder: "開始日から" %>
+      </div>
+      <div class="col-md-3">
+        <%= form.date_field :end_date, 
+                            value: params[:end_date], 
+                            class: "form-control",
+                            placeholder: "終了日まで" %>
+      </div>
+      <div class="col-md-2">
+        <%= form.submit "検索", class: "btn btn-primary w-100" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Festival Results -->
+<div class="row">
+  <% if @festivals.any? %>
+    <% @festivals.each do |festival| %>
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card festival-card h-100">
+          <div class="card-body">
+            <h5 class="card-title">
+              <%= link_to festival.name, public_festival_path(festival), 
+                          class: "text-decoration-none" %>
+            </h5>
+            <p class="card-text text-muted">
+              <i class="bi bi-geo-alt"></i> <%= festival.location %>
+            </p>
+            <p class="card-text">
+              <%= truncate(festival.description, length: 100) %>
+            </p>
+            <div class="mb-3">
+              <small class="text-muted">
+                <i class="bi bi-calendar"></i> 
+                <%= festival.start_date.strftime("%Y年%m月%d日") %>
+                <% if festival.end_date != festival.start_date %>
+                  ～ <%= festival.end_date.strftime("%Y年%m月%d日") %>
+                <% end %>
+              </small>
+            </div>
+            
+            <!-- Festival Stats -->
+            <div class="row text-center">
+              <div class="col-4">
+                <small class="text-muted">タスク</small>
+                <div class="fw-bold"><%= festival.tasks.count %></div>
+              </div>
+              <div class="col-4">
+                <small class="text-muted">出店</small>
+                <div class="fw-bold"><%= festival.vendor_applications.where(status: 'approved').count %></div>
+              </div>
+              <div class="col-4">
+                <small class="text-muted">予算</small>
+                <div class="fw-bold">
+                  <% if festival.budget.present? %>
+                    <%= number_to_currency(festival.budget, unit: "¥", precision: 0) %>
+                  <% else %>
+                    -
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <%= link_to "詳細を見る", public_festival_path(festival), 
+                        class: "btn btn-outline-primary btn-sm" %>
+            <span class="badge bg-success float-end">公開中</span>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="col-12">
+      <div class="card text-center">
+        <div class="card-body py-5">
+          <i class="bi bi-search display-1 text-muted"></i>
+          <h3 class="mt-3">お祭りが見つかりませんでした</h3>
+          <p class="text-muted">検索条件を変更してお試しください。</p>
+          <%= link_to "全てのお祭りを見る", public_festivals_path, 
+                      class: "btn btn-primary" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<% unless user_signed_in? %>
+  <!-- Call to Action for Non-logged Users -->
+  <div class="card bg-light mt-5">
+    <div class="card-body text-center">
+      <h4>お祭りの運営に参加しませんか？</h4>
+      <p class="text-muted">アカウントを作成して、お祭りの企画・準備・運営に参加しましょう。</p>
+      <%= link_to "アカウント作成", new_user_registration_path, 
+                  class: "btn btn-primary me-2" %>
+      <%= link_to "ログイン", new_user_session_path, 
+                  class: "btn btn-outline-primary" %>
+    </div>
+  </div>
+<% end %>

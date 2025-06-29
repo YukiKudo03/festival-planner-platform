@@ -1,0 +1,228 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>
+    <i class="bi bi-calendar-range"></i>
+    <%= @festival.name %> - ガントチャート
+  </h1>
+  <div class="btn-group">
+    <%= link_to @festival, class: "btn btn-outline-secondary" do %>
+      <i class="bi bi-eye"></i> 詳細表示
+    <% end %>
+    <button class="btn btn-outline-primary active">
+      <i class="bi bi-calendar-range"></i> ガントチャート
+    </button>
+  </div>
+</div>
+
+<!-- お祭り情報 -->
+<div class="row mb-4">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title"><%= @festival.name %></h5>
+        <p class="card-text"><%= @festival.description %></p>
+        <div class="row">
+          <div class="col-md-6">
+            <strong>開催期間:</strong><br>
+            <%= @festival.start_date&.strftime("%Y年%m月%d日") %> ～ 
+            <%= @festival.end_date&.strftime("%Y年%m月%d日") %>
+          </div>
+          <div class="col-md-6">
+            <strong>場所:</strong> <%= @festival.location %><br>
+            <strong>予算:</strong> ¥<%= number_with_delimiter(@festival.budget) %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body text-center">
+        <h5 class="card-title">進捗状況</h5>
+        <div class="progress mb-3" style="height: 20px;">
+          <div class="progress-bar" 
+               style="width: <%= @festival.progress_percentage %>%">
+            <%= @festival.progress_percentage %>%
+          </div>
+        </div>
+        <p class="text-muted mb-0">
+          <%= @tasks.where(status: 'completed').count %> / <%= @tasks.count %> タスク完了
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- フィルタとコントロール -->
+<div class="row mb-4">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label">ステータス</label>
+            <select class="form-select" data-action="change->gantt#filterByStatus">
+              <option value="all">すべて</option>
+              <option value="pending">未着手</option>
+              <option value="in_progress">進行中</option>
+              <option value="completed">完了</option>
+              <option value="cancelled">キャンセル</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">優先度</label>
+            <select class="form-select" data-action="change->gantt#filterByPriority">
+              <option value="all">すべて</option>
+              <option value="urgent">緊急</option>
+              <option value="high">高</option>
+              <option value="medium">中</option>
+              <option value="low">低</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">表示調整</label>
+            <div class="btn-group w-100">
+              <button class="btn btn-outline-secondary btn-sm" data-action="click->gantt#zoomOut">
+                <i class="bi bi-zoom-out"></i>
+              </button>
+              <button class="btn btn-outline-secondary btn-sm" data-action="click->gantt#zoomIn">
+                <i class="bi bi-zoom-in"></i>
+              </button>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">タスク数</label>
+            <div class="form-control-plaintext">
+              <strong><%= @tasks.count %></strong> 件
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div data-gantt-target="legend"></div>
+  </div>
+</div>
+
+<% if @tasks.empty? %>
+  <div class="text-center py-5">
+    <i class="bi bi-calendar-x fs-1 text-muted"></i>
+    <h3 class="text-muted mt-3">このお祭りにはタスクがありません</h3>
+    <p class="text-muted">最初のタスクを作成してください。</p>
+    <%= link_to "タスク作成", new_festival_task_path(@festival), class: "btn btn-primary" %>
+  </div>
+<% else %>
+  <!-- ガントチャート本体 -->
+  <div class="gantt-container" 
+       data-controller="gantt"
+       data-gantt-tasks-value="<%= @gantt_data.to_json.html_safe %>"
+       data-gantt-date-range-value="<%= @date_range.to_json.html_safe %>"
+       data-gantt-festival-value="<%= @festival.name %>">
+    
+    <!-- タスク情報サイドバー -->
+    <div class="gantt-sidebar">
+      <div class="gantt-sidebar-header">
+        <h6>タスク一覧</h6>
+        <%= link_to new_festival_task_path(@festival), 
+            class: "btn btn-sm btn-primary" do %>
+          <i class="bi bi-plus"></i> 追加
+        <% end %>
+      </div>
+      <div class="gantt-task-list">
+        <% @tasks.each do |task| %>
+          <div class="gantt-task-item" data-task-id="<%= task.id %>">
+            <div class="task-name">
+              <%= link_to task.title, [@festival, task], 
+                  class: "text-decoration-none" %>
+            </div>
+            <div class="task-meta">
+              <span class="badge bg-<%= task_priority_color(task.priority) %> badge-sm">
+                <%= task_priority_text(task.priority) %>
+              </span>
+              <span class="badge bg-<%= task_status_color(task.status) %> badge-sm">
+                <%= task_status_text(task.status) %>
+              </span>
+            </div>
+            <div class="task-details">
+              <small class="text-muted">
+                <i class="bi bi-person"></i> <%= task.user.display_name %>
+                <br>
+                <i class="bi bi-clock"></i> <%= task.due_date.strftime("%m/%d %H:%M") %>
+                <% if task.overdue? %>
+                  <br><i class="bi bi-exclamation-triangle text-danger"></i> 期限切れ
+                <% elsif task.due_soon? %>
+                  <br><i class="bi bi-clock text-warning"></i> 期限間近
+                <% end %>
+              </small>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- チャートエリア -->
+    <div class="gantt-chart-area">
+      <!-- お祭り期間の表示 -->
+      <% if @festival.start_date && @festival.end_date %>
+        <div class="festival-period-indicator">
+          <div class="festival-period-bar">
+            <span class="festival-period-label">
+              <i class="bi bi-calendar-event"></i>
+              お祭り開催期間
+            </span>
+          </div>
+        </div>
+      <% end %>
+      
+      <!-- タイムライン -->
+      <div class="gantt-timeline-container">
+        <div class="gantt-timeline" data-gantt-target="timeline"></div>
+      </div>
+      
+      <!-- タスクバー -->
+      <div class="gantt-chart" data-gantt-target="chart">
+        <div class="gantt-tasks" data-gantt-target="tasks"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ガントチャート統計 -->
+  <div class="row mt-4">
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">計画期間</h5>
+          <p class="text-primary mb-0">
+            <%= @date_range[:start].strftime("%Y/%m/%d") %><br>
+            ～<br>
+            <%= @date_range[:end].strftime("%Y/%m/%d") %>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">期限切れ</h5>
+          <h2 class="text-danger"><%= @tasks.select(&:overdue?).count %></h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">進行中</h5>
+          <h2 class="text-primary"><%= @tasks.where(status: 'in_progress').count %></h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">完了率</h5>
+          <h2 class="text-success"><%= @festival.progress_percentage %>%</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

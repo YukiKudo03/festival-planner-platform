@@ -1,0 +1,105 @@
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="mb-0">タスクを編集</h3>
+        <small class="text-muted">お祭り: <%= @festival.name %></small>
+      </div>
+      <div class="card-body">
+        <%= form_with model: [@festival, @task], local: true, class: "needs-validation", novalidate: true do |f| %>
+          <% if @task.errors.any? %>
+            <div class="alert alert-danger">
+              <h5><%= @task.errors.count %>件のエラーがあります:</h5>
+              <ul class="mb-0">
+                <% @task.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <div class="mb-3">
+            <%= f.label :title, "タスク名", class: "form-label" %>
+            <%= f.text_field :title, class: "form-control", required: true %>
+            <div class="invalid-feedback">
+              タスク名を入力してください。
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label :description, "説明", class: "form-label" %>
+            <%= f.text_area :description, rows: 4, class: "form-control" %>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <%= f.label :due_date, "期限", class: "form-label" %>
+                <%= f.datetime_local_field :due_date, class: "form-control", required: true %>
+                <div class="invalid-feedback">
+                  期限を入力してください。
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <%= f.label :priority, "優先度", class: "form-label" %>
+                <%= f.select :priority, 
+                    options_for_select([
+                      ['低', 'low'],
+                      ['中', 'medium'],
+                      ['高', 'high'],
+                      ['緊急', 'urgent']
+                    ], @task.priority), 
+                    {}, 
+                    { class: "form-select" } %>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <%= f.label :status, "ステータス", class: "form-label" %>
+                <%= f.select :status, 
+                    options_for_select([
+                      ['未着手', 'pending'],
+                      ['進行中', 'in_progress'],
+                      ['完了', 'completed'],
+                      ['キャンセル', 'cancelled']
+                    ], @task.status), 
+                    {}, 
+                    { class: "form-select" } %>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <% if can? :manage, @festival %>
+                <div class="mb-3">
+                  <%= f.label :user_id, "担当者", class: "form-label" %>
+                  <%= f.select :user_id, 
+                      options_from_collection_for_select(User.all, :id, :display_name, @task.user_id), 
+                      {}, 
+                      { class: "form-select" } %>
+                </div>
+              <% else %>
+                <%= f.hidden_field :user_id %>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <div>
+              <%= link_to "キャンセル", @festival, class: "btn btn-secondary" %>
+              <% if can? :destroy, @task %>
+                <%= link_to "削除", [@festival, @task], 
+                    data: { "turbo-method": :delete, "turbo-confirm": "本当に削除しますか？" }, 
+                    class: "btn btn-danger" %>
+              <% end %>
+            </div>
+            <%= f.submit "更新", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

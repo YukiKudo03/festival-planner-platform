@@ -1,0 +1,12 @@
+<% if resource.errors.any? %>
+  <div class="alert alert-danger" data-turbo-cache="false">
+    <h5>
+      <%= pluralize(resource.errors.count, "つのエラー") %>が発生しました：
+    </h5>
+    <ul class="mb-0">
+      <% resource.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

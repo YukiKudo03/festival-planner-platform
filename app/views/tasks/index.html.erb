@@ -1,0 +1,171 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>マイタスク</h1>
+  <div class="btn-group">
+    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false">
+      <i class="bi bi-funnel"></i> フィルタ
+    </button>
+    <%= link_to gantt_tasks_path, class: "btn btn-outline-primary" do %>
+      <i class="bi bi-calendar-range"></i> ガントチャート
+    <% end %>
+  </div>
+</div>
+
+<!-- フィルタセクション -->
+<div class="collapse mb-4" id="filterCollapse">
+  <div class="card">
+    <div class="card-body">
+      <%= form_with url: tasks_path, method: :get, local: true, class: "row g-3" do |form| %>
+        <div class="col-md-3">
+          <%= form.label :status, "ステータス", class: "form-label" %>
+          <%= form.select :status, status_options, 
+                          { selected: params[:status] || 'all' }, 
+                          { class: "form-select" } %>
+        </div>
+        
+        <div class="col-md-3">
+          <%= form.label :priority, "優先度", class: "form-label" %>
+          <%= form.select :priority, priority_options, 
+                          { selected: params[:priority] || 'all' }, 
+                          { class: "form-select" } %>
+        </div>
+        
+        <div class="col-md-3">
+          <%= form.label :due_filter, "期限", class: "form-label" %>
+          <%= form.select :due_filter, due_filter_options, 
+                          { selected: params[:due_filter] || 'all' }, 
+                          { class: "form-select" } %>
+        </div>
+        
+        <div class="col-md-3">
+          <%= form.label :sort, "並び順", class: "form-label" %>
+          <%= form.select :sort, sort_options, 
+                          { selected: params[:sort] || 'due_date_asc' }, 
+                          { class: "form-select" } %>
+        </div>
+        
+        <div class="col-12">
+          <%= form.submit "フィルタを適用", class: "btn btn-primary" %>
+          <%= link_to "リセット", tasks_path, class: "btn btn-outline-secondary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- タスク統計 -->
+<div class="row mb-4 task-stats">
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title">総タスク数</h5>
+        <h2 class="text-primary"><%= @tasks.count %></h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title">期限切れ</h5>
+        <h2 class="text-danger"><%= @tasks.select(&:overdue?).count %></h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title">期限間近</h5>
+        <h2 class="text-warning"><%= @tasks.select(&:due_soon?).count %></h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title">完了済み</h5>
+        <h2 class="text-success"><%= @tasks.where(status: 'completed').count %></h2>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if @tasks.empty? %>
+  <div class="text-center py-5">
+    <i class="bi bi-check-square fs-1 text-muted"></i>
+    <h3 class="text-muted mt-3">タスクがありません</h3>
+    <p class="text-muted">お祭りページからタスクを作成できます。</p>
+    <%= link_to "お祭り一覧", festivals_path, class: "btn btn-primary" %>
+  </div>
+<% else %>
+  <div class="row">
+    <% @tasks.group_by(&:status).each do |status, tasks| %>
+      <div class="col-lg-4 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <%= task_status_text(status) %> 
+              <span class="badge bg-<%= task_status_color(status) %>"><%= tasks.count %></span>
+            </h5>
+          </div>
+          <div class="card-body">
+            <% tasks.each do |task| %>
+              <div class="<%= task_card_class(task) %>">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="card-title mb-0">
+                      <%= task.title %>
+                      <% if task.overdue? %>
+                        <i class="bi bi-exclamation-triangle-fill text-danger ms-1" title="期限切れ"></i>
+                      <% elsif task.due_soon? %>
+                        <i class="bi bi-clock-fill text-warning ms-1" title="期限間近"></i>
+                      <% end %>
+                    </h6>
+                    <span class="badge bg-<%= task_priority_color(task.priority) %>">
+                      <%= task_priority_text(task.priority) %>
+                    </span>
+                  </div>
+                  
+                  <% if task.description.present? %>
+                    <p class="card-text text-muted small mb-2">
+                      <%= truncate(task.description, length: 100) %>
+                    </p>
+                  <% end %>
+                  
+                  <div class="row small text-muted mb-3">
+                    <div class="col-6">
+                      <i class="bi bi-calendar-event"></i> 
+                      <%= task.festival.name %>
+                    </div>
+                    <div class="col-6 text-end">
+                      <i class="bi bi-clock"></i> 
+                      <%= task.due_date.strftime("%m/%d %H:%M") %>
+                    </div>
+                  </div>
+                  
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <% if task.overdue? %>
+                        <span class="badge bg-danger">期限切れ</span>
+                      <% elsif task.due_soon? %>
+                        <span class="badge bg-warning text-dark">期限間近</span>
+                      <% else %>
+                        <span class="badge bg-<%= task_status_color(task.status) %>">
+                          <%= task_status_text(task.status) %>
+                        </span>
+                      <% end %>
+                    </div>
+                    <div>
+                      <%= link_to "詳細", [task.festival, task], class: "btn btn-outline-primary btn-sm" %>
+                      <% if can? :update, task %>
+                        <%= link_to "編集", edit_festival_task_path(task.festival, task), class: "btn btn-outline-secondary btn-sm" %>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

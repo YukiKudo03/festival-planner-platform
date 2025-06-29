@@ -1,0 +1,140 @@
+<% content_for :title, "管理者ダッシュボード" %>
+
+<div class="row">
+  <div class="col-12">
+    <h1 class="mb-4">
+      <i class="bi bi-speedometer2"></i>
+      システム管理ダッシュボード
+    </h1>
+  </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card text-white bg-primary">
+      <div class="card-header">
+        <i class="bi bi-people"></i> 総ユーザー数
+      </div>
+      <div class="card-body">
+        <h4 class="card-title"><%= @statistics[:total_users] %></h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-success">
+      <div class="card-header">
+        <i class="bi bi-calendar-event"></i> 総お祭り数
+      </div>
+      <div class="card-body">
+        <h4 class="card-title"><%= @statistics[:total_festivals] %></h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-warning">
+      <div class="card-header">
+        <i class="bi bi-check-square"></i> 総タスク数
+      </div>
+      <div class="card-body">
+        <h4 class="card-title"><%= @statistics[:total_tasks] %></h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-info">
+      <div class="card-header">
+        <i class="bi bi-shop"></i> 総出店申請数
+      </div>
+      <div class="card-body">
+        <h4 class="card-title"><%= @statistics[:total_vendor_applications] %></h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- User Statistics -->
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5><i class="bi bi-pie-chart"></i> ユーザー役割別統計</h5>
+      </div>
+      <div class="card-body">
+        <% @statistics[:users_by_role].each do |role, count| %>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="badge bg-secondary"><%= role.humanize %></span>
+            <strong><%= count %></strong>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Festival Statistics -->
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5><i class="bi bi-bar-chart"></i> お祭りステータス別統計</h5>
+      </div>
+      <div class="card-body">
+        <% @statistics[:festivals_by_status].each do |status, count| %>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="badge bg-primary"><%= status.humanize %></span>
+            <strong><%= count %></strong>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Recent Users -->
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5><i class="bi bi-person-plus"></i> 最近の登録ユーザー</h5>
+      </div>
+      <div class="card-body">
+        <% @statistics[:recent_registrations].each do |user| %>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+              <strong><%= user.display_name %></strong>
+              <small class="text-muted d-block"><%= user.email %></small>
+            </div>
+            <div class="text-end">
+              <span class="badge bg-secondary"><%= user.role.humanize %></span>
+              <small class="text-muted d-block"><%= time_ago_in_words(user.created_at) %>前</small>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Festivals -->
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5><i class="bi bi-calendar-plus"></i> 最近作成されたお祭り</h5>
+      </div>
+      <div class="card-body">
+        <% @statistics[:recent_festivals].each do |festival| %>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+              <strong><%= link_to festival.name, festival_path(festival), class: "text-decoration-none" %></strong>
+              <small class="text-muted d-block"><%= festival.location %></small>
+            </div>
+            <div class="text-end">
+              <span class="badge bg-<%= festival.status == 'published' ? 'success' : 'warning' %>">
+                <%= festival.status.humanize %>
+              </span>
+              <small class="text-muted d-block"><%= time_ago_in_words(festival.created_at) %>前</small>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
