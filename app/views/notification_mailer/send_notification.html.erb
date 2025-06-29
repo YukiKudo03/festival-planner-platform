@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= @notification.title %></title>
+    <style>
+      body {
+        font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        background-color: #e3f2fd;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .content {
+        background-color: #ffffff;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .footer {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+        font-size: 12px;
+        color: #666;
+      }
+      .button {
+        display: inline-block;
+        background-color: #1976d2;
+        color: white;
+        padding: 12px 24px;
+        text-decoration: none;
+        border-radius: 4px;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>お祭りプランナー</h1>
+      <h2><%= @notification.title %></h2>
+    </div>
+
+    <div class="content">
+      <p>こんにちは、<%= @recipient.display_name %>さん</p>
+      
+      <p><%= simple_format(@notification.message) %></p>
+
+      <% if @notifiable %>
+        <p>
+          <a href="<%= polymorphic_url(@notifiable) %>" class="button">
+            詳細を確認する
+          </a>
+        </p>
+      <% end %>
+
+      <% if @sender %>
+        <p><strong>送信者:</strong> <%= @sender.display_name %></p>
+      <% end %>
+
+      <p><strong>通知時刻:</strong> <%= @notification.created_at.strftime('%Y年%m月%d日 %H:%M') %></p>
+    </div>
+
+    <div class="footer">
+      <p>
+        このメールは自動送信されています。<br>
+        通知設定の変更は<a href="<%= notification_settings_url %>">こちら</a>から行えます。
+      </p>
+      <p>お祭りプランナープラットフォーム</p>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>タスク期限切れ - <%= @task.title %></title>
+    <style>
+      body {
+        font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        background-color: #ffebee;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #d32f2f;
+      }
+      .content {
+        background-color: #ffffff;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .task-info {
+        background-color: #ffebee;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+      }
+      .overdue {
+        color: #d32f2f;
+        font-weight: bold;
+        font-size: 18px;
+      }
+      .button {
+        display: inline-block;
+        background-color: #d32f2f;
+        color: white;
+        padding: 12px 24px;
+        text-decoration: none;
+        border-radius: 4px;
+        margin: 10px 0;
+      }
+      .footer {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+        font-size: 12px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🚨 タスク期限切れ</h1>
+      <h2><%= @task.title %></h2>
+    </div>
+
+    <div class="content">
+      <p>こんにちは、<%= @recipient.display_name %>さん</p>
+      
+      <p><%= @notification.message %></p>
+
+      <div class="task-info">
+        <h3>📋 タスク詳細</h3>
+        <p><strong>タスク名:</strong> <%= @task.title %></p>
+        <p><strong>説明:</strong> <%= simple_format(@task.description) if @task.description %></p>
+        <p><strong>ステータス:</strong> <%= @task.status %></p>
+        <p class="overdue"><strong>期限:</strong> <%= @task.due_date.strftime('%Y年%m月%d日') %> (期限切れ)</p>
+        <p><strong>お祭り:</strong> <%= @task.festival.name %></p>
+      </div>
+
+      <p>
+        <a href="<%= festival_task_url(@task.festival, @task) %>" class="button">
+          至急タスクを確認する
+        </a>
+      </p>
+
+      <p><strong>早急な対応が必要です。</strong>タスクの状況を確認し、必要に応じて期限の調整や担当者の変更を検討してください。</p>
+    </div>
+
+    <div class="footer">
+      <p>
+        このメールは自動送信されています。<br>
+        通知設定の変更は<a href="<%= notification_settings_url %>">こちら</a>から行えます。
+      </p>
+      <p>お祭りプランナープラットフォーム</p>
+    </div>
+  </body>
+</html>

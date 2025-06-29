@@ -29,4 +29,35 @@ class User < ApplicationRecord
   has_many :tasks, dependent: :destroy
   has_many :vendor_applications, dependent: :destroy
   has_many :applied_festivals, through: :vendor_applications, source: :festival
+  
+  # 通知関連
+  has_many :received_notifications, class_name: 'Notification', foreign_key: 'recipient_id', dependent: :destroy
+  has_many :sent_notifications, class_name: 'Notification', foreign_key: 'sender_id', dependent: :nullify
+  has_many :notification_settings, dependent: :destroy
+
+  after_create :create_default_notification_settings
+
+  def unread_notifications_count
+    received_notifications.unread.count
+  end
+
+  def has_unread_notifications?
+    unread_notifications_count > 0
+  end
+
+  def notification_setting_for(notification_type)
+    notification_settings.find_by(notification_type: notification_type) ||
+      notification_settings.build(
+        notification_type: notification_type,
+        email_enabled: true,
+        web_enabled: true,
+        frequency: 'immediate'
+      )
+  end
+
+  private
+
+  def create_default_notification_settings
+    NotificationSetting.create_defaults_for_user(self)
+  end
 end

@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  recipient: one
+  sender: one
+  notifiable: one
+  notifiable_type: Notifiable
+  notification_type: MyString
+  title: MyString
+  message: MyText
+  read_at: 2025-06-29 23:49:16
+  sent_at: 2025-06-29 23:49:16
+
+two:
+  recipient: two
+  sender: two
+  notifiable: two
+  notifiable_type: Notifiable
+  notification_type: MyString
+  title: MyString
+  message: MyText
+  read_at: 2025-06-29 23:49:16
+  sent_at: 2025-06-29 23:49:16

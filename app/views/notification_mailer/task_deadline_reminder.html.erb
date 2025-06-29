@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>タスク期限通知 - <%= @task.title %></title>
+    <style>
+      body {
+        font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        background-color: #fff3e0;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #ff9800;
+      }
+      .content {
+        background-color: #ffffff;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .task-info {
+        background-color: #f5f5f5;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+      }
+      .deadline {
+        color: #d32f2f;
+        font-weight: bold;
+        font-size: 18px;
+      }
+      .button {
+        display: inline-block;
+        background-color: #ff9800;
+        color: white;
+        padding: 12px 24px;
+        text-decoration: none;
+        border-radius: 4px;
+        margin: 10px 0;
+      }
+      .footer {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+        font-size: 12px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>⏰ タスク期限通知</h1>
+      <h2><%= @task.title %></h2>
+    </div>
+
+    <div class="content">
+      <p>こんにちは、<%= @recipient.display_name %>さん</p>
+      
+      <p><%= @notification.message %></p>
+
+      <div class="task-info">
+        <h3>📋 タスク詳細</h3>
+        <p><strong>タスク名:</strong> <%= @task.title %></p>
+        <p><strong>説明:</strong> <%= simple_format(@task.description) if @task.description %></p>
+        <p><strong>ステータス:</strong> <%= @task.status %></p>
+        <p class="deadline"><strong>期限:</strong> <%= @task.due_date.strftime('%Y年%m月%d日') %></p>
+        <p><strong>お祭り:</strong> <%= @task.festival.name %></p>
+      </div>
+
+      <p>
+        <a href="<%= festival_task_url(@task.festival, @task) %>" class="button">
+          タスクを確認する
+        </a>
+      </p>
+
+      <p>期限を過ぎないよう、早めの対応をお願いします。</p>
+    </div>
+
+    <div class="footer">
+      <p>
+        このメールは自動送信されています。<br>
+        通知設定の変更は<a href="<%= notification_settings_url %>">こちら</a>から行えます。
+      </p>
+      <p>お祭りプランナープラットフォーム</p>
+    </div>
+  </body>
+</html>
