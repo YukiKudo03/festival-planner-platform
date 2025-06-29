@@ -2,42 +2,57 @@ class Festival < ApplicationRecord
   belongs_to :user
   has_many :tasks, dependent: :destroy
   has_many :vendor_applications, dependent: :destroy
-  has_many :vendors, -> { where(vendor_applications: { status: 'approved' }) }, through: :vendor_applications, source: :user
+  has_many :notifications, as: :notifiable, dependent: :destroy
+
+  validates :name, presence: true
+  validates :start_date, presence: true
+  validates :end_date, presence: true
+  validates :location, presence: true
+  validates :budget, presence: true, numericality: { greater_than: 0 }
+
+  validate :end_date_after_start_date
 
   enum :status, {
     planning: 0,
-    preparation: 1,
+    scheduled: 1,
     active: 2,
     completed: 3,
     cancelled: 4
   }
 
-  validates :name, :start_date, :end_date, :location, presence: true
-  validates :name, length: { maximum: 100 }
-  validates :location, length: { maximum: 200 }
-  validates :description, length: { maximum: 2000 }, allow_blank: true
-  validates :budget, numericality: { greater_than_or_equal_to: 0, less_than: 100_000_000 }
-  validate :end_date_after_start_date
-
   scope :upcoming, -> { where('start_date > ?', Time.current) }
-  scope :current, -> { where('start_date <= ? AND end_date >= ?', Time.current, Time.current) }
-  scope :past, -> { where('end_date < ?', Time.current) }
+  scope :active, -> { where(status: :active) }
+  scope :current_year, -> { where(start_date: Date.current.beginning_of_year..Date.current.end_of_year) }
 
   def duration_days
     return 0 unless start_date && end_date
-    ((end_date.to_date - start_date.to_date) + 1).to_i
+    (end_date.to_date - start_date.to_date).to_i + 1
   end
 
-  def progress_percentage
-    return 0 if tasks.empty?
-    completed_tasks = tasks.where(status: 'completed').count
-    (completed_tasks.to_f / tasks.count * 100).round(1)
+  def upcoming?
+    start_date && start_date > Time.current
+  end
+
+  def active?
+    return false unless start_date && end_date
+    Time.current.between?(start_date, end_date)
+  end
+
+  def completed?
+    end_date && end_date < Time.current
+  end
+
+  def budget_formatted
+    "¥#{budget&.to_i&.to_s(:delimited)}"
   end
 
   private
 
   def end_date_after_start_date
     return unless start_date && end_date
-    errors.add(:end_date, 'must be after start date') if end_date < start_date
+    
+    if end_date < start_date
+      errors.add(:end_date, 'must be after start date')
+    end
   end
 end

@@ -19,11 +19,29 @@ class VendorApplication < ApplicationRecord
   scope :by_status, ->(status) { where(status: status) }
   scope :recent, -> { order(created_at: :desc) }
 
+  # 通知関連
+  has_many :notifications, as: :notifiable, dependent: :destroy
+
+  after_create :send_application_submitted_notification
+  after_update :send_status_change_notification
+
   def can_be_approved?
     pending?
   end
 
   def can_be_rejected?
     pending? || approved?
+  end
+
+  private
+
+  def send_application_submitted_notification
+    NotificationService.send_vendor_application_submitted_notification(self)
+  end
+
+  def send_status_change_notification
+    if saved_change_to_status? && !pending?
+      NotificationService.send_vendor_application_status_notification(self, status)
+    end
   end
 end

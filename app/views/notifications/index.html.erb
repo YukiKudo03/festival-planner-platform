@@ -1,0 +1,210 @@
+<% content_for :title, "通知一覧" %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">🔔 通知一覧</h1>
+        <div class="d-flex gap-2">
+          <%= link_to notification_settings_path, class: "btn btn-outline-primary btn-sm" do %>
+            <i class="bi bi-gear"></i> 通知設定
+          <% end %>
+          <% if @unread_count > 0 %>
+            <%= button_to "全て既読にする", notifications_path, method: :patch, 
+                params: { mark_all_as_read: true }, 
+                class: "btn btn-success btn-sm",
+                form: { data: { turbo_method: :patch } } %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- 統計情報 -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-danger"><%= @unread_count %></h5>
+              <p class="card-text">未読通知</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-primary"><%= @notifications.count %></h5>
+              <p class="card-text">総通知数</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <span>フィルター:</span>
+                <div class="btn-group btn-group-sm" role="group">
+                  <%= link_to "全て", notifications_path, 
+                      class: "btn #{'btn-primary' if @filter == 'all'} #{'btn-outline-primary' if @filter != 'all'}" %>
+                  <%= link_to "未読", notifications_path(filter: 'unread'), 
+                      class: "btn #{'btn-primary' if @filter == 'unread'} #{'btn-outline-primary' if @filter != 'unread'}" %>
+                  <%= link_to "既読", notifications_path(filter: 'read'), 
+                      class: "btn #{'btn-primary' if @filter == 'read'} #{'btn-outline-primary' if @filter != 'read'}" %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 通知リスト -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            通知リスト
+            <% if @filter == 'unread' %>
+              <span class="badge bg-warning">未読のみ</span>
+            <% elsif @filter == 'read' %>
+              <span class="badge bg-success">既読のみ</span>
+            <% end %>
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <% if @notifications.any? %>
+            <div class="notification-list">
+              <% @notifications.each do |notification| %>
+                <div class="notification-item <%= 'unread' if notification.unread? %>" data-notification-id="<%= notification.id %>">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                      <div class="d-flex align-items-center mb-2">
+                        <% if notification.unread? %>
+                          <span class="badge bg-warning me-2">未読</span>
+                        <% end %>
+                        <span class="notification-type-badge badge bg-secondary me-2">
+                          <%= notification_type_display_name(notification.notification_type) %>
+                        </span>
+                        <small class="notification-meta">
+                          <%= time_ago_in_words(notification.created_at) %>前
+                        </small>
+                      </div>
+                      
+                      <h6 class="mb-1">
+                        <%= link_to notification.title, notification_path(notification), 
+                            class: "text-decoration-none text-dark" %>
+                      </h6>
+                      
+                      <p class="mb-1 text-muted">
+                        <%= truncate(notification.message, length: 100) %>
+                      </p>
+                      
+                      <% if notification.sender %>
+                        <small class="text-muted">
+                          <i class="bi bi-person"></i> <%= notification.sender.display_name %>
+                        </small>
+                      <% end %>
+                    </div>
+                    
+                    <div class="notification-actions ms-3">
+                      <div class="btn-group-vertical btn-group-sm">
+                        <% if notification.unread? %>
+                          <%= button_to notification_path(notification), 
+                              method: :patch, 
+                              params: { mark_as_read: true },
+                              class: "btn btn-outline-success btn-sm",
+                              title: "既読にする",
+                              remote: true do %>
+                            <i class="bi bi-check"></i>
+                          <% end %>
+                        <% else %>
+                          <%= button_to notification_path(notification), 
+                              method: :patch, 
+                              params: { mark_as_unread: true },
+                              class: "btn btn-outline-warning btn-sm",
+                              title: "未読にする",
+                              remote: true do %>
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                          <% end %>
+                        <% end %>
+                        
+                        <%= button_to notification_path(notification), 
+                            method: :delete,
+                            class: "btn btn-outline-danger btn-sm",
+                            title: "削除",
+                            data: { confirm: "この通知を削除しますか？" } do %>
+                          <i class="bi bi-trash"></i>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-5">
+              <i class="bi bi-bell-slash text-muted" style="font-size: 3rem;"></i>
+              <h5 class="mt-3 text-muted">通知がありません</h5>
+              <p class="text-muted">
+                <% if @filter == 'unread' %>
+                  未読の通知はありません。
+                <% elsif @filter == 'read' %>
+                  既読の通知はありません。
+                <% else %>
+                  まだ通知が届いていません。
+                <% end %>
+              </p>
+              <%= link_to "通知設定を確認", notification_settings_path, class: "btn btn-outline-primary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- ページネーション -->
+      <% if respond_to?(:paginate) && @notifications.respond_to?(:current_page) %>
+        <div class="mt-4 d-flex justify-content-center">
+          <%= paginate @notifications %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+// Auto-refresh notification count
+function refreshNotificationCount() {
+  fetch('/notifications.json')
+    .then(response => response.json())
+    .then(data => {
+      const badge = document.getElementById('notification-count');
+      if (badge) {
+        if (data.unread_count > 0) {
+          badge.textContent = data.unread_count;
+          badge.classList.remove('d-none');
+        } else {
+          badge.classList.add('d-none');
+        }
+      }
+    })
+    .catch(error => console.log('Error refreshing notification count:', error));
+}
+
+// Refresh every 30 seconds
+setInterval(refreshNotificationCount, 30000);
+
+// Handle AJAX responses for mark as read/unread
+document.addEventListener('turbo:frame-load', function() {
+  // Update UI after AJAX operations
+  const notificationItems = document.querySelectorAll('.notification-item');
+  notificationItems.forEach(item => {
+    const buttons = item.querySelectorAll('form[data-remote]');
+    buttons.forEach(button => {
+      button.addEventListener('ajax:success', function(event) {
+        const response = event.detail[0];
+        if (response.status === 'read') {
+          item.classList.remove('unread');
+        } else if (response.status === 'unread') {
+          item.classList.add('unread');
+        }
+        refreshNotificationCount();
+      });
+    });
+  });
+});
+</script>

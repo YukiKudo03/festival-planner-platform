@@ -1,0 +1,213 @@
+<% content_for :title, "通知設定" %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">🔔 通知設定</h1>
+      </div>
+
+      <% if notice %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <%= notice %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% end %>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">通知タイプ別設定</h5>
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-4">
+            各通知タイプについて、メール通知・Web通知の有効/無効、および通知頻度を設定できます。
+          </p>
+
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 25%">通知タイプ</th>
+                  <th style="width: 35%">説明</th>
+                  <th style="width: 15%" class="text-center">メール</th>
+                  <th style="width: 15%" class="text-center">Web</th>
+                  <th style="width: 10%" class="text-center">頻度</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @notification_types.each do |type| %>
+                  <% setting = current_user.notification_setting_for(type) %>
+                  <tr>
+                    <td>
+                      <strong><%= notification_type_display_name(type) %></strong>
+                    </td>
+                    <td>
+                      <small class="text-muted">
+                        <%= notification_type_description(type) %>
+                      </small>
+                    </td>
+                    <td class="text-center">
+                      <% if setting.email_enabled? %>
+                        <span class="badge bg-success">
+                          <i class="fas fa-check"></i> 有効
+                        </span>
+                      <% else %>
+                        <span class="badge bg-secondary">
+                          <i class="fas fa-times"></i> 無効
+                        </span>
+                      <% end %>
+                    </td>
+                    <td class="text-center">
+                      <% if setting.web_enabled? %>
+                        <span class="badge bg-success">
+                          <i class="fas fa-check"></i> 有効
+                        </span>
+                      <% else %>
+                        <span class="badge bg-secondary">
+                          <i class="fas fa-times"></i> 無効
+                        </span>
+                      <% end %>
+                    </td>
+                    <td class="text-center">
+                      <small><%= frequency_display_name(setting.frequency) %></small>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkEditModal">
+              <i class="fas fa-cog"></i> 一括設定
+            </button>
+            <button type="button" class="btn btn-outline-secondary" onclick="toggleAllNotifications(false)">
+              <i class="fas fa-times"></i> 全て無効
+            </button>
+            <button type="button" class="btn btn-outline-success" onclick="toggleAllNotifications(true)">
+              <i class="fas fa-check"></i> 全て有効
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 詳細設定セクション -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">詳細設定</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <% @notification_types.each_with_index do |type, index| %>
+              <% setting = current_user.notification_setting_for(type) %>
+              <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h6 class="card-title">
+                      <%= notification_type_display_name(type) %>
+                    </h6>
+                    <p class="card-text">
+                      <small class="text-muted">
+                        <%= notification_type_description(type) %>
+                      </small>
+                    </p>
+                    
+                    <%= form_with model: setting, url: notification_setting_path(setting), method: :patch, local: true, class: "notification-form" do |form| %>
+                      <div class="form-check form-switch mb-2">
+                        <%= form.check_box :email_enabled, class: "form-check-input", id: "email_#{type}" %>
+                        <%= form.label :email_enabled, "メール通知", class: "form-check-label", for: "email_#{type}" %>
+                      </div>
+                      
+                      <div class="form-check form-switch mb-2">
+                        <%= form.check_box :web_enabled, class: "form-check-input", id: "web_#{type}" %>
+                        <%= form.label :web_enabled, "Web通知", class: "form-check-label", for: "web_#{type}" %>
+                      </div>
+                      
+                      <div class="mb-2">
+                        <%= form.label :frequency, "頻度", class: "form-label" %>
+                        <%= form.select :frequency, frequency_options, {}, class: "form-select form-select-sm" %>
+                      </div>
+                      
+                      <div class="d-grid">
+                        <%= form.submit "保存", class: "btn btn-sm btn-outline-primary" %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 一括編集モーダル -->
+<div class="modal fade" id="bulkEditModal" tabindex="-1" aria-labelledby="bulkEditModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="bulkEditModalLabel">一括設定</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>すべての通知タイプに対して一括で設定を適用します。</p>
+        
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="bulkEmailEnabled">
+          <label class="form-check-label" for="bulkEmailEnabled">
+            メール通知を有効にする
+          </label>
+        </div>
+        
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="bulkWebEnabled">
+          <label class="form-check-label" for="bulkWebEnabled">
+            Web通知を有効にする
+          </label>
+        </div>
+        
+        <div class="mb-3">
+          <label for="bulkFrequency" class="form-label">通知頻度</label>
+          <select class="form-select" id="bulkFrequency">
+            <% frequency_options.each do |label, value| %>
+              <option value="<%= value %>"><%= label %></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+        <button type="button" class="btn btn-primary" onclick="applyBulkSettings()">適用</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleAllNotifications(enabled) {
+  document.querySelectorAll('.notification-form input[type="checkbox"]').forEach(checkbox => {
+    checkbox.checked = enabled;
+  });
+}
+
+function applyBulkSettings() {
+  const emailEnabled = document.getElementById('bulkEmailEnabled').checked;
+  const webEnabled = document.getElementById('bulkWebEnabled').checked;
+  const frequency = document.getElementById('bulkFrequency').value;
+  
+  document.querySelectorAll('.notification-form').forEach(form => {
+    const emailCheckbox = form.querySelector('input[name*="email_enabled"]');
+    const webCheckbox = form.querySelector('input[name*="web_enabled"]');
+    const frequencySelect = form.querySelector('select[name*="frequency"]');
+    
+    if (emailCheckbox) emailCheckbox.checked = emailEnabled;
+    if (webCheckbox) webCheckbox.checked = webEnabled;
+    if (frequencySelect) frequencySelect.value = frequency;
+  });
+  
+  // Close modal
+  bootstrap.Modal.getInstance(document.getElementById('bulkEditModal')).hide();
+}
+</script>

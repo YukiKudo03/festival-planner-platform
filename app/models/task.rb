@@ -26,6 +26,12 @@ class Task < ApplicationRecord
   scope :by_priority, -> { order(:priority) }
   scope :by_due_date, -> { order(:due_date) }
 
+  # 通知関連
+  has_many :notifications, as: :notifiable, dependent: :destroy
+
+  after_update :send_status_change_notification
+  after_create :send_task_assigned_notification
+
   def overdue?
     due_date < Time.current && !completed?
   end
@@ -41,5 +47,17 @@ class Task < ApplicationRecord
     unless due_date.between?(festival.start_date - 6.months, festival.end_date + 1.month)
       errors.add(:due_date, 'should be within reasonable festival planning period')
     end
+  end
+
+  def send_status_change_notification
+    if saved_change_to_status?
+      old_status = status_before_last_save
+      NotificationService.send_task_status_changed_notification(self, old_status)
+    end
+  end
+
+  def send_task_assigned_notification
+    # タスク作成時の通知（作成者がアサイン者とみなす）
+    NotificationService.send_task_assigned_notification(self, nil)
   end
 end

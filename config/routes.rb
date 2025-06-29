@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :notification_settings, only: [:index, :edit, :update]
+  resources :notifications, only: [:index, :show, :update, :destroy]
   devise_for :users
   root "home#index"
 
