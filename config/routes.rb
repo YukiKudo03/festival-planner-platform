@@ -1,4 +1,22 @@
 Rails.application.routes.draw do
+  # フォーラム機能
+  resources :festivals do
+    resources :forums, except: [:index] do
+      resources :forum_threads, except: [:index] do
+        member do
+          patch :pin
+          patch :lock
+        end
+        resources :forum_posts, except: [:index, :show]
+      end
+    end
+  end
+  
+  # 全体フォーラム一覧
+  get 'forums', to: 'forums#index'
+  
+  # リアクション機能
+  resources :reactions, only: [:create, :update, :destroy]
   namespace :admin do
     resources :vendor_applications, only: [:index, :show, :update] do
       member do

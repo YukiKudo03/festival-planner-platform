@@ -14,6 +14,9 @@ class Notification < ApplicationRecord
     vendor_application_approved
     vendor_application_rejected
     system_announcement
+    forum_reply
+    forum_mention
+    forum_thread_created
   ].freeze
 
   validates :notification_type, presence: true, inclusion: { in: NOTIFICATION_TYPES }

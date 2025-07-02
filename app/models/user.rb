@@ -43,6 +43,11 @@ class User < ApplicationRecord
   # Active Storage attachments
   has_one_attached :avatar
 
+  # フォーラム関連
+  has_many :forum_threads, dependent: :destroy
+  has_many :forum_posts, dependent: :destroy
+  has_many :reactions, dependent: :destroy
+
   after_create :create_default_notification_settings
 
   def unread_notifications_count

@@ -2935,3 +2935,53 @@ Processing by HomeController#index as */*
 Completed 401 Unauthorized in 52ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 1.5ms)
 
 
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_try_advisory_lock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (2.6ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (3.4ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateForums (20250702110658)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (23.3ms)[0m  [1m[35mCREATE TABLE "forums" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "name" character varying, "description" text, "category" character varying, "private" boolean, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_bd36b1486c"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.5ms)[0m  [1m[35mCREATE INDEX "index_forums_on_festival_id" ON "forums" ("festival_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250702110658') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateForumThreads (20250702110704)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (6.7ms)[0m  [1m[35mCREATE TABLE "forum_threads" ("id" bigserial primary key, "forum_id" bigint NOT NULL, "user_id" bigint NOT NULL, "title" character varying, "content" text, "pinned" boolean, "locked" boolean, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_9178ac1ed2"
+FOREIGN KEY ("forum_id")
+  REFERENCES "forums" ("id")
+, CONSTRAINT "fk_rails_bc51c711fd"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE INDEX "index_forum_threads_on_forum_id" ON "forum_threads" ("forum_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE INDEX "index_forum_threads_on_user_id" ON "forum_threads" ("user_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250702110704') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateForumPosts (20250702110709)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (6.6ms)[0m  [1m[35mCREATE TABLE "forum_posts" ("id" bigserial primary key, "forum_thread_id" bigint NOT NULL, "user_id" bigint NOT NULL, "content" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_4ff57ffa34"
+FOREIGN KEY ("forum_thread_id")
+  REFERENCES "forum_threads" ("id")
+, CONSTRAINT "fk_rails_c76798dc77"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "index_forum_posts_on_forum_thread_id" ON "forum_posts" ("forum_thread_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_forum_posts_on_user_id" ON "forum_posts" ("user_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250702110709') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateReactions (20250702110721)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (3.8ms)[0m  [1m[35mCREATE TABLE "reactions" ("id" bigserial primary key, "reactable_type" character varying NOT NULL, "reactable_id" bigint NOT NULL, "user_id" bigint NOT NULL, "reaction_type" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_9f02fc96a0"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (4.6ms)[0m  [1m[35mCREATE INDEX "index_reactions_on_reactable" ON "reactions" ("reactable_type", "reactable_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.4ms)[0m  [1m[35mCREATE INDEX "index_reactions_on_user_id" ON "reactions" ("user_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250702110721') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.3ms)[0m  [1m[34mSELECT pg_advisory_unlock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m

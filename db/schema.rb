@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_29_231803) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_02_110721) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -58,6 +58,40 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_29_231803) do
     t.index ["user_id"], name: "index_festivals_on_user_id"
   end
 
+  create_table "forum_posts", force: :cascade do |t|
+    t.bigint "forum_thread_id", null: false
+    t.bigint "user_id", null: false
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["forum_thread_id"], name: "index_forum_posts_on_forum_thread_id"
+    t.index ["user_id"], name: "index_forum_posts_on_user_id"
+  end
+
+  create_table "forum_threads", force: :cascade do |t|
+    t.bigint "forum_id", null: false
+    t.bigint "user_id", null: false
+    t.string "title"
+    t.text "content"
+    t.boolean "pinned"
+    t.boolean "locked"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["forum_id"], name: "index_forum_threads_on_forum_id"
+    t.index ["user_id"], name: "index_forum_threads_on_user_id"
+  end
+
+  create_table "forums", force: :cascade do |t|
+    t.bigint "festival_id", null: false
+    t.string "name"
+    t.text "description"
+    t.string "category"
+    t.boolean "private"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["festival_id"], name: "index_forums_on_festival_id"
+  end
+
   create_table "notification_settings", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "notification_type", null: false
@@ -90,6 +124,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_29_231803) do
     t.index ["recipient_id", "read_at"], name: "index_notifications_on_recipient_id_and_read_at"
     t.index ["recipient_id"], name: "index_notifications_on_recipient_id"
     t.index ["sender_id"], name: "index_notifications_on_sender_id"
+  end
+
+  create_table "reactions", force: :cascade do |t|
+    t.string "reactable_type", null: false
+    t.bigint "reactable_id", null: false
+    t.bigint "user_id", null: false
+    t.string "reaction_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["reactable_type", "reactable_id"], name: "index_reactions_on_reactable"
+    t.index ["user_id"], name: "index_reactions_on_user_id"
   end
 
   create_table "tasks", force: :cascade do |t|
@@ -152,9 +197,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_29_231803) do
   add_foreign_key "application_reviews", "users", column: "reviewer_id"
   add_foreign_key "application_reviews", "vendor_applications"
   add_foreign_key "festivals", "users"
+  add_foreign_key "forum_posts", "forum_threads"
+  add_foreign_key "forum_posts", "users"
+  add_foreign_key "forum_threads", "forums"
+  add_foreign_key "forum_threads", "users"
+  add_foreign_key "forums", "festivals"
   add_foreign_key "notification_settings", "users"
   add_foreign_key "notifications", "users", column: "recipient_id"
   add_foreign_key "notifications", "users", column: "sender_id"
+  add_foreign_key "reactions", "users"
   add_foreign_key "tasks", "festivals"
   add_foreign_key "tasks", "users"
   add_foreign_key "vendor_applications", "festivals"

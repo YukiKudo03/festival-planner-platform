@@ -3,6 +3,7 @@ class Festival < ApplicationRecord
   has_many :tasks, dependent: :destroy
   has_many :vendor_applications, dependent: :destroy
   has_many :notifications, as: :notifiable, dependent: :destroy
+  has_many :forums, dependent: :destroy
 
   # Active Storage attachments
   has_one_attached :main_image
