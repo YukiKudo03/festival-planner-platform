@@ -2,6 +2,10 @@ class Task < ApplicationRecord
   belongs_to :user
   belongs_to :festival
 
+  # Active Storage attachments
+  has_many_attached :attachments
+  has_many_attached :images
+
   enum :priority, {
     low: 0,
     medium: 1,

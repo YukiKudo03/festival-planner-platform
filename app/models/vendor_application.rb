@@ -37,6 +37,11 @@ class VendorApplication < ApplicationRecord
   has_many :application_comments, dependent: :destroy
   has_many :reviewers, through: :application_reviews, source: :reviewer
 
+  # Active Storage attachments
+  has_many_attached :documents
+  has_many_attached :business_documents
+  has_one_attached :business_license
+
   # コールバック
   after_create :create_initial_review
   after_update :send_status_change_notification

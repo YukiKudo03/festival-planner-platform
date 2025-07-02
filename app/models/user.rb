@@ -40,6 +40,9 @@ class User < ApplicationRecord
   has_many :sent_notifications, class_name: 'Notification', foreign_key: 'sender_id', dependent: :nullify
   has_many :notification_settings, dependent: :destroy
 
+  # Active Storage attachments
+  has_one_attached :avatar
+
   after_create :create_default_notification_settings
 
   def unread_notifications_count
