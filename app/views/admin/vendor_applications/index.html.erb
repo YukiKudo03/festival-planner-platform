@@ -1,0 +1,247 @@
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1>出店申請管理</h1>
+    <p class="text-muted">出店申請の審査・承認管理</p>
+  </div>
+  
+  <div class="btn-group">
+    <%= link_to "審査待ち", pending_admin_vendor_applications_path, 
+        class: "btn btn-outline-warning #{'active' if params[:action] == 'pending'}" %>
+    <%= link_to "審査中", under_review_admin_vendor_applications_path, 
+        class: "btn btn-outline-info #{'active' if params[:action] == 'under_review'}" %>
+    <%= link_to "期限超過", overdue_admin_vendor_applications_path, 
+        class: "btn btn-outline-danger #{'active' if params[:action] == 'overdue'}" %>
+    <%= link_to "全て", admin_vendor_applications_path, 
+        class: "btn btn-outline-primary #{'active' if params[:action] == 'index'}" %>
+  </div>
+</div>
+
+<!-- 統計情報 -->
+<div class="row mb-4">
+  <div class="col-md-2">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title text-primary"><%= @stats[:total] %></h5>
+        <p class="card-text small">総申請数</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title text-warning"><%= @stats[:pending] %></h5>
+        <p class="card-text small">審査待ち</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title text-info"><%= @stats[:under_review] %></h5>
+        <p class="card-text small">審査中</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title text-success"><%= @stats[:approved] %></h5>
+        <p class="card-text small">承認済み</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title text-danger"><%= @stats[:rejected] %></h5>
+        <p class="card-text small">却下済み</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title text-danger"><%= @stats[:overdue] %></h5>
+        <p class="card-text small">期限超過</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- フィルタリング -->
+<div class="card mb-4">
+  <div class="card-body">
+    <%= form_with url: admin_vendor_applications_path, method: :get, local: true, class: "row g-3" do |f| %>
+      <div class="col-md-3">
+        <%= f.select :status, options_for_select([
+          ['全てのステータス', ''],
+          ['下書き', 'draft'],
+          ['提出済み', 'submitted'],
+          ['審査中', 'under_review'],
+          ['修正要求', 'requires_changes'],
+          ['条件付き承認', 'conditionally_approved'],
+          ['承認', 'approved'],
+          ['却下', 'rejected'],
+          ['取り下げ', 'withdrawn']
+        ], params[:status]), {}, { class: "form-select" } %>
+      </div>
+      <div class="col-md-3">
+        <%= f.select :priority, options_for_select([
+          ['全ての優先度', ''],
+          ['低', 'low'],
+          ['中', 'medium'],
+          ['高', 'high'],
+          ['緊急', 'urgent']
+        ], params[:priority]), {}, { class: "form-select" } %>
+      </div>
+      <div class="col-md-4">
+        <%= f.select :festival_id, options_from_collection_for_select(@festivals, :id, :name, params[:festival_id]), 
+            { prompt: '全てのお祭り' }, { class: "form-select" } %>
+      </div>
+      <div class="col-md-2">
+        <%= f.submit "フィルター", class: "btn btn-primary w-100" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- 申請一覧 -->
+<div class="card">
+  <div class="card-body">
+    <% if @applications.empty? %>
+      <div class="text-center py-5">
+        <i class="bi bi-inbox fs-1 text-muted"></i>
+        <h3 class="text-muted mt-3">申請がありません</h3>
+        <p class="text-muted">条件に一致する出店申請がありません。</p>
+      </div>
+    <% else %>
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>事業名</th>
+              <th>申請者</th>
+              <th>お祭り</th>
+              <th>ステータス</th>
+              <th>優先度</th>
+              <th>申請日</th>
+              <th>期限</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @applications.each do |application| %>
+              <tr class="<%= 'table-warning' if application.review_overdue? %>">
+                <td>
+                  <strong><%= application.business_name %></strong><br>
+                  <small class="text-muted"><%= application.business_type %></small>
+                </td>
+                <td>
+                  <%= application.user.display_name %><br>
+                  <small class="text-muted"><%= application.user.email %></small>
+                </td>
+                <td>
+                  <%= application.festival.name %><br>
+                  <small class="text-muted">
+                    <%= application.festival.start_date&.strftime("%Y/%m/%d") %>
+                  </small>
+                </td>
+                <td>
+                  <span class="badge bg-<%= application.status_color %>">
+                    <%= application.status_text %>
+                  </span>
+                  <% if application.review_overdue? %>
+                    <br><small class="text-danger">期限超過</small>
+                  <% end %>
+                </td>
+                <td>
+                  <span class="badge bg-<%= application.priority == 'urgent' ? 'danger' : application.priority == 'high' ? 'warning' : 'secondary' %>">
+                    <%= application.priority_text %>
+                  </span>
+                </td>
+                <td>
+                  <%= application.submitted_at&.strftime("%Y/%m/%d") || application.created_at.strftime("%Y/%m/%d") %>
+                </td>
+                <td>
+                  <% if application.review_deadline %>
+                    <%= application.review_deadline.strftime("%Y/%m/%d") %>
+                    <% if application.review_overdue? %>
+                      <br><small class="text-danger">超過</small>
+                    <% end %>
+                  <% else %>
+                    <span class="text-muted">未設定</span>
+                  <% end %>
+                </td>
+                <td>
+                  <div class="btn-group-vertical btn-group-sm">
+                    <%= link_to "詳細", admin_vendor_application_path(application), 
+                        class: "btn btn-outline-primary btn-sm" %>
+                    
+                    <% if application.can_be_reviewed? %>
+                      <%= link_to "審査", review_admin_vendor_application_path(application), 
+                          class: "btn btn-outline-warning btn-sm" %>
+                    <% end %>
+                    
+                    <% if application.can_be_approved? %>
+                      <div class="dropdown">
+                        <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                          承認
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li>
+                            <%= link_to "承認", approve_admin_vendor_application_path(application), 
+                                method: :patch, 
+                                data: { confirm: "本当に承認しますか？" },
+                                class: "dropdown-item" %>
+                          </li>
+                          <li>
+                            <%= link_to "条件付き承認", "#", 
+                                class: "dropdown-item",
+                                data: { bs_toggle: "modal", bs_target: "#conditionalModal#{application.id}" } %>
+                          </li>
+                        </ul>
+                      </div>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- 条件付き承認モーダル -->
+<% @applications.each do |application| %>
+  <div class="modal fade" id="conditionalModal<%= application.id %>" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <%= form_with url: conditionally_approve_admin_vendor_application_path(application), 
+            method: :patch, local: true do |f| %>
+          <div class="modal-header">
+            <h5 class="modal-title">条件付き承認</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">承認条件 *</label>
+              <%= f.text_area :conditions, class: "form-control", rows: 3, 
+                  placeholder: "承認に必要な条件を記載してください...", required: true %>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">コメント</label>
+              <%= f.text_area :comment, class: "form-control", rows: 2, 
+                  placeholder: "追加のコメントがあれば記載してください..." %>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+            <%= f.submit "条件付き承認", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

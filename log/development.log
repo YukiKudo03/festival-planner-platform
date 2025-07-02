@@ -2878,3 +2878,60 @@ FOREIGN KEY ("user_id")
   [1m[36mActiveRecord::InternalMetadata Load (0.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'schema_sha1' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='FestivalPlannerPlatform'*/[0m
   [1m[36mActiveRecord::InternalMetadata Create (0.1ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('schema_sha1', '6eb30b4dc51cba0f97cbe813ecfd311fb87e82a3', '2025-06-29 22:47:54.120411', '2025-06-29 22:47:54.120412') RETURNING "key" /*application='FestivalPlannerPlatform'*/[0m
   [1m[36mActiveRecord::SchemaMigration Load (0.8ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_try_advisory_lock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateApplicationReviews (20250629231752)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (11.8ms)[0m  [1m[35mCREATE TABLE "application_reviews" ("id" bigserial primary key, "vendor_application_id" bigint NOT NULL, "reviewer_id" bigint NOT NULL, "action" integer NOT NULL, "comment" text, "conditions" text, "reviewed_at" timestamp(6), "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_5eb184daf9"
+FOREIGN KEY ("vendor_application_id")
+  REFERENCES "vendor_applications" ("id")
+, CONSTRAINT "fk_rails_e66acce10b"
+FOREIGN KEY ("reviewer_id")
+  REFERENCES "users" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_application_reviews_on_vendor_application_id" ON "application_reviews" ("vendor_application_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_application_reviews_on_reviewer_id" ON "application_reviews" ("reviewer_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "idx_on_vendor_application_id_created_at_4e2add9370" ON "application_reviews" ("vendor_application_id", "created_at") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_application_reviews_on_reviewer_id_and_reviewed_at" ON "application_reviews" ("reviewer_id", "reviewed_at") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_application_reviews_on_action" ON "application_reviews" ("action") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250629231752') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateApplicationComments (20250629231758)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (5.4ms)[0m  [1m[35mCREATE TABLE "application_comments" ("id" bigserial primary key, "vendor_application_id" bigint NOT NULL, "user_id" bigint NOT NULL, "content" text NOT NULL, "internal" boolean DEFAULT FALSE NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_71d1bd1b52"
+FOREIGN KEY ("vendor_application_id")
+  REFERENCES "vendor_applications" ("id")
+, CONSTRAINT "fk_rails_5a5b6d4e04"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_application_comments_on_vendor_application_id" ON "application_comments" ("vendor_application_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_application_comments_on_user_id" ON "application_comments" ("user_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "idx_on_vendor_application_id_created_at_84101e4b46" ON "application_comments" ("vendor_application_id", "created_at") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_application_comments_on_user_id_and_created_at" ON "application_comments" ("user_id", "created_at") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_application_comments_on_internal" ON "application_comments" ("internal") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250629231758') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+Migrating to AddWorkflowFieldsToVendorApplications (20250629231803)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mALTER TABLE "vendor_applications" ADD "submission_deadline" timestamp(6) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[35mALTER TABLE "vendor_applications" ADD "review_deadline" timestamp(6) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "vendor_applications" ADD "priority" integer DEFAULT 1 /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[35mALTER TABLE "vendor_applications" ADD "notes" text /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[35mALTER TABLE "vendor_applications" ADD "submitted_at" timestamp(6) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[35mALTER TABLE "vendor_applications" ADD "reviewed_at" timestamp(6) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_submission_deadline" ON "vendor_applications" ("submission_deadline") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_review_deadline" ON "vendor_applications" ("review_deadline") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_priority" ON "vendor_applications" ("priority") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_submitted_at" ON "vendor_applications" ("submitted_at") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.1ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250629231803') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[34mSELECT pg_advisory_unlock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+Started GET "/" for ::1 at 2025-06-30 08:32:00 +0900
+  [1m[36mActiveRecord::SchemaMigration Load (0.5ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+Processing by HomeController#index as */*
+Completed 401 Unauthorized in 52ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 1.5ms)
+
+

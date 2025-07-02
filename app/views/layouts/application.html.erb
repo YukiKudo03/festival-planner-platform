@@ -57,6 +57,11 @@
                 <ul class="dropdown-menu" data-dropdown-target="menu">
                   <li><%= link_to "プロフィール", edit_user_registration_path, class: "dropdown-item" %></li>
                   <li><%= link_to "通知設定", notification_settings_path, class: "dropdown-item" %></li>
+                  <% if current_user.admin? || current_user.committee_member? || current_user.system_admin? %>
+                    <li><hr class="dropdown-divider"></li>
+                    <li class="dropdown-header">管理機能</li>
+                    <li><%= link_to "出店申請管理", admin_vendor_applications_path, class: "dropdown-item" %></li>
+                  <% end %>
                   <li><hr class="dropdown-divider"></li>
                   <li>
                     <%= form_with url: destroy_user_session_path, method: :delete, local: true, class: "d-inline" do |form| %>

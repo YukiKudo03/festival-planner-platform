@@ -1,0 +1,353 @@
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1><%= @application.business_name %></h1>
+    <span class="badge bg-<%= @application.status_color %> fs-6">
+      <%= @application.status_text %>
+    </span>
+    <span class="badge bg-<%= @application.priority == 'urgent' ? 'danger' : @application.priority == 'high' ? 'warning' : 'secondary' %> ms-2">
+      優先度: <%= @application.priority_text %>
+    </span>
+  </div>
+  
+  <div class="btn-group">
+    <%= link_to "一覧に戻る", admin_vendor_applications_path, class: "btn btn-secondary" %>
+    
+    <% if @application.can_be_reviewed? %>
+      <%= link_to "審査開始", start_review_admin_vendor_application_path(@application), 
+          method: :patch, class: "btn btn-warning",
+          data: { confirm: "審査を開始しますか？" } %>
+    <% end %>
+    
+    <div class="dropdown">
+      <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        審査アクション
+      </button>
+      <ul class="dropdown-menu">
+        <% if @application.can_be_approved? %>
+          <li>
+            <%= link_to "承認", "#", class: "dropdown-item",
+                data: { bs_toggle: "modal", bs_target: "#approveModal" } %>
+          </li>
+          <li>
+            <%= link_to "条件付き承認", "#", class: "dropdown-item",
+                data: { bs_toggle: "modal", bs_target: "#conditionalApproveModal" } %>
+          </li>
+        <% end %>
+        <% if @application.can_be_rejected? %>
+          <li>
+            <%= link_to "却下", "#", class: "dropdown-item text-danger",
+                data: { bs_toggle: "modal", bs_target: "#rejectModal" } %>
+          </li>
+        <% end %>
+        <% if @application.can_request_changes? %>
+          <li>
+            <%= link_to "修正要求", "#", class: "dropdown-item text-warning",
+                data: { bs_toggle: "modal", bs_target: "#changesModal" } %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- 申請詳細 -->
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">申請詳細</h5>
+      </div>
+      <div class="card-body">
+        <dl class="row">
+          <dt class="col-sm-3">事業名</dt>
+          <dd class="col-sm-9"><%= @application.business_name %></dd>
+          
+          <dt class="col-sm-3">事業種別</dt>
+          <dd class="col-sm-9"><%= @application.business_type %></dd>
+          
+          <dt class="col-sm-3">説明</dt>
+          <dd class="col-sm-9">
+            <%= simple_format(@application.description) %>
+          </dd>
+          
+          <dt class="col-sm-3">要求事項</dt>
+          <dd class="col-sm-9">
+            <% if @application.requirements.present? %>
+              <%= simple_format(@application.requirements) %>
+            <% else %>
+              <span class="text-muted">特別な要求事項はありません</span>
+            <% end %>
+          </dd>
+          
+          <dt class="col-sm-3">申請者</dt>
+          <dd class="col-sm-9">
+            <%= @application.user.display_name %><br>
+            <small class="text-muted"><%= @application.user.email %></small>
+          </dd>
+          
+          <dt class="col-sm-3">申請日</dt>
+          <dd class="col-sm-9"><%= @application.submitted_at&.strftime("%Y年%m月%d日 %H:%M") || @application.created_at.strftime("%Y年%m月%d日 %H:%M") %></dd>
+          
+          <dt class="col-sm-3">審査期限</dt>
+          <dd class="col-sm-9">
+            <% if @application.review_deadline %>
+              <%= @application.review_deadline.strftime("%Y年%m月%d日") %>
+              <% if @application.review_overdue? %>
+                <span class="badge bg-danger ms-2">期限超過</span>
+              <% end %>
+            <% else %>
+              <span class="text-muted">未設定</span>
+            <% end %>
+          </dd>
+          
+          <% if @application.notes.present? %>
+            <dt class="col-sm-3">管理者メモ</dt>
+            <dd class="col-sm-9">
+              <%= simple_format(@application.notes) %>
+            </dd>
+          <% end %>
+        </dl>
+      </div>
+    </div>
+
+    <!-- 審査履歴 -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">審査履歴</h5>
+      </div>
+      <div class="card-body">
+        <% if @reviews.empty? %>
+          <p class="text-muted">審査履歴がありません。</p>
+        <% else %>
+          <div class="timeline">
+            <% @reviews.each do |review| %>
+              <div class="timeline-item mb-3 pb-3 border-bottom">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <strong><%= review.action_text %></strong>
+                    <span class="text-muted">by <%= review.reviewer_name %></span>
+                  </div>
+                  <small class="text-muted">
+                    <%= review.reviewed_at&.strftime("%Y/%m/%d %H:%M") %>
+                  </small>
+                </div>
+                
+                <% if review.comment.present? %>
+                  <div class="mt-2">
+                    <strong>コメント:</strong>
+                    <p class="mb-1"><%= simple_format(review.comment) %></p>
+                  </div>
+                <% end %>
+                
+                <% if review.conditions.present? %>
+                  <div class="mt-2">
+                    <strong>承認条件:</strong>
+                    <p class="mb-1"><%= simple_format(review.conditions) %></p>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- コメント -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">コメント</h5>
+      </div>
+      <div class="card-body">
+        <!-- 公開コメント -->
+        <% if @public_comments.any? %>
+          <h6>公開コメント</h6>
+          <% @public_comments.each do |comment| %>
+            <div class="border-start border-primary border-3 ps-3 mb-3">
+              <div class="d-flex justify-content-between">
+                <strong><%= comment.author_name %></strong>
+                <small class="text-muted"><%= comment.created_at.strftime("%Y/%m/%d %H:%M") %></small>
+              </div>
+              <p class="mb-0 mt-1"><%= simple_format(comment.content) %></p>
+            </div>
+          <% end %>
+        <% end %>
+
+        <!-- 内部コメント -->
+        <% if @internal_comments.any? %>
+          <h6 class="mt-4">内部コメント（管理者のみ）</h6>
+          <% @internal_comments.each do |comment| %>
+            <div class="border-start border-warning border-3 ps-3 mb-3 bg-light p-2 rounded">
+              <div class="d-flex justify-content-between">
+                <strong><%= comment.author_name %></strong>
+                <small class="text-muted"><%= comment.created_at.strftime("%Y/%m/%d %H:%M") %></small>
+              </div>
+              <p class="mb-0 mt-1"><%= simple_format(comment.content) %></p>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- サイドバー -->
+  <div class="col-lg-4">
+    <!-- お祭り情報 -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h6 class="mb-0">お祭り情報</h6>
+      </div>
+      <div class="card-body">
+        <h6 class="card-title"><%= @application.festival.name %></h6>
+        <p class="card-text">
+          <small class="text-muted">
+            <%= @application.festival.start_date.strftime("%Y年%m月%d日") %> - 
+            <%= @application.festival.end_date.strftime("%Y年%m月%d日") %>
+          </small>
+        </p>
+        <p class="card-text">
+          <small class="text-muted">会場: <%= @application.festival.location %></small>
+        </p>
+        <%= link_to "お祭り詳細", festival_path(@application.festival), 
+            class: "btn btn-outline-primary btn-sm" %>
+      </div>
+    </div>
+
+    <!-- クイックアクション -->
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">クイックアクション</h6>
+      </div>
+      <div class="card-body">
+        <div class="d-grid gap-2">
+          <% if @application.can_be_approved? %>
+            <%= link_to "承認", "#", class: "btn btn-success",
+                data: { bs_toggle: "modal", bs_target: "#approveModal" } %>
+          <% end %>
+          
+          <% if @application.can_be_rejected? %>
+            <%= link_to "却下", "#", class: "btn btn-danger",
+                data: { bs_toggle: "modal", bs_target: "#rejectModal" } %>
+          <% end %>
+          
+          <% if @application.can_request_changes? %>
+            <%= link_to "修正要求", "#", class: "btn btn-warning",
+                data: { bs_toggle: "modal", bs_target: "#changesModal" } %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 承認モーダル -->
+<div class="modal fade" id="approveModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <%= form_with url: approve_admin_vendor_application_path(@application), 
+          method: :patch, local: true do |f| %>
+        <div class="modal-header">
+          <h5 class="modal-title">申請承認</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>「<%= @application.business_name %>」の申請を承認しますか？</p>
+          <div class="mb-3">
+            <label class="form-label">承認コメント</label>
+            <%= f.text_area :comment, class: "form-control", rows: 3, 
+                placeholder: "承認に関するコメントがあれば記載してください..." %>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+          <%= f.submit "承認", class: "btn btn-success" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- 条件付き承認モーダル -->
+<div class="modal fade" id="conditionalApproveModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <%= form_with url: conditionally_approve_admin_vendor_application_path(@application), 
+          method: :patch, local: true do |f| %>
+        <div class="modal-header">
+          <h5 class="modal-title">条件付き承認</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">承認条件 *</label>
+            <%= f.text_area :conditions, class: "form-control", rows: 4, 
+                placeholder: "承認に必要な条件を具体的に記載してください...", required: true %>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">コメント</label>
+            <%= f.text_area :comment, class: "form-control", rows: 2, 
+                placeholder: "追加のコメントがあれば記載してください..." %>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+          <%= f.submit "条件付き承認", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- 却下モーダル -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <%= form_with url: reject_admin_vendor_application_path(@application), 
+          method: :patch, local: true do |f| %>
+        <div class="modal-header">
+          <h5 class="modal-title">申請却下</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-warning">
+            <strong>注意:</strong> 却下した申請は元に戻せません。却下理由を明確に記載してください。
+          </div>
+          <div class="mb-3">
+            <label class="form-label">却下理由 *</label>
+            <%= f.text_area :comment, class: "form-control", rows: 4, 
+                placeholder: "却下理由を具体的に記載してください...", required: true %>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+          <%= f.submit "却下", class: "btn btn-danger" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- 修正要求モーダル -->
+<div class="modal fade" id="changesModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <%= form_with url: request_changes_admin_vendor_application_path(@application), 
+          method: :patch, local: true do |f| %>
+        <div class="modal-header">
+          <h5 class="modal-title">修正要求</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">修正が必要な内容 *</label>
+            <%= f.text_area :comment, class: "form-control", rows: 4, 
+                placeholder: "修正が必要な内容を具体的に記載してください...", required: true %>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+          <%= f.submit "修正要求", class: "btn btn-warning" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

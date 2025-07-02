@@ -1,0 +1,5 @@
+=> Booting Puma
+=> Rails 8.0.2 application starting in development 
+=> Run `bin/rails server --help` for more startup options
+A server is already running (pid: 38262, file: /Users/yukikudo/ClaudeCodes/festival-planner-platform/tmp/pids/server.pid).
+Exiting

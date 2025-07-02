@@ -30,6 +30,11 @@ class User < ApplicationRecord
   has_many :vendor_applications, dependent: :destroy
   has_many :applied_festivals, through: :vendor_applications, source: :festival
   
+  # レビュー関連
+  has_many :application_reviews, foreign_key: 'reviewer_id', dependent: :destroy
+  has_many :application_comments, dependent: :destroy
+  has_many :reviewed_applications, through: :application_reviews, source: :vendor_application
+  
   # 通知関連
   has_many :received_notifications, class_name: 'Notification', foreign_key: 'recipient_id', dependent: :destroy
   has_many :sent_notifications, class_name: 'Notification', foreign_key: 'sender_id', dependent: :nullify

@@ -1,4 +1,22 @@
 Rails.application.routes.draw do
+  namespace :admin do
+    resources :vendor_applications, only: [:index, :show, :update] do
+      member do
+        get :review
+        patch :approve
+        patch :reject
+        patch :request_changes
+        patch :conditionally_approve
+        patch :start_review
+      end
+      
+      collection do
+        get :pending
+        get :under_review
+        get :overdue
+      end
+    end
+  end
   resources :notification_settings, only: [:index, :edit, :update]
   resources :notifications, only: [:index, :show, :update, :destroy]
   devise_for :users

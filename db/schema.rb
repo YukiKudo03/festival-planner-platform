@@ -10,9 +10,39 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_29_144921) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_29_231803) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "application_comments", force: :cascade do |t|
+    t.bigint "vendor_application_id", null: false
+    t.bigint "user_id", null: false
+    t.text "content", null: false
+    t.boolean "internal", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["internal"], name: "index_application_comments_on_internal"
+    t.index ["user_id", "created_at"], name: "index_application_comments_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_application_comments_on_user_id"
+    t.index ["vendor_application_id", "created_at"], name: "idx_on_vendor_application_id_created_at_84101e4b46"
+    t.index ["vendor_application_id"], name: "index_application_comments_on_vendor_application_id"
+  end
+
+  create_table "application_reviews", force: :cascade do |t|
+    t.bigint "vendor_application_id", null: false
+    t.bigint "reviewer_id", null: false
+    t.integer "action", null: false
+    t.text "comment"
+    t.text "conditions"
+    t.datetime "reviewed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["action"], name: "index_application_reviews_on_action"
+    t.index ["reviewer_id", "reviewed_at"], name: "index_application_reviews_on_reviewer_id_and_reviewed_at"
+    t.index ["reviewer_id"], name: "index_application_reviews_on_reviewer_id"
+    t.index ["vendor_application_id", "created_at"], name: "idx_on_vendor_application_id_created_at_4e2add9370"
+    t.index ["vendor_application_id"], name: "index_application_reviews_on_vendor_application_id"
+  end
 
   create_table "festivals", force: :cascade do |t|
     t.string "name"
@@ -103,10 +133,24 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_29_144921) do
     t.integer "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "submission_deadline"
+    t.datetime "review_deadline"
+    t.integer "priority", default: 1
+    t.text "notes"
+    t.datetime "submitted_at"
+    t.datetime "reviewed_at"
     t.index ["festival_id"], name: "index_vendor_applications_on_festival_id"
+    t.index ["priority"], name: "index_vendor_applications_on_priority"
+    t.index ["review_deadline"], name: "index_vendor_applications_on_review_deadline"
+    t.index ["submission_deadline"], name: "index_vendor_applications_on_submission_deadline"
+    t.index ["submitted_at"], name: "index_vendor_applications_on_submitted_at"
     t.index ["user_id"], name: "index_vendor_applications_on_user_id"
   end
 
+  add_foreign_key "application_comments", "users"
+  add_foreign_key "application_comments", "vendor_applications"
+  add_foreign_key "application_reviews", "users", column: "reviewer_id"
+  add_foreign_key "application_reviews", "vendor_applications"
   add_foreign_key "festivals", "users"
   add_foreign_key "notification_settings", "users"
   add_foreign_key "notifications", "users", column: "recipient_id"
