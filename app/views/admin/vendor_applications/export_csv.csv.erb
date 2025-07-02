@@ -1,0 +1,4 @@
+ID,申請日,祭り名,申請者名,申請者メール,事業者名,業種,ステータス,優先度,審査完了日,最新コメント
+<% @applications.each do |app| -%>
+<%= app.id %>,<%= app.created_at.strftime("%Y-%m-%d") %>,<%= app.festival.name %>,<%= app.user.display_name %>,<%= app.user.email %>,"<%= app.business_name %>","<%= app.business_type %>",<%= app.status_text %>,<%= app.priority_text %>,<%= app.reviewed_at&.strftime("%Y-%m-%d") %>,"<%= app.latest_review&.comment&.gsub('"', '""') %>"
+<% end -%>

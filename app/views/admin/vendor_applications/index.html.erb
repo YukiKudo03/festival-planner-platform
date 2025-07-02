@@ -4,15 +4,24 @@
     <p class="text-muted">出店申請の審査・承認管理</p>
   </div>
   
-  <div class="btn-group">
-    <%= link_to "審査待ち", pending_admin_vendor_applications_path, 
-        class: "btn btn-outline-warning #{'active' if params[:action] == 'pending'}" %>
-    <%= link_to "審査中", under_review_admin_vendor_applications_path, 
-        class: "btn btn-outline-info #{'active' if params[:action] == 'under_review'}" %>
-    <%= link_to "期限超過", overdue_admin_vendor_applications_path, 
-        class: "btn btn-outline-danger #{'active' if params[:action] == 'overdue'}" %>
-    <%= link_to "全て", admin_vendor_applications_path, 
-        class: "btn btn-outline-primary #{'active' if params[:action] == 'index'}" %>
+  <div class="d-flex gap-2">
+    <div class="btn-group">
+      <%= link_to "審査待ち", pending_admin_vendor_applications_path, 
+          class: "btn btn-outline-warning #{'active' if params[:action] == 'pending'}" %>
+      <%= link_to "審査中", under_review_admin_vendor_applications_path, 
+          class: "btn btn-outline-info #{'active' if params[:action] == 'under_review'}" %>
+      <%= link_to "期限超過", overdue_admin_vendor_applications_path, 
+          class: "btn btn-outline-danger #{'active' if params[:action] == 'overdue'}" %>
+      <%= link_to "全て", admin_vendor_applications_path, 
+          class: "btn btn-outline-primary #{'active' if params[:action] == 'index'}" %>
+    </div>
+    
+    <div class="btn-group">
+      <%= link_to "レポート", reports_admin_vendor_applications_path, 
+          class: "btn btn-success" %>
+      <%= link_to "CSV出力", export_csv_admin_vendor_applications_path(format: :csv), 
+          class: "btn btn-secondary" %>
+    </div>
   </div>
 </div>
 
@@ -115,10 +124,39 @@
         <p class="text-muted">条件に一致する出店申請がありません。</p>
       </div>
     <% else %>
+      <!-- 一括操作フォーム -->
+      <%= form_with url: bulk_approve_admin_vendor_applications_path, method: :patch, 
+                    local: true, id: "bulk-approve-form", class: "d-none" do |form| %>
+        <%= form.hidden_field :comment, value: "" %>
+      <% end %>
+      
+      <%= form_with url: bulk_reject_admin_vendor_applications_path, method: :patch, 
+                    local: true, id: "bulk-reject-form", class: "d-none" do |form| %>
+        <%= form.hidden_field :comment, value: "" %>
+      <% end %>
+
+      <!-- 一括操作ボタン -->
+      <div class="mb-3 d-flex justify-content-between align-items-center">
+        <div>
+          <button type="button" class="btn btn-success" onclick="bulkApprove()" disabled id="bulk-approve-btn">
+            選択した申請を一括承認
+          </button>
+          <button type="button" class="btn btn-danger" onclick="bulkReject()" disabled id="bulk-reject-btn">
+            選択した申請を一括却下
+          </button>
+        </div>
+        <div>
+          <span id="selected-count" class="text-muted">0件選択中</span>
+        </div>
+      </div>
+
       <div class="table-responsive">
         <table class="table table-hover">
           <thead>
             <tr>
+              <th>
+                <input type="checkbox" id="select-all" class="form-check-input">
+              </th>
               <th>事業名</th>
               <th>申請者</th>
               <th>お祭り</th>
@@ -132,6 +170,12 @@
           <tbody>
             <% @applications.each do |application| %>
               <tr class="<%= 'table-warning' if application.review_overdue? %>">
+                <td>
+                  <% if application.can_be_approved? || application.can_be_rejected? %>
+                    <input type="checkbox" class="form-check-input application-checkbox" 
+                           value="<%= application.id %>" name="application_ids[]">
+                  <% end %>
+                </td>
                 <td>
                   <strong><%= application.business_name %></strong><br>
                   <small class="text-muted"><%= application.business_type %></small>
@@ -245,3 +289,92 @@
     </div>
   </div>
 <% end %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const selectAllCheckbox = document.getElementById('select-all');
+  const applicationCheckboxes = document.querySelectorAll('.application-checkbox');
+  const bulkApproveBtn = document.getElementById('bulk-approve-btn');
+  const bulkRejectBtn = document.getElementById('bulk-reject-btn');
+  const selectedCountSpan = document.getElementById('selected-count');
+
+  // 全選択/全解除
+  selectAllCheckbox.addEventListener('change', function() {
+    applicationCheckboxes.forEach(checkbox => {
+      checkbox.checked = this.checked;
+    });
+    updateBulkButtons();
+  });
+
+  // 個別チェックボックスの変更
+  applicationCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', updateBulkButtons);
+  });
+
+  function updateBulkButtons() {
+    const checkedBoxes = document.querySelectorAll('.application-checkbox:checked');
+    const count = checkedBoxes.length;
+    
+    selectedCountSpan.textContent = count + '件選択中';
+    bulkApproveBtn.disabled = count === 0;
+    bulkRejectBtn.disabled = count === 0;
+    
+    // 全てチェックされているかを確認
+    selectAllCheckbox.checked = count === applicationCheckboxes.length && count > 0;
+    selectAllCheckbox.indeterminate = count > 0 && count < applicationCheckboxes.length;
+  }
+
+  // 一括承認
+  window.bulkApprove = function() {
+    const checkedBoxes = document.querySelectorAll('.application-checkbox:checked');
+    if (checkedBoxes.length === 0) return;
+    
+    const comment = prompt('承認コメント（オプション）:');
+    if (comment === null) return; // キャンセルされた場合
+    
+    const form = document.getElementById('bulk-approve-form');
+    form.querySelector('input[name="comment"]').value = comment;
+    
+    // チェックされたIDをフォームに追加
+    checkedBoxes.forEach(checkbox => {
+      const hiddenInput = document.createElement('input');
+      hiddenInput.type = 'hidden';
+      hiddenInput.name = 'application_ids[]';
+      hiddenInput.value = checkbox.value;
+      form.appendChild(hiddenInput);
+    });
+    
+    if (confirm(checkedBoxes.length + '件の申請を承認しますか？')) {
+      form.submit();
+    }
+  };
+
+  // 一括却下
+  window.bulkReject = function() {
+    const checkedBoxes = document.querySelectorAll('.application-checkbox:checked');
+    if (checkedBoxes.length === 0) return;
+    
+    const comment = prompt('却下理由を入力してください:');
+    if (!comment || comment.trim() === '') {
+      alert('却下理由は必須です。');
+      return;
+    }
+    
+    const form = document.getElementById('bulk-reject-form');
+    form.querySelector('input[name="comment"]').value = comment;
+    
+    // チェックされたIDをフォームに追加
+    checkedBoxes.forEach(checkbox => {
+      const hiddenInput = document.createElement('input');
+      hiddenInput.type = 'hidden';
+      hiddenInput.name = 'application_ids[]';
+      hiddenInput.value = checkbox.value;
+      form.appendChild(hiddenInput);
+    });
+    
+    if (confirm(checkedBoxes.length + '件の申請を却下しますか？')) {
+      form.submit();
+    }
+  };
+});
+</script>

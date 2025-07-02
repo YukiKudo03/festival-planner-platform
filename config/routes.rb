@@ -14,6 +14,10 @@ Rails.application.routes.draw do
         get :pending
         get :under_review
         get :overdue
+        get :reports
+        get :export_csv
+        patch :bulk_approve
+        patch :bulk_reject
       end
     end
   end

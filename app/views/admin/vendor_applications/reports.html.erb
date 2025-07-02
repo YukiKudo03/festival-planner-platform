@@ -1,0 +1,170 @@
+<% content_for :title, "出店申請レポート" %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">出店申請レポート</h1>
+        <%= link_to "申請一覧に戻る", admin_vendor_applications_path, class: "btn btn-outline-secondary" %>
+      </div>
+
+      <!-- 期間選択フォーム -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <%= form_with url: reports_admin_vendor_applications_path, method: :get, local: true, class: "row g-3" do |form| %>
+            <div class="col-md-4">
+              <%= form.label :start_date, "開始日", class: "form-label" %>
+              <%= form.date_field :start_date, value: params[:start_date], class: "form-control" %>
+            </div>
+            <div class="col-md-4">
+              <%= form.label :end_date, "終了日", class: "form-label" %>
+              <%= form.date_field :end_date, value: params[:end_date], class: "form-control" %>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+              <%= form.submit "レポート更新", class: "btn btn-primary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- 統計サマリー -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card text-center bg-primary text-white">
+            <div class="card-body">
+              <h5 class="card-title">総申請数</h5>
+              <h2 class="display-4"><%= @report_data[:total_applications] %></h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center bg-success text-white">
+            <div class="card-body">
+              <h5 class="card-title">承認済み</h5>
+              <h2 class="display-4"><%= @report_data[:approved_applications] %></h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center bg-danger text-white">
+            <div class="card-body">
+              <h5 class="card-title">却下</h5>
+              <h2 class="display-4"><%= @report_data[:rejected_applications] %></h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center bg-warning">
+            <div class="card-body">
+              <h5 class="card-title">審査中</h5>
+              <h2 class="display-4"><%= @report_data[:pending_applications] %></h2>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 詳細分析 -->
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">審査効率</h5>
+            </div>
+            <div class="card-body">
+              <div class="row text-center">
+                <div class="col-6">
+                  <h3 class="text-primary"><%= @report_data[:approval_rate] %>%</h3>
+                  <p class="text-muted">承認率</p>
+                </div>
+                <div class="col-6">
+                  <h3 class="text-info"><%= @report_data[:avg_review_time] %>日</h3>
+                  <p class="text-muted">平均審査時間</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">ステータス別内訳</h5>
+            </div>
+            <div class="card-body">
+              <% @report_data[:status_breakdown].each do |status, count| %>
+                <div class="d-flex justify-content-between mb-2">
+                  <span><%= VendorApplication.new(status: status).status_text %></span>
+                  <span class="badge bg-secondary"><%= count %></span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">業種別申請数</h5>
+            </div>
+            <div class="card-body">
+              <% @report_data[:business_type_breakdown].each do |type, count| %>
+                <div class="d-flex justify-content-between mb-2">
+                  <span><%= type %></span>
+                  <span class="badge bg-primary"><%= count %></span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">祭り別申請数</h5>
+            </div>
+            <div class="card-body">
+              <% @report_data[:festival_breakdown].each do |festival, count| %>
+                <div class="d-flex justify-content-between mb-2">
+                  <span><%= festival %></span>
+                  <span class="badge bg-info"><%= count %></span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 月別グラフ（簡易版） -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">月別申請数推移</h5>
+            </div>
+            <div class="card-body">
+              <% if @report_data[:monthly_applications].any? %>
+                <% max_count = @report_data[:monthly_applications].values.max %>
+                <% @report_data[:monthly_applications].each do |date, count| %>
+                  <div class="mb-2">
+                    <div class="d-flex justify-content-between mb-1">
+                      <span><%= date.strftime("%Y年%m月") %></span>
+                      <span><%= count %>件</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                      <div class="progress-bar" role="progressbar" 
+                           style="width: <%= (count.to_f / max_count * 100).round(1) %>%"></div>
+                    </div>
+                  </div>
+                <% end %>
+              <% else %>
+                <p class="text-muted">データがありません</p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
