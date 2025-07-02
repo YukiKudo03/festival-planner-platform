@@ -1,32 +1,28 @@
 require 'rails_helper'
 
 RSpec.describe "NotificationSettings", type: :request do
-  describe "GET /index" do
+  let(:user) { create(:user) }
+  let(:notification_setting) { create(:notification_setting, user: user) }
+
+  before do
+    sign_in user
+  end
+
+  describe "GET /notification_settings" do
     it "returns http success" do
-      get "/notification_settings/index"
+      get notification_settings_path
       expect(response).to have_http_status(:success)
     end
   end
 
-  describe "GET /show" do
-    it "returns http success" do
-      get "/notification_settings/show"
-      expect(response).to have_http_status(:success)
+  context "when not signed in" do
+    before do
+      sign_out user
+    end
+
+    it "redirects to sign in" do
+      get notification_settings_path
+      expect(response).to redirect_to(new_user_session_path)
     end
   end
-
-  describe "GET /edit" do
-    it "returns http success" do
-      get "/notification_settings/edit"
-      expect(response).to have_http_status(:success)
-    end
-  end
-
-  describe "GET /update" do
-    it "returns http success" do
-      get "/notification_settings/update"
-      expect(response).to have_http_status(:success)
-    end
-  end
-
 end

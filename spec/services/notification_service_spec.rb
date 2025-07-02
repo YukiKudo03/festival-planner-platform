@@ -149,7 +149,7 @@ RSpec.describe NotificationService, type: :service do
   end
 
   describe '.send_vendor_application_submitted_notification' do
-    let(:vendor_application) { create(:vendor_application, festival: festival) }
+    let(:vendor_application) { create(:vendor_application, :submitted, festival: festival) }
     let(:festival_manager) { create(:user, :admin) }
 
     before do
@@ -172,7 +172,7 @@ RSpec.describe NotificationService, type: :service do
   end
 
   describe '.send_vendor_application_status_notification' do
-    let(:vendor_application) { create(:vendor_application, festival: festival) }
+    let(:vendor_application) { create(:vendor_application, :submitted, festival: festival) }
 
     context 'when application is approved' do
       it 'sends approval notification' do

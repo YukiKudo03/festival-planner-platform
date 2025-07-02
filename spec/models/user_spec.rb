@@ -84,17 +84,20 @@ RSpec.describe User, type: :model do
 
     describe '#notification_setting_for' do
       it 'returns existing notification setting' do
-        setting = create(:notification_setting, user: user, notification_type: 'task_assigned')
         result = user.notification_setting_for('task_assigned')
-        expect(result).to eq(setting)
+        expect(result.notification_type).to eq('task_assigned')
+        expect(result.persisted?).to be true
       end
 
-      it 'builds new notification setting if not exists' do
+      it 'builds new notification setting if not exists for uncommon type' do
+        # Delete existing settings to test the build functionality
+        user.notification_settings.destroy_all
         result = user.notification_setting_for('task_assigned')
         expect(result.notification_type).to eq('task_assigned')
         expect(result.email_enabled).to be true
         expect(result.web_enabled).to be true
         expect(result.frequency).to eq('immediate')
+        expect(result.persisted?).to be false
       end
     end
   end

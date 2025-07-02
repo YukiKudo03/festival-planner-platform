@@ -4,7 +4,7 @@ FactoryBot.define do
     business_type { ['Food Service', 'Handicrafts', 'Entertainment', 'Retail'].sample }
     description { Faker::Lorem.paragraph }
     requirements { Faker::Lorem.sentence }
-    status { :pending }
+    status { :draft }
     association :festival
     association :user
 
@@ -13,7 +13,7 @@ FactoryBot.define do
       business_type { 'Food Service' }
       description { 'Authentic street food and beverages' }
       requirements { 'Electrical outlet, water access' }
-      status { :pending }
+      status { :draft }
     end
 
     trait :craft_booth do
@@ -21,12 +21,16 @@ FactoryBot.define do
       business_type { 'Handicrafts' }
       description { 'Handmade local crafts and souvenirs' }
       requirements { 'Covered area, tables' }
-      status { :pending }
+      status { :draft }
       association :user
     end
 
-    trait :pending do
-      status { :pending }
+    trait :draft do
+      status { :draft }
+    end
+
+    trait :submitted do
+      status { :submitted }
     end
 
     trait :approved do
