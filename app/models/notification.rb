@@ -17,6 +17,8 @@ class Notification < ApplicationRecord
     forum_reply
     forum_mention
     forum_thread_created
+    chat_message
+    chat_mention
   ].freeze
 
   validates :notification_type, presence: true, inclusion: { in: NOTIFICATION_TYPES }

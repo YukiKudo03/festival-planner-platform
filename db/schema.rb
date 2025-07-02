@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_02_110721) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_02_112039) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,6 +42,40 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_02_110721) do
     t.index ["reviewer_id"], name: "index_application_reviews_on_reviewer_id"
     t.index ["vendor_application_id", "created_at"], name: "idx_on_vendor_application_id_created_at_4e2add9370"
     t.index ["vendor_application_id"], name: "index_application_reviews_on_vendor_application_id"
+  end
+
+  create_table "chat_messages", force: :cascade do |t|
+    t.bigint "chat_room_id", null: false
+    t.bigint "user_id", null: false
+    t.text "content"
+    t.string "message_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chat_room_id"], name: "index_chat_messages_on_chat_room_id"
+    t.index ["user_id"], name: "index_chat_messages_on_user_id"
+  end
+
+  create_table "chat_room_members", force: :cascade do |t|
+    t.bigint "chat_room_id", null: false
+    t.bigint "user_id", null: false
+    t.string "role"
+    t.datetime "joined_at"
+    t.datetime "last_read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chat_room_id"], name: "index_chat_room_members_on_chat_room_id"
+    t.index ["user_id"], name: "index_chat_room_members_on_user_id"
+  end
+
+  create_table "chat_rooms", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.string "room_type"
+    t.bigint "festival_id", null: false
+    t.boolean "private"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["festival_id"], name: "index_chat_rooms_on_festival_id"
   end
 
   create_table "festivals", force: :cascade do |t|
@@ -196,6 +230,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_02_110721) do
   add_foreign_key "application_comments", "vendor_applications"
   add_foreign_key "application_reviews", "users", column: "reviewer_id"
   add_foreign_key "application_reviews", "vendor_applications"
+  add_foreign_key "chat_messages", "chat_rooms"
+  add_foreign_key "chat_messages", "users"
+  add_foreign_key "chat_room_members", "chat_rooms"
+  add_foreign_key "chat_room_members", "users"
+  add_foreign_key "chat_rooms", "festivals"
   add_foreign_key "festivals", "users"
   add_foreign_key "forum_posts", "forum_threads"
   add_foreign_key "forum_posts", "users"

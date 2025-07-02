@@ -10,10 +10,26 @@ Rails.application.routes.draw do
         resources :forum_posts, except: [:index, :show]
       end
     end
+    
+    # チャット機能
+    resources :chat_rooms do
+      resources :chat_messages, only: [:create, :edit, :update, :destroy]
+      member do
+        post :join
+        delete :leave
+        patch :mark_as_read
+      end
+    end
   end
   
   # 全体フォーラム一覧
   get 'forums', to: 'forums#index'
+  
+  # 全体チャット一覧
+  get 'chat', to: 'chat_rooms#index'
+  
+  # ダイレクトメッセージ
+  get 'messages/:user_id', to: 'chat_rooms#direct_message', as: :direct_message
   
   # リアクション機能
   resources :reactions, only: [:create, :update, :destroy]

@@ -9,7 +9,8 @@ module ApplicationCable
     private
 
     def find_verified_user
-      if verified_user = User.find_by(id: cookies.encrypted[:user_id])
+      # Deviseのセッションから認証済みユーザーを取得
+      if verified_user = env['warden']&.user
         verified_user
       else
         reject_unauthorized_connection

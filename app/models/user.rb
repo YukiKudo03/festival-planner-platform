@@ -48,6 +48,11 @@ class User < ApplicationRecord
   has_many :forum_posts, dependent: :destroy
   has_many :reactions, dependent: :destroy
 
+  # チャット関連
+  has_many :chat_messages, dependent: :destroy
+  has_many :chat_room_members, dependent: :destroy
+  has_many :chat_rooms, through: :chat_room_members
+
   after_create :create_default_notification_settings
 
   def unread_notifications_count
