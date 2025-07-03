@@ -19,6 +19,19 @@ class Notification < ApplicationRecord
     forum_thread_created
     chat_message
     chat_mention
+    expense_approved
+    expense_rejected
+    revenue_confirmed
+    revenue_received
+    revenue_status_changed
+    budget_exceeded
+    budget_warning
+    budget_approval_requested
+    budget_approval_approved
+    budget_approval_rejected
+    booth_assigned
+    booth_unassigned
+    venue_layout_updated
   ].freeze
 
   validates :notification_type, presence: true, inclusion: { in: NOTIFICATION_TYPES }

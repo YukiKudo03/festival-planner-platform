@@ -5,6 +5,14 @@ class Festival < ApplicationRecord
   has_many :notifications, as: :notifiable, dependent: :destroy
   has_many :forums, dependent: :destroy
   has_many :chat_rooms, dependent: :destroy
+  has_many :budget_categories, dependent: :destroy
+  has_many :expenses, dependent: :destroy
+  has_many :revenues, dependent: :destroy
+  has_many :budget_approvals, dependent: :destroy
+  has_many :venues, dependent: :destroy
+  has_many :venue_areas, through: :venues
+  has_many :booths, dependent: :destroy
+  has_many :layout_elements, through: :venues
 
   # Active Storage attachments
   has_one_attached :main_image

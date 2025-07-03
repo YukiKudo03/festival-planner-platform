@@ -3025,3 +3025,187 @@ FOREIGN KEY ("user_id")
   [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
   [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_advisory_unlock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
   [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_try_advisory_lock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.9ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateBudgetCategories (20250702123244)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (12.0ms)[0m  [1m[35mCREATE TABLE "budget_categories" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "name" character varying, "description" text, "parent_type" character varying NOT NULL, "parent_id" bigint NOT NULL, "budget_limit" decimal, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_a66a75355a"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_budget_categories_on_festival_id" ON "budget_categories" ("festival_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_budget_categories_on_parent" ON "budget_categories" ("parent_type", "parent_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250702123244') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.7ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateExpenses (20250702123251)
+  [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (9.0ms)[0m  [1m[35mCREATE TABLE "expenses" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "budget_category_id" bigint NOT NULL, "user_id" bigint NOT NULL, "amount" decimal, "description" text, "expense_date" date, "payment_method" character varying, "vendor_name" character varying, "receipt_number" character varying, "status" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_05d86a2a16"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+, CONSTRAINT "fk_rails_e7241256d1"
+FOREIGN KEY ("budget_category_id")
+  REFERENCES "budget_categories" ("id")
+, CONSTRAINT "fk_rails_c3ee69df61"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_expenses_on_festival_id" ON "expenses" ("festival_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_expenses_on_budget_category_id" ON "expenses" ("budget_category_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_expenses_on_user_id" ON "expenses" ("user_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250702123251') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateRevenues (20250702123259)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (5.4ms)[0m  [1m[35mCREATE TABLE "revenues" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "budget_category_id" bigint NOT NULL, "user_id" bigint NOT NULL, "amount" decimal, "description" text, "revenue_date" date, "source" character varying, "status" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_c3e62f53a6"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+, CONSTRAINT "fk_rails_0f47f89a71"
+FOREIGN KEY ("budget_category_id")
+  REFERENCES "budget_categories" ("id")
+, CONSTRAINT "fk_rails_cca0f1dd77"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_revenues_on_festival_id" ON "revenues" ("festival_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_revenues_on_budget_category_id" ON "revenues" ("budget_category_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_revenues_on_user_id" ON "revenues" ("user_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250702123259') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateBudgetApprovals (20250702123306)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (5.3ms)[0m  [1m[35mCREATE TABLE "budget_approvals" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "budget_category_id" bigint NOT NULL, "approver_type" character varying NOT NULL, "approver_id" bigint NOT NULL, "requested_amount" decimal, "approved_amount" decimal, "status" character varying, "notes" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_febcdf0f5f"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+, CONSTRAINT "fk_rails_25535ebca8"
+FOREIGN KEY ("budget_category_id")
+  REFERENCES "budget_categories" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_festival_id" ON "budget_approvals" ("festival_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_budget_category_id" ON "budget_approvals" ("budget_category_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_approver" ON "budget_approvals" ("approver_type", "approver_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250702123306') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+Migrating to AddFieldsToRevenues (20250702123607)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.1ms)[0m  [1m[35mALTER TABLE "revenues" ADD "amount" decimal(10,2) NOT NULL /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_advisory_unlock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.8ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_try_advisory_lock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateBudgetApprovals (20250702123306)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (5.0ms)[0m  [1m[35mDROP TABLE "budget_approvals" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Destroy (1.4ms)[0m  [1m[31mDELETE FROM "schema_migrations" WHERE "schema_migrations"."version" = '20250702123306' /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (3.0ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.3ms)[0m  [1m[34mSELECT pg_advisory_unlock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_try_advisory_lock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateBudgetApprovals (20250702123306)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (10.8ms)[0m  [1m[35mCREATE TABLE "budget_approvals" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "budget_category_id" bigint NOT NULL, "approver_type" character varying NOT NULL, "approver_id" bigint NOT NULL, "requested_amount" decimal(10,2) NOT NULL, "approved_amount" decimal(10,2) DEFAULT 0.0 NOT NULL, "status" character varying DEFAULT 'pending' NOT NULL, "notes" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_febcdf0f5f"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+, CONSTRAINT "fk_rails_25535ebca8"
+FOREIGN KEY ("budget_category_id")
+  REFERENCES "budget_categories" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_festival_id" ON "budget_approvals" ("festival_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_budget_category_id" ON "budget_approvals" ("budget_category_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_approver" ON "budget_approvals" ("approver_type", "approver_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_status" ON "budget_approvals" ("status") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_festival_id_and_status" ON "budget_approvals" ("festival_id", "status") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_budget_category_id_and_status" ON "budget_approvals" ("budget_category_id", "status") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_approver_type_and_approver_id" ON "budget_approvals" ("approver_type", "approver_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250702123306') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.8ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_advisory_unlock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_try_advisory_lock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.8ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateActiveStorageTables (20250703095949)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (6.6ms)[0m  [1m[35mCREATE TABLE "active_storage_blobs" ("id" bigserial primary key, "key" character varying NOT NULL, "filename" character varying NOT NULL, "content_type" character varying, "metadata" text, "service_name" character varying NOT NULL, "byte_size" bigint NOT NULL, "checksum" character varying, "created_at" timestamp(6) NOT NULL) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_active_storage_blobs_on_key" ON "active_storage_blobs" ("key") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (3.5ms)[0m  [1m[35mCREATE TABLE "active_storage_attachments" ("id" bigserial primary key, "name" character varying NOT NULL, "record_type" character varying NOT NULL, "record_id" bigint NOT NULL, "blob_id" bigint NOT NULL, "created_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_c3b3935057"
+FOREIGN KEY ("blob_id")
+  REFERENCES "active_storage_blobs" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "index_active_storage_attachments_on_blob_id" ON "active_storage_attachments" ("blob_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_active_storage_attachments_uniqueness" ON "active_storage_attachments" ("record_type", "record_id", "name", "blob_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (3.5ms)[0m  [1m[35mCREATE TABLE "active_storage_variant_records" ("id" bigserial primary key, "blob_id" bigint NOT NULL, "variation_digest" character varying NOT NULL, CONSTRAINT "fk_rails_993965df05"
+FOREIGN KEY ("blob_id")
+  REFERENCES "active_storage_blobs" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_active_storage_variant_records_uniqueness" ON "active_storage_variant_records" ("blob_id", "variation_digest") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250703095949') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.7ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.4ms)[0m  [1m[34mSELECT pg_advisory_unlock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_try_advisory_lock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.9ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.9ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='FestivalPlannerPlatform'*/[0m
+Migrating to FixBudgetCategoryParentPolymorphic (20250703100028)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mALTER TABLE "budget_categories" ALTER COLUMN "parent_type" DROP NOT NULL /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "budget_categories" ALTER COLUMN "parent_id" DROP NOT NULL /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250703100028') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_advisory_unlock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_try_advisory_lock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+Migrating to FixBudgetCategoryParentPolymorphic (20250703100028)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.4ms)[0m  [1m[35mALTER TABLE "budget_categories" ALTER COLUMN "parent_id" SET NOT NULL /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "budget_categories" ALTER COLUMN "parent_type" SET NOT NULL /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Destroy (0.8ms)[0m  [1m[31mDELETE FROM "schema_migrations" WHERE "schema_migrations"."version" = '20250703100028' /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (1.5ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateActiveStorageTables (20250703095949)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (2.8ms)[0m  [1m[35mDROP TABLE "active_storage_variant_records" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.7ms)[0m  [1m[35mDROP TABLE "active_storage_attachments" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mDROP TABLE "active_storage_blobs" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Destroy (0.2ms)[0m  [1m[31mDELETE FROM "schema_migrations" WHERE "schema_migrations"."version" = '20250703095949' /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (3.8ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateBudgetApprovals (20250702123306)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_advisory_unlock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_try_advisory_lock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateActiveStorageTables (20250703095949)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (8.0ms)[0m  [1m[35mCREATE TABLE "active_storage_blobs" ("id" bigserial primary key, "key" character varying NOT NULL, "filename" character varying NOT NULL, "content_type" character varying, "metadata" text, "service_name" character varying NOT NULL, "byte_size" bigint NOT NULL, "checksum" character varying, "created_at" timestamp(6) NOT NULL) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_active_storage_blobs_on_key" ON "active_storage_blobs" ("key") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (5.9ms)[0m  [1m[35mCREATE TABLE "active_storage_attachments" ("id" bigserial primary key, "name" character varying NOT NULL, "record_type" character varying NOT NULL, "record_id" bigint NOT NULL, "blob_id" bigint NOT NULL, "created_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_c3b3935057"
+FOREIGN KEY ("blob_id")
+  REFERENCES "active_storage_blobs" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE INDEX "index_active_storage_attachments_on_blob_id" ON "active_storage_attachments" ("blob_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_active_storage_attachments_uniqueness" ON "active_storage_attachments" ("record_type", "record_id", "name", "blob_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (4.9ms)[0m  [1m[35mCREATE TABLE "active_storage_variant_records" ("id" bigserial primary key, "blob_id" bigint NOT NULL, "variation_digest" character varying NOT NULL, CONSTRAINT "fk_rails_993965df05"
+FOREIGN KEY ("blob_id")
+  REFERENCES "active_storage_blobs" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_active_storage_variant_records_uniqueness" ON "active_storage_variant_records" ("blob_id", "variation_digest") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250703095949') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.8ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+Migrating to FixBudgetCategoryParentPolymorphic (20250703100028)
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mALTER TABLE "budget_categories" ALTER COLUMN "parent_type" DROP NOT NULL /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[35mALTER TABLE "budget_categories" ALTER COLUMN "parent_id" DROP NOT NULL /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.1ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250703100028') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_advisory_unlock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m

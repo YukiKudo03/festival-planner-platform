@@ -10,9 +10,37 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_02_112039) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_03_100028) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
 
   create_table "application_comments", force: :cascade do |t|
     t.bigint "vendor_application_id", null: false
@@ -42,6 +70,39 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_02_112039) do
     t.index ["reviewer_id"], name: "index_application_reviews_on_reviewer_id"
     t.index ["vendor_application_id", "created_at"], name: "idx_on_vendor_application_id_created_at_4e2add9370"
     t.index ["vendor_application_id"], name: "index_application_reviews_on_vendor_application_id"
+  end
+
+  create_table "budget_approvals", force: :cascade do |t|
+    t.bigint "festival_id", null: false
+    t.bigint "budget_category_id", null: false
+    t.string "approver_type", null: false
+    t.bigint "approver_id", null: false
+    t.decimal "requested_amount", precision: 10, scale: 2, null: false
+    t.decimal "approved_amount", precision: 10, scale: 2, default: "0.0", null: false
+    t.string "status", default: "pending", null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["approver_type", "approver_id"], name: "index_budget_approvals_on_approver"
+    t.index ["approver_type", "approver_id"], name: "index_budget_approvals_on_approver_type_and_approver_id"
+    t.index ["budget_category_id", "status"], name: "index_budget_approvals_on_budget_category_id_and_status"
+    t.index ["budget_category_id"], name: "index_budget_approvals_on_budget_category_id"
+    t.index ["festival_id", "status"], name: "index_budget_approvals_on_festival_id_and_status"
+    t.index ["festival_id"], name: "index_budget_approvals_on_festival_id"
+    t.index ["status"], name: "index_budget_approvals_on_status"
+  end
+
+  create_table "budget_categories", force: :cascade do |t|
+    t.bigint "festival_id", null: false
+    t.string "name"
+    t.text "description"
+    t.string "parent_type"
+    t.bigint "parent_id"
+    t.decimal "budget_limit"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["festival_id"], name: "index_budget_categories_on_festival_id"
+    t.index ["parent_type", "parent_id"], name: "index_budget_categories_on_parent"
   end
 
   create_table "chat_messages", force: :cascade do |t|
@@ -76,6 +137,24 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_02_112039) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["festival_id"], name: "index_chat_rooms_on_festival_id"
+  end
+
+  create_table "expenses", force: :cascade do |t|
+    t.bigint "festival_id", null: false
+    t.bigint "budget_category_id", null: false
+    t.bigint "user_id", null: false
+    t.decimal "amount"
+    t.text "description"
+    t.date "expense_date"
+    t.string "payment_method"
+    t.string "vendor_name"
+    t.string "receipt_number"
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["budget_category_id"], name: "index_expenses_on_budget_category_id"
+    t.index ["festival_id"], name: "index_expenses_on_festival_id"
+    t.index ["user_id"], name: "index_expenses_on_user_id"
   end
 
   create_table "festivals", force: :cascade do |t|
@@ -171,6 +250,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_02_112039) do
     t.index ["user_id"], name: "index_reactions_on_user_id"
   end
 
+  create_table "revenues", force: :cascade do |t|
+    t.bigint "festival_id", null: false
+    t.bigint "budget_category_id", null: false
+    t.bigint "user_id", null: false
+    t.decimal "amount"
+    t.text "description"
+    t.date "revenue_date"
+    t.string "source"
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["budget_category_id"], name: "index_revenues_on_budget_category_id"
+    t.index ["festival_id"], name: "index_revenues_on_festival_id"
+    t.index ["user_id"], name: "index_revenues_on_user_id"
+  end
+
   create_table "tasks", force: :cascade do |t|
     t.string "title"
     t.text "description"
@@ -226,15 +321,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_02_112039) do
     t.index ["user_id"], name: "index_vendor_applications_on_user_id"
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "application_comments", "users"
   add_foreign_key "application_comments", "vendor_applications"
   add_foreign_key "application_reviews", "users", column: "reviewer_id"
   add_foreign_key "application_reviews", "vendor_applications"
+  add_foreign_key "budget_approvals", "budget_categories"
+  add_foreign_key "budget_approvals", "festivals"
+  add_foreign_key "budget_categories", "festivals"
   add_foreign_key "chat_messages", "chat_rooms"
   add_foreign_key "chat_messages", "users"
   add_foreign_key "chat_room_members", "chat_rooms"
   add_foreign_key "chat_room_members", "users"
   add_foreign_key "chat_rooms", "festivals"
+  add_foreign_key "expenses", "budget_categories"
+  add_foreign_key "expenses", "festivals"
+  add_foreign_key "expenses", "users"
   add_foreign_key "festivals", "users"
   add_foreign_key "forum_posts", "forum_threads"
   add_foreign_key "forum_posts", "users"
@@ -245,6 +348,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_02_112039) do
   add_foreign_key "notifications", "users", column: "recipient_id"
   add_foreign_key "notifications", "users", column: "sender_id"
   add_foreign_key "reactions", "users"
+  add_foreign_key "revenues", "budget_categories"
+  add_foreign_key "revenues", "festivals"
+  add_foreign_key "revenues", "users"
   add_foreign_key "tasks", "festivals"
   add_foreign_key "tasks", "users"
   add_foreign_key "vendor_applications", "festivals"

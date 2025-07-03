@@ -1,4 +1,28 @@
 Rails.application.routes.draw do
+  namespace :api do
+    namespace :v1 do
+      resources :festivals, only: [] do
+        namespace :budget do
+          resources :categories, only: [:index, :show, :create, :update, :destroy]
+          resources :expenses, only: [:index, :show, :create, :update, :destroy] do
+            member do
+              patch :approve
+              patch :reject
+            end
+          end
+          resources :revenues, only: [:index, :show, :create, :update, :destroy] do
+            member do
+              patch :confirm
+              patch :mark_received
+            end
+          end
+          get 'analytics', to: 'analytics#index'
+          get 'reports/:type', to: 'reports#show'
+          get 'dashboard', to: 'dashboard#index'
+        end
+      end
+    end
+  end
   # フォーラム機能
   resources :festivals do
     resources :forums, except: [:index] do
@@ -34,6 +58,51 @@ Rails.application.routes.draw do
   # リアクション機能
   resources :reactions, only: [:create, :update, :destroy]
   namespace :admin do
+    resources :festivals do
+      resources :budget_categories do
+        member do
+          post :create_standard_categories
+        end
+      end
+      
+      resources :expenses do
+        member do
+          patch :approve
+          patch :reject
+        end
+        collection do
+          patch :bulk_approve
+          get :export
+        end
+      end
+      
+      resources :revenues do
+        member do
+          patch :confirm
+          patch :mark_received
+        end
+        collection do
+          get :export
+        end
+      end
+      
+      resources :budget_approvals, only: [:index, :show, :edit, :update] do
+        member do
+          patch :approve
+          patch :reject
+        end
+      end
+      
+      resources :budget_reports, only: [:index, :show] do
+        collection do
+          get :dashboard
+          get :analytics
+          get :export
+          get :variance_analysis
+          get :cash_flow
+        end
+      end
+    end
     resources :vendor_applications, only: [:index, :show, :update] do
       member do
         get :review
