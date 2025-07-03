@@ -102,6 +102,28 @@ Rails.application.routes.draw do
           get :cash_flow
         end
       end
+      
+      # Venue and Layout Management
+      resources :venues do
+        member do
+          get :layout_editor
+        end
+        resources :layout_elements do
+          member do
+            patch :update_position
+          end
+          collection do
+            patch :bulk_update
+          end
+        end
+        resources :venue_areas, except: [:show]
+        resources :booths do
+          member do
+            patch :assign_vendor
+            patch :unassign_vendor
+          end
+        end
+      end
     end
     resources :vendor_applications, only: [:index, :show, :update] do
       member do

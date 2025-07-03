@@ -1,0 +1,378 @@
+<% content_for :title, "Layout Editor - #{@venue.name}" %>
+<% content_for :breadcrumb do %>
+  <%= link_to "Admin", admin_dashboard_path, class: "breadcrumb-item" %>
+  <%= link_to "Venues", admin_venues_path, class: "breadcrumb-item" %>
+  <%= link_to @venue.name, admin_venue_path(@venue), class: "breadcrumb-item" %>
+  <span class="breadcrumb-item active">Layout Editor</span>
+<% end %>
+
+<div class="layout-editor-container" 
+     data-controller="layout-editor"
+     data-layout-editor-venue-id-value="<%= @venue.id %>"
+     data-layout-editor-layout-data-value="<%= @layout_data.to_json.html_safe %>">
+  
+  <!-- Header Toolbar -->
+  <div class="layout-toolbar bg-light border-bottom p-3" data-layout-editor-target="toolbar">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h4 class="mb-0">Layout Editor - <%= @venue.name %></h4>
+        <small class="text-muted">Use Space + Mouse to pan, Ctrl + Mouse Wheel to zoom</small>
+      </div>
+      
+      <div class="d-flex gap-2">
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-outline-secondary btn-sm" title="Undo">
+            <i class="bi bi-arrow-counterclockwise"></i>
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" title="Redo">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
+        </div>
+        
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-outline-secondary btn-sm" title="Select">
+            <i class="bi bi-cursor"></i>
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" title="Move">
+            <i class="bi bi-arrows-move"></i>
+          </button>
+        </div>
+        
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-outline-secondary btn-sm" title="Zoom In">
+            <i class="bi bi-zoom-in"></i>
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" title="Zoom Out">
+            <i class="bi bi-zoom-out"></i>
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" title="Fit to View">
+            <i class="bi bi-arrows-fullscreen"></i>
+          </button>
+        </div>
+        
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-outline-secondary btn-sm" title="Grid">
+            <i class="bi bi-grid"></i>
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" title="Snap to Grid">
+            <i class="bi bi-grid-1x2"></i>
+          </button>
+        </div>
+        
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-primary btn-sm" title="Save Layout">
+            <i class="bi bi-save"></i> Save
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" title="Export">
+            <i class="bi bi-download"></i> Export
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout-editor-main d-flex">
+    <!-- Left Sidebar - Element Palette -->
+    <div class="layout-sidebar bg-light border-end" style="width: 300px; min-height: 600px;" data-layout-editor-target="sidebar">
+      <div class="p-3">
+        <h6 class="mb-3">Element Palette</h6>
+        <div class="element-palette" data-layout-editor-target="elementPalette">
+          <!-- Elements will be populated by JavaScript -->
+        </div>
+        
+        <hr>
+        
+        <h6 class="mb-3">Properties</h6>
+        <div class="property-panel" data-layout-editor-target="propertyPanel">
+          <p class="text-muted">Select an element to edit properties</p>
+        </div>
+        
+        <hr>
+        
+        <h6 class="mb-3">Layers</h6>
+        <div class="layer-panel">
+          <div class="list-group list-group-sm">
+            <% @layout_elements.group_by(&:layer).sort.each do |layer, elements| %>
+              <div class="list-group-item d-flex justify-content-between align-items-center">
+                <span>Layer <%= layer %></span>
+                <span class="badge bg-secondary"><%= elements.count %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Canvas Area -->
+    <div class="layout-canvas-container flex-grow-1 position-relative">
+      <div class="layout-canvas bg-white border position-relative" 
+           style="width: 100%; height: 600px; overflow: hidden;"
+           data-layout-editor-target="canvas">
+        <!-- Canvas content will be populated by JavaScript -->
+      </div>
+      
+      <!-- Status Bar -->
+      <div class="layout-status-bar bg-light border-top p-2 d-flex justify-content-between">
+        <div>
+          <span class="badge bg-success me-2">Available: <%= @venue.booths.available.count %></span>
+          <span class="badge bg-warning me-2">Assigned: <%= @venue.booths.assigned.count %></span>
+          <span class="badge bg-danger me-2">Occupied: <%= @venue.booths.occupied.count %></span>
+        </div>
+        <div>
+          <span class="text-muted" data-layout-editor-target="coordinateDisplay">X: 0, Y: 0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .layout-editor-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .layout-toolbar {
+    flex-shrink: 0;
+  }
+  
+  .layout-editor-main {
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .layout-sidebar {
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+  
+  .layout-canvas-container {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .layout-canvas {
+    flex: 1;
+    cursor: default;
+    user-select: none;
+  }
+  
+  .layout-status-bar {
+    flex-shrink: 0;
+  }
+  
+  .element-palette {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  
+  .palette-item {
+    padding: 8px;
+    border: 2px solid #dee2e6;
+    border-radius: 4px;
+    cursor: grab;
+    text-align: center;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+  
+  .palette-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .palette-item:active {
+    cursor: grabbing;
+  }
+  
+  .palette-icon {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  
+  .palette-name {
+    display: block;
+    font-weight: bold;
+  }
+  
+  .layout-element {
+    border: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  
+  .layout-element:hover {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+  }
+  
+  .layout-element.selected {
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.3) !important;
+  }
+  
+  .layout-element.selected::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 12px;
+    height: 12px;
+    background: #007bff;
+    border: 2px solid white;
+    border-radius: 50%;
+  }
+  
+  .element-label {
+    font-size: 10px;
+    line-height: 1.2;
+    word-wrap: break-word;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  
+  .venue-area {
+    background: rgba(248, 249, 250, 0.8);
+    border: 2px dashed #dee2e6 !important;
+  }
+  
+  .venue-area .element-label {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2px 4px;
+    border-radius: 2px;
+    color: #495057 !important;
+  }
+  
+  .booth {
+    font-size: 0;
+  }
+  
+  .booth .element-label {
+    font-size: 9px;
+    font-weight: bold;
+  }
+  
+  .layout-element-custom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .property-panel input {
+    margin-bottom: 8px;
+  }
+  
+  .property-panel label {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 2px;
+    display: block;
+  }
+  
+  .layer-panel .list-group-item {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+  
+  .toast {
+    z-index: 9999;
+  }
+  
+  /* Grid background */
+  .layout-canvas svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .layout-sidebar {
+      width: 250px;
+    }
+    
+    .element-palette {
+      grid-template-columns: 1fr;
+    }
+    
+    .layout-toolbar .btn-group {
+      margin-bottom: 8px;
+    }
+    
+    .layout-toolbar .d-flex {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+
+<script>
+  // Additional layout editor functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle canvas drop for new elements
+    const canvas = document.querySelector('[data-layout-editor-target="canvas"]');
+    if (canvas) {
+      canvas.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+      });
+      
+      canvas.addEventListener('drop', function(e) {
+        e.preventDefault();
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        
+        if (data.type === 'new_element') {
+          const rect = canvas.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          
+          // Create new element via AJAX
+          createNewElement(data.element_type, x, y);
+        }
+      });
+    }
+  });
+  
+  function createNewElement(elementType, x, y) {
+    const venueId = document.querySelector('[data-layout-editor-venue-id-value]').dataset.layoutEditorVenueIdValue;
+    const url = `/admin/venues/${venueId}/layout_elements`;
+    
+    const data = {
+      layout_element: {
+        element_type: elementType,
+        name: `New ${elementType}`,
+        x_position: x,
+        y_position: y,
+        width: 100,
+        height: 100,
+        color: '#007bff'
+      }
+    };
+    
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.id) {
+        // Refresh the layout
+        location.reload();
+      }
+    })
+    .catch(error => {
+      console.error('Error creating element:', error);
+    });
+  }
+</script>
