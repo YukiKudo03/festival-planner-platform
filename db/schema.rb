@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_03_100028) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_04_121904) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -70,6 +70,30 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_100028) do
     t.index ["reviewer_id"], name: "index_application_reviews_on_reviewer_id"
     t.index ["vendor_application_id", "created_at"], name: "idx_on_vendor_application_id_created_at_4e2add9370"
     t.index ["vendor_application_id"], name: "index_application_reviews_on_vendor_application_id"
+  end
+
+  create_table "booths", force: :cascade do |t|
+    t.bigint "venue_area_id", null: false
+    t.bigint "festival_id", null: false
+    t.bigint "vendor_application_id", null: false
+    t.string "name"
+    t.string "booth_number"
+    t.string "size"
+    t.decimal "width"
+    t.decimal "height"
+    t.decimal "x_position"
+    t.decimal "y_position"
+    t.decimal "rotation"
+    t.string "status"
+    t.boolean "power_required"
+    t.boolean "water_required"
+    t.text "special_requirements"
+    t.text "setup_instructions"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["festival_id"], name: "index_booths_on_festival_id"
+    t.index ["vendor_application_id"], name: "index_booths_on_vendor_application_id"
+    t.index ["venue_area_id"], name: "index_booths_on_venue_area_id"
   end
 
   create_table "budget_approvals", force: :cascade do |t|
@@ -205,6 +229,26 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_100028) do
     t.index ["festival_id"], name: "index_forums_on_festival_id"
   end
 
+  create_table "layout_elements", force: :cascade do |t|
+    t.bigint "venue_id", null: false
+    t.string "element_type"
+    t.string "name"
+    t.text "description"
+    t.decimal "x_position"
+    t.decimal "y_position"
+    t.decimal "width"
+    t.decimal "height"
+    t.decimal "rotation"
+    t.string "color"
+    t.text "properties"
+    t.integer "layer"
+    t.boolean "locked"
+    t.boolean "visible"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["venue_id"], name: "index_layout_elements_on_venue_id"
+  end
+
   create_table "notification_settings", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "notification_type", null: false
@@ -237,6 +281,38 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_100028) do
     t.index ["recipient_id", "read_at"], name: "index_notifications_on_recipient_id_and_read_at"
     t.index ["recipient_id"], name: "index_notifications_on_recipient_id"
     t.index ["sender_id"], name: "index_notifications_on_sender_id"
+  end
+
+  create_table "payments", force: :cascade do |t|
+    t.bigint "festival_id", null: false
+    t.bigint "user_id", null: false
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.string "payment_method", null: false
+    t.string "status", default: "pending", null: false
+    t.string "currency", default: "JPY"
+    t.text "description"
+    t.string "customer_email"
+    t.string "customer_name"
+    t.text "billing_address"
+    t.string "external_transaction_id"
+    t.decimal "processing_fee", precision: 8, scale: 2, default: "0.0"
+    t.json "metadata", default: {}
+    t.datetime "processed_at"
+    t.datetime "confirmed_at"
+    t.datetime "cancelled_at"
+    t.text "cancellation_reason"
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["confirmed_at"], name: "index_payments_on_confirmed_at"
+    t.index ["external_transaction_id"], name: "index_payments_on_external_transaction_id", unique: true
+    t.index ["festival_id", "status"], name: "index_payments_on_festival_id_and_status"
+    t.index ["festival_id"], name: "index_payments_on_festival_id"
+    t.index ["payment_method"], name: "index_payments_on_payment_method"
+    t.index ["processed_at"], name: "index_payments_on_processed_at"
+    t.index ["status"], name: "index_payments_on_status"
+    t.index ["user_id", "status"], name: "index_payments_on_user_id_and_status"
+    t.index ["user_id"], name: "index_payments_on_user_id"
   end
 
   create_table "reactions", force: :cascade do |t|
@@ -293,7 +369,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_100028) do
     t.integer "role", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "api_token"
+    t.datetime "api_token_expires_at"
+    t.datetime "last_api_access_at"
+    t.integer "api_request_count", default: 0
+    t.json "api_permissions", default: {}
+    t.index ["api_token"], name: "index_users_on_api_token", unique: true
+    t.index ["api_token_expires_at"], name: "index_users_on_api_token_expires_at"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["last_api_access_at"], name: "index_users_on_last_api_access_at"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
@@ -321,12 +405,51 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_100028) do
     t.index ["user_id"], name: "index_vendor_applications_on_user_id"
   end
 
+  create_table "venue_areas", force: :cascade do |t|
+    t.bigint "venue_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.string "area_type", null: false
+    t.decimal "width", precision: 8, scale: 2, null: false
+    t.decimal "height", precision: 8, scale: 2, null: false
+    t.decimal "x_position", precision: 8, scale: 2, null: false
+    t.decimal "y_position", precision: 8, scale: 2, null: false
+    t.decimal "rotation", precision: 5, scale: 2, default: "0.0"
+    t.string "color"
+    t.integer "capacity"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["area_type"], name: "index_venue_areas_on_area_type"
+    t.index ["venue_id"], name: "index_venue_areas_on_venue_id"
+    t.index ["x_position", "y_position"], name: "index_venue_areas_on_x_position_and_y_position"
+  end
+
+  create_table "venues", force: :cascade do |t|
+    t.bigint "festival_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.integer "capacity", null: false
+    t.text "address"
+    t.decimal "latitude", precision: 10, scale: 6
+    t.decimal "longitude", precision: 10, scale: 6
+    t.string "facility_type", null: false
+    t.text "contact_info"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["facility_type"], name: "index_venues_on_facility_type"
+    t.index ["festival_id"], name: "index_venues_on_festival_id"
+    t.index ["latitude", "longitude"], name: "index_venues_on_latitude_and_longitude"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "application_comments", "users"
   add_foreign_key "application_comments", "vendor_applications"
   add_foreign_key "application_reviews", "users", column: "reviewer_id"
   add_foreign_key "application_reviews", "vendor_applications"
+  add_foreign_key "booths", "festivals"
+  add_foreign_key "booths", "vendor_applications"
+  add_foreign_key "booths", "venue_areas"
   add_foreign_key "budget_approvals", "budget_categories"
   add_foreign_key "budget_approvals", "festivals"
   add_foreign_key "budget_categories", "festivals"
@@ -344,9 +467,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_100028) do
   add_foreign_key "forum_threads", "forums"
   add_foreign_key "forum_threads", "users"
   add_foreign_key "forums", "festivals"
+  add_foreign_key "layout_elements", "venues"
   add_foreign_key "notification_settings", "users"
   add_foreign_key "notifications", "users", column: "recipient_id"
   add_foreign_key "notifications", "users", column: "sender_id"
+  add_foreign_key "payments", "festivals"
+  add_foreign_key "payments", "users"
   add_foreign_key "reactions", "users"
   add_foreign_key "revenues", "budget_categories"
   add_foreign_key "revenues", "festivals"
@@ -355,4 +481,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_100028) do
   add_foreign_key "tasks", "users"
   add_foreign_key "vendor_applications", "festivals"
   add_foreign_key "vendor_applications", "users"
+  add_foreign_key "venue_areas", "venues"
+  add_foreign_key "venues", "festivals"
 end
