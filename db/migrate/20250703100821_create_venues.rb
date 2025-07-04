@@ -14,7 +14,7 @@ class CreateVenues < ActiveRecord::Migration[8.0]
       t.timestamps
     end
     
-    add_index :venues, :festival_id
+    add_index :venues, :festival_id unless index_exists?(:venues, :festival_id)
     add_index :venues, :facility_type
     add_index :venues, [:latitude, :longitude]
   end

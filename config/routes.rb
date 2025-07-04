@@ -1,7 +1,27 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      resources :festivals, only: [] do
+      resources :festivals do
+        member do
+          get :analytics
+          get :dashboard
+          get :members
+          post :join
+          delete :leave
+          get :export
+        end
+        
+        resources :payments do
+          member do
+            post :confirm
+            delete :cancel
+          end
+          
+          collection do
+            get :summary
+          end
+        end
+        
         namespace :budget do
           resources :categories, only: [:index, :show, :create, :update, :destroy]
           resources :expenses, only: [:index, :show, :create, :update, :destroy] do
@@ -19,6 +39,16 @@ Rails.application.routes.draw do
           get 'analytics', to: 'analytics#index'
           get 'reports/:type', to: 'reports#show'
           get 'dashboard', to: 'dashboard#index'
+        end
+      end
+      
+      # Payment methods endpoint
+      get 'payments/methods', to: 'payments#payment_methods'
+      
+      # Standalone payment operations
+      resources :payments, only: [:index, :show] do
+        member do
+          post :confirm
         end
       end
     end

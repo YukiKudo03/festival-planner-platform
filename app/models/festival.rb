@@ -13,6 +13,7 @@ class Festival < ApplicationRecord
   has_many :venue_areas, through: :venues
   has_many :booths, dependent: :destroy
   has_many :layout_elements, through: :venues
+  has_many :payments, dependent: :destroy
 
   # Active Storage attachments
   has_one_attached :main_image
@@ -102,6 +103,47 @@ class Festival < ApplicationRecord
     end
 
     "#{size.round(1)} #{units[unit_index]}"
+  end
+  
+  # Payment-related methods
+  def total_payments_amount
+    payments.completed.sum(:amount)
+  end
+  
+  def total_processing_fees
+    payments.completed.sum(:processing_fee)
+  end
+  
+  def net_revenue
+    total_payments_amount - total_processing_fees
+  end
+  
+  def payment_conversion_rate
+    return 0 if payments.count.zero?
+    (payments.completed.count.to_f / payments.count * 100).round(2)
+  end
+  
+  def organizers
+    # Festival organizers are users with admin or committee_member roles who have access to this festival
+    User.joins(:owned_festivals)
+        .where(owned_festivals: { id: self.id })
+        .or(User.where(role: [:admin, :system_admin]))
+  end
+  
+  def accessible_by?(user)
+    return true if user.admin? || user.system_admin?
+    return true if user == self.user # Festival owner
+    return true if public? # Public festivals accessible to all
+    
+    # Check if user is a member or has vendor application
+    vendor_applications.exists?(user: user) || 
+    chat_rooms.joins(:chat_room_members).exists?(chat_room_members: { user: user })
+  end
+  
+  def can_be_modified_by?(user)
+    return true if user.admin? || user.system_admin?
+    return true if user == self.user # Festival owner
+    false
   end
 
   private

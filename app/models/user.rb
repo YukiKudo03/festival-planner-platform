@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  include ApiAuthenticatable
+  
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -52,6 +54,9 @@ class User < ApplicationRecord
   has_many :chat_messages, dependent: :destroy
   has_many :chat_room_members, dependent: :destroy
   has_many :chat_rooms, through: :chat_room_members
+  
+  # 支払い関連
+  has_many :payments, dependent: :destroy
 
   after_create :create_default_notification_settings
 
