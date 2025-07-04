@@ -3,7 +3,7 @@ class Payment < ApplicationRecord
   belongs_to :user
   
   # Enums
-  enum status: {
+  enum :status, {
     pending: 'pending',
     processing: 'processing',
     completed: 'completed',
@@ -12,7 +12,7 @@ class Payment < ApplicationRecord
     refunded: 'refunded'
   }
   
-  enum payment_method: {
+  enum :payment_method, {
     stripe: 'stripe',
     paypal: 'paypal',
     bank_transfer: 'bank_transfer',
@@ -24,6 +24,8 @@ class Payment < ApplicationRecord
   validates :payment_method, presence: true
   validates :status, presence: true
   validates :currency, presence: true, inclusion: { in: %w[JPY USD EUR] }
+  validates :customer_email, presence: true
+  validates :customer_name, presence: true
   validates :customer_email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
   validates :external_transaction_id, uniqueness: true, allow_blank: true
   
@@ -80,6 +82,10 @@ class Payment < ApplicationRecord
     pending? || processing?
   end
   
+  def can_be_cancelled?
+    cancellable?
+  end
+  
   def confirmable?
     processing?
   end
@@ -88,12 +94,31 @@ class Payment < ApplicationRecord
     completed? && confirmed_at.present? && confirmed_at > 30.days.ago
   end
   
+  def status_color
+    case status
+    when 'pending'
+      'warning'
+    when 'processing'
+      'info'
+    when 'completed'
+      'success'
+    when 'failed'
+      'danger'
+    when 'cancelled'
+      'secondary'
+    when 'refunded'
+      'dark'
+    else
+      'light'
+    end
+  end
+  
   def net_amount
     amount - processing_fee
   end
   
   def formatted_amount
-    "#{currency} #{amount.to_s(:delimited)}"
+    "#{currency} #{amount.to_i.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
   end
   
   def processing_time

@@ -1,4 +1,7 @@
 # Rate limiting and security configuration
+# Skip initialization in test environment to avoid Redis dependency
+return if Rails.env.test?
+
 class Rack::Attack
   # Configuration
   Rack::Attack.cache.store = ActiveSupport::Cache::RedisCacheStore.new(
