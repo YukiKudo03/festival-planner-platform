@@ -1,0 +1,302 @@
+<div class="chat-message <%= 'own-message' if message.user == current_user %>" 
+     id="message-<%= message.id %>"
+     data-message-id="<%= message.id %>">
+  
+  <% if message.user != current_user %>
+    <!-- Other user's message -->
+    <div class="d-flex">
+      <div class="flex-shrink-0 me-2">
+        <%= user_avatar(message.user, size: 32) %>
+      </div>
+      
+      <div class="flex-grow-1">
+        <div class="d-flex align-items-center mb-1">
+          <strong class="text-dark"><%= message.user.name %></strong>
+          <%= badge_for_user_role(message.user) %>
+          <small class="text-muted ms-2">
+            <%= time_ago_in_words(message.created_at) %>前
+            <% if message.edited? %>
+              <span class="text-muted">(編集済み)</span>
+            <% end %>
+          </small>
+        </div>
+        
+        <div class="message-content bg-white p-3 rounded-3 shadow-sm">
+          <% if message.deleted? %>
+            <em class="text-muted">
+              <i class="bi bi-trash me-1"></i>
+              このメッセージは削除されました
+            </em>
+          <% else %>
+            <%= markdown_to_html(message.content) %>
+            
+            <!-- File Attachments -->
+            <% if message.attachments.any? %>
+              <div class="attachments mt-2">
+                <% message.attachments.each do |attachment| %>
+                  <div class="attachment-item">
+                    <% if attachment.blob.content_type.start_with?('image/') %>
+                      <%= image_tag attachment, class: "img-fluid rounded", style: "max-width: 300px; max-height: 200px;" %>
+                    <% else %>
+                      <div class="file-attachment">
+                        <i class="bi bi-file-earmark me-2"></i>
+                        <%= link_to attachment.blob.filename, 
+                                    rails_blob_path(attachment, disposition: "attachment"),
+                                    class: "text-decoration-none" %>
+                        <small class="text-muted">(<%= number_to_human_size(attachment.blob.byte_size) %>)</small>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+        
+        <!-- Message Reactions -->
+        <% if !message.deleted? && message.reaction_summary.any? %>
+          <div class="message-reactions mt-1">
+            <% message.reaction_summary.each do |reaction_type, count| %>
+              <button class="btn btn-sm btn-outline-secondary reaction-btn me-1"
+                      data-controller="reactions"
+                      data-reactions-reactable-type-value="ChatMessage"
+                      data-reactions-reactable-id-value="<%= message.id %>"
+                      data-action="click->reactions#toggle"
+                      data-reaction-type="<%= reaction_type %>"
+                      data-active="<%= message.user_reaction(current_user) == reaction_type %>">
+                <%= reaction_emoji(reaction_type) %>
+                <span class="reaction-count"><%= count %></span>
+              </button>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      
+      <!-- Message Actions -->
+      <% unless message.deleted? %>
+        <div class="message-actions ms-2">
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary opacity-50 dropdown-toggle" 
+                    data-bs-toggle="dropdown" 
+                    style="border: none;">
+              <i class="bi bi-three-dots"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <button class="dropdown-item" onclick="addReaction(<%= message.id %>)">
+                  <i class="bi bi-emoji-smile me-2"></i>リアクション
+                </button>
+              </li>
+              <li>
+                <button class="dropdown-item" onclick="replyToMessage(<%= message.id %>)">
+                  <i class="bi bi-reply me-2"></i>返信
+                </button>
+              </li>
+              <% if message.can_be_modified_by?(current_user) %>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <button class="dropdown-item" onclick="editMessage(<%= message.id %>)">
+                    <i class="bi bi-pencil me-2"></i>編集
+                  </button>
+                </li>
+                <li>
+                  <%= link_to festival_chat_room_chat_message_path(@festival, @chat_room, message), 
+                              method: :delete,
+                              confirm: "メッセージを削除しますか？",
+                              class: "dropdown-item text-danger" do %>
+                    <i class="bi bi-trash me-2"></i>削除
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+  <% else %>
+    <!-- Current user's message -->
+    <div class="d-flex justify-content-end">
+      <!-- Message Actions -->
+      <% unless message.deleted? %>
+        <div class="message-actions me-2">
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary opacity-50 dropdown-toggle" 
+                    data-bs-toggle="dropdown" 
+                    style="border: none;">
+              <i class="bi bi-three-dots"></i>
+            </button>
+            <ul class="dropdown-menu">
+              <% if message.can_be_modified_by?(current_user) %>
+                <li>
+                  <button class="dropdown-item" onclick="editMessage(<%= message.id %>)">
+                    <i class="bi bi-pencil me-2"></i>編集
+                  </button>
+                </li>
+                <li>
+                  <%= link_to festival_chat_room_chat_message_path(@festival, @chat_room, message), 
+                              method: :delete,
+                              confirm: "メッセージを削除しますか？",
+                              class: "dropdown-item text-danger" do %>
+                    <i class="bi bi-trash me-2"></i>削除
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      <% end %>
+      
+      <div class="flex-grow-1" style="max-width: 70%;">
+        <div class="text-end mb-1">
+          <small class="text-muted">
+            <%= time_ago_in_words(message.created_at) %>前
+            <% if message.edited? %>
+              <span class="text-muted">(編集済み)</span>
+            <% end %>
+          </small>
+        </div>
+        
+        <div class="message-content bg-primary text-white p-3 rounded-3 shadow-sm">
+          <% if message.deleted? %>
+            <em class="text-light">
+              <i class="bi bi-trash me-1"></i>
+              このメッセージは削除されました
+            </em>
+          <% else %>
+            <%= markdown_to_html(message.content) %>
+            
+            <!-- File Attachments -->
+            <% if message.attachments.any? %>
+              <div class="attachments mt-2">
+                <% message.attachments.each do |attachment| %>
+                  <div class="attachment-item">
+                    <% if attachment.blob.content_type.start_with?('image/') %>
+                      <%= image_tag attachment, class: "img-fluid rounded", style: "max-width: 300px; max-height: 200px;" %>
+                    <% else %>
+                      <div class="file-attachment">
+                        <i class="bi bi-file-earmark me-2"></i>
+                        <%= link_to attachment.blob.filename, 
+                                    rails_blob_path(attachment, disposition: "attachment"),
+                                    class: "text-white text-decoration-none" %>
+                        <small class="text-light">(<%= number_to_human_size(attachment.blob.byte_size) %>)</small>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+        
+        <!-- Message Reactions -->
+        <% if !message.deleted? && message.reaction_summary.any? %>
+          <div class="message-reactions mt-1 text-end">
+            <% message.reaction_summary.each do |reaction_type, count| %>
+              <button class="btn btn-sm btn-outline-secondary reaction-btn me-1"
+                      data-controller="reactions"
+                      data-reactions-reactable-type-value="ChatMessage"
+                      data-reactions-reactable-id-value="<%= message.id %>"
+                      data-action="click->reactions#toggle"
+                      data-reaction-type="<%= reaction_type %>"
+                      data-active="<%= message.user_reaction(current_user) == reaction_type %>">
+                <%= reaction_emoji(reaction_type) %>
+                <span class="reaction-count"><%= count %></span>
+              </button>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      
+      <div class="flex-shrink-0 ms-2">
+        <%= user_avatar(message.user, size: 32) %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .chat-message {
+    margin-bottom: 1rem;
+  }
+  
+  .chat-message.own-message {
+    margin-left: 2rem;
+  }
+  
+  .chat-message:not(.own-message) {
+    margin-right: 2rem;
+  }
+  
+  .message-content {
+    word-wrap: break-word;
+    line-height: 1.4;
+  }
+  
+  .message-content p {
+    margin: 0;
+  }
+  
+  .message-content p + p {
+    margin-top: 0.5rem;
+  }
+  
+  .message-actions {
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  
+  .chat-message:hover .message-actions {
+    opacity: 1;
+  }
+  
+  .reaction-btn {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.375rem;
+    border-radius: 1rem;
+    border: 1px solid #dee2e6;
+  }
+  
+  .reaction-btn[data-active="true"] {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: white;
+  }
+  
+  .reaction-count {
+    margin-left: 0.25rem;
+    font-size: 0.75rem;
+  }
+  
+  .attachments {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .attachment-item img {
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  
+  .file-attachment {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 0.25rem;
+  }
+  
+  @media (max-width: 768px) {
+    .chat-message.own-message {
+      margin-left: 1rem;
+    }
+    
+    .chat-message:not(.own-message) {
+      margin-right: 1rem;
+    }
+    
+    .flex-grow-1 {
+      max-width: 85% !important;
+    }
+  }
+</style>

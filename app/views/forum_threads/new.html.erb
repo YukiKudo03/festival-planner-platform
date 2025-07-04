@@ -1,2 +1,98 @@
-<h1>ForumThreads#new</h1>
-<p>Find me in app/views/forum_threads/new.html.erb</p>
+<% content_for :title, "新しいスレッド - #{@forum.name}" %>
+<% content_for :breadcrumb do %>
+  <%= link_to @festival.name, @festival, class: "breadcrumb-item" %>
+  <%= link_to "フォーラム", forums_path, class: "breadcrumb-item" %>
+  <%= link_to @forum.name, festival_forum_path(@festival, @forum), class: "breadcrumb-item" %>
+  <span class="breadcrumb-item active">新しいスレッド</span>
+<% end %>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="mb-0">新しいスレッドを作成</h4>
+        <p class="text-muted mb-0 mt-1">
+          <strong><%= @forum.name %></strong> フォーラムに新しいスレッドを作成します
+        </p>
+      </div>
+      
+      <div class="card-body">
+        <%= form_with model: [@festival, @forum, @forum_thread], local: true do |form| %>
+          <% if @forum_thread.errors.any? %>
+            <div class="alert alert-danger">
+              <h6>エラーが発生しました:</h6>
+              <ul class="mb-0">
+                <% @forum_thread.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <div class="row">
+            <div class="col-md-8">
+              <div class="mb-3">
+                <%= form.label :title, "タイトル", class: "form-label" %>
+                <%= form.text_field :title, 
+                                    class: "form-control #{'is-invalid' if @forum_thread.errors[:title].any?}", 
+                                    placeholder: "スレッドのタイトルを入力してください",
+                                    required: true,
+                                    maxlength: 200 %>
+                <% if @forum_thread.errors[:title].any? %>
+                  <div class="invalid-feedback">
+                    <%= @forum_thread.errors[:title].first %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="mb-3">
+                <%= form.label :category, "カテゴリ", class: "form-label" %>
+                <%= form.select :category, 
+                                options_for_select([
+                                  ["一般", "general"],
+                                  ["質問", "questions"],
+                                  ["議論", "discussions"],
+                                  ["イベント", "events"],
+                                  ["出店者向け", "vendor"]
+                                ], @forum_thread.category),
+                                { prompt: "カテゴリを選択" },
+                                { class: "form-select" } %>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :content, "内容", class: "form-label" %>
+            <%= form.text_area :content, 
+                               class: "form-control #{'is-invalid' if @forum_thread.errors[:content].any?}", 
+                               rows: 8, 
+                               placeholder: "スレッドの内容を入力してください...",
+                               required: true,
+                               maxlength: 5000 %>
+            <% if @forum_thread.errors[:content].any? %>
+              <div class="invalid-feedback">
+                <%= @forum_thread.errors[:content].first %>
+              </div>
+            <% end %>
+            <div class="form-text">
+              Markdown記法が使用できます: **太字**, *斜体*, @ユーザー名
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <%= link_to "キャンセル", festival_forum_path(@festival, @forum), 
+                          class: "btn btn-outline-secondary" %>
+            </div>
+            
+            <div>
+              <%= form.submit "スレッドを作成", class: "btn btn-primary" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

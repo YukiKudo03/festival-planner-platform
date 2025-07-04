@@ -1,2 +1,279 @@
-<h1>ChatRooms#show</h1>
-<p>Find me in app/views/chat_rooms/show.html.erb</p>
+<% content_for :title, @chat_room.name %>
+<% content_for :breadcrumb do %>
+  <%= link_to @festival.name, @festival, class: "breadcrumb-item" %>
+  <%= link_to "チャット", festival_chat_rooms_path(@festival), class: "breadcrumb-item" %>
+  <span class="breadcrumb-item active"><%= truncate(@chat_room.name, length: 30) %></span>
+<% end %>
+
+<div class="chat-container" 
+     data-controller="chat-room"
+     data-chat-room-room-id-value="<%= @chat_room.id %>"
+     data-chat-room-user-id-value="<%= current_user.id %>"
+     data-chat-room-festival-id-value="<%= @festival.id %>">
+  
+  <!-- Chat Header -->
+  <div class="chat-header bg-white border-bottom">
+    <div class="d-flex justify-content-between align-items-center p-3">
+      <div class="d-flex align-items-center">
+        <div class="me-3">
+          <% if @chat_room.room_type == 'direct' %>
+            <i class="bi bi-person-circle fs-4 text-primary"></i>
+          <% elsif @chat_room.room_type == 'group' %>
+            <i class="bi bi-people-fill fs-4 text-success"></i>
+          <% elsif @chat_room.room_type == 'announcement' %>
+            <i class="bi bi-megaphone-fill fs-4 text-warning"></i>
+          <% else %>
+            <i class="bi bi-chat-dots-fill fs-4 text-info"></i>
+          <% end %>
+        </div>
+        
+        <div>
+          <h5 class="mb-0"><%= @chat_room.name %></h5>
+          <small class="text-muted">
+            <%= pluralize(@members.count, 'member', 'members') %>
+            <% if @chat_room.room_type == 'announcement' %>
+              • アナウンス専用
+            <% elsif @chat_room.private? %>
+              • プライベート
+            <% end %>
+          </small>
+        </div>
+      </div>
+      
+      <!-- Chat Actions -->
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" 
+                data-bs-toggle="offcanvas" 
+                data-bs-target="#chat-members">
+          <i class="bi bi-people"></i>
+          <span class="d-none d-md-inline">メンバー</span>
+        </button>
+        
+        <% if @chat_room.can_be_modified_by?(current_user) %>
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" 
+                    data-bs-toggle="dropdown">
+              <i class="bi bi-gear"></i>
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <%= link_to "設定", edit_festival_chat_room_path(@festival, @chat_room), 
+                            class: "dropdown-item" %>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <%= link_to "削除", festival_chat_room_path(@festival, @chat_room), 
+                            method: :delete, 
+                            confirm: "本当に削除しますか？", 
+                            class: "dropdown-item text-danger" %>
+              </li>
+            </ul>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Messages Area -->
+  <div class="chat-messages-container">
+    <div class="chat-messages" 
+         data-chat-room-target="messages"
+         data-action="scroll->chat-room#handleScroll">
+      
+      <% if @messages.any? %>
+        <% @messages.each do |message| %>
+          <%= render 'chat_messages/message', message: message, current_user: current_user %>
+        <% end %>
+      <% else %>
+        <div class="text-center py-5 text-muted">
+          <i class="bi bi-chat display-1"></i>
+          <h5 class="mt-3">チャットを始めましょう</h5>
+          <p>最初のメッセージを送信してください</p>
+        </div>
+      <% end %>
+      
+      <!-- Typing Indicator -->
+      <div class="typing-indicator d-none" data-chat-room-target="typingIndicator">
+        <div class="typing-animation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <small class="text-muted ms-2">誰かが入力中...</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message Input -->
+  <div class="chat-input-container bg-white border-top">
+    <div class="p-3">
+      <%= form_with model: [@festival, @chat_room, @new_message], 
+                    url: festival_chat_room_chat_messages_path(@festival, @chat_room),
+                    local: false,
+                    data: { 
+                      controller: "chat-form",
+                      action: "submit->chat-form#submit",
+                      chat_room_target: "messageForm"
+                    } do |form| %>
+        
+        <div class="input-group">
+          <%= form.text_area :content, 
+                             class: "form-control chat-input", 
+                             placeholder: "メッセージを入力...",
+                             rows: 1,
+                             data: { 
+                               action: "keydown->chat-form#handleKeydown input->chat-form#handleTyping",
+                               chat_room_target: "messageInput"
+                             },
+                             required: true %>
+          
+          <button type="button" class="btn btn-outline-secondary" title="ファイル添付">
+            <i class="bi bi-paperclip"></i>
+          </button>
+          
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-send"></i>
+          </button>
+        </div>
+        
+        <% if @new_message.errors.any? %>
+          <div class="text-danger small mt-1">
+            <%= @new_message.errors.full_messages.join(', ') %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Members Sidebar -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="chat-members">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title">メンバー (<%= @members.count %>)</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <% @members.each do |member| %>
+      <div class="d-flex align-items-center mb-3">
+        <div class="me-2">
+          <%= user_avatar(member.user, size: 32) %>
+        </div>
+        <div class="flex-grow-1">
+          <div class="fw-bold"><%= member.user.name %></div>
+          <small class="text-muted">
+            <%= member.role.humanize %>
+            <% if member.role == 'admin' %>
+              <i class="bi bi-shield-fill text-warning"></i>
+            <% end %>
+          </small>
+        </div>
+        <% unless member.user == current_user %>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                    data-bs-toggle="dropdown">
+              <i class="bi bi-three-dots"></i>
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <%= link_to "ダイレクトメッセージ", 
+                            direct_message_path(member.user), 
+                            class: "dropdown-item" %>
+              </li>
+            </ul>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  .chat-container {
+    height: calc(100vh - 120px);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  
+  .chat-header {
+    flex-shrink: 0;
+  }
+  
+  .chat-messages-container {
+    flex: 1;
+    overflow-y: auto;
+    background: #f8f9fa;
+  }
+  
+  .chat-messages {
+    padding: 1rem;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .chat-input-container {
+    flex-shrink: 0;
+  }
+  
+  .chat-input {
+    border: none;
+    box-shadow: none;
+    resize: none;
+    max-height: 120px;
+  }
+  
+  .chat-input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+  
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: white;
+    border-radius: 1rem;
+    margin: 0.5rem 0;
+    width: fit-content;
+  }
+  
+  .typing-animation {
+    display: flex;
+    gap: 0.25rem;
+  }
+  
+  .typing-animation span {
+    width: 6px;
+    height: 6px;
+    background: #6c757d;
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out;
+  }
+  
+  .typing-animation span:nth-child(1) { animation-delay: -0.32s; }
+  .typing-animation span:nth-child(2) { animation-delay: -0.16s; }
+  
+  @keyframes typing {
+    0%, 80%, 100% { 
+      transform: scale(0);
+    } 
+    40% { 
+      transform: scale(1);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .chat-container {
+      height: calc(100vh - 80px);
+    }
+    
+    .chat-messages {
+      padding: 0.5rem;
+      gap: 0.5rem;
+    }
+  }
+</style>

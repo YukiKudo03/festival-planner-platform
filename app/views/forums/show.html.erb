@@ -1,2 +1,215 @@
-<h1>Forums#show</h1>
-<p>Find me in app/views/forums/show.html.erb</p>
+<% content_for :title, "#{@forum.name} - #{@festival.name}" %>
+<% content_for :breadcrumb do %>
+  <%= link_to @festival.name, @festival, class: "breadcrumb-item" %>
+  <%= link_to "フォーラム", forums_path, class: "breadcrumb-item" %>
+  <span class="breadcrumb-item active"><%= @forum.name %></span>
+<% end %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2>
+      <%= @forum.name %>
+      <span class="badge bg-<%= @forum.category == 'announcements' ? 'danger' : 'secondary' %> ms-2">
+        <%= @forum.category.humanize %>
+      </span>
+      <% if @forum.private? %>
+        <span class="badge bg-warning ms-1">
+          <i class="bi bi-lock"></i> Private
+        </span>
+      <% end %>
+    </h2>
+    <% if @forum.description.present? %>
+      <p class="text-muted mb-0"><%= @forum.description %></p>
+    <% end %>
+  </div>
+  
+  <% if @forum.can_be_accessed_by?(current_user) %>
+    <%= link_to "新しいスレッド", new_festival_forum_forum_thread_path(@festival, @forum), 
+                class: "btn btn-primary" %>
+  <% end %>
+</div>
+
+<!-- Forum Statistics -->
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body py-2">
+        <div class="h4 mb-0 text-primary"><%= @forum.thread_count %></div>
+        <small class="text-muted">スレッド</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body py-2">
+        <div class="h4 mb-0 text-success"><%= @forum.post_count %></div>
+        <small class="text-muted">投稿</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body py-2">
+        <div class="h4 mb-0 text-info"><%= @forum.participant_count %></div>
+        <small class="text-muted">参加者</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body py-2">
+        <div class="h4 mb-0 text-warning">
+          <%= @forum.latest_activity ? time_ago_in_words(@forum.latest_activity) : "なし" %>
+        </div>
+        <small class="text-muted">最終活動</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Thread List -->
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">スレッド一覧</h5>
+    <div class="d-flex gap-2">
+      <%= link_to "最新", festival_forum_path(@festival, @forum), 
+                  class: "btn btn-sm #{'btn-primary' if params[:sort] != 'popular'} #{'btn-outline-primary' if params[:sort] == 'popular'}" %>
+      <%= link_to "人気", festival_forum_path(@festival, @forum, sort: 'popular'), 
+                  class: "btn btn-sm #{'btn-primary' if params[:sort] == 'popular'} #{'btn-outline-primary' if params[:sort] != 'popular'}" %>
+    </div>
+  </div>
+  
+  <div class="card-body p-0">
+    <% if @forum_threads.any? %>
+      <div class="list-group list-group-flush">
+        <% @forum_threads.each do |thread| %>
+          <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <div class="d-flex align-items-center mb-1">
+                  <% if thread.pinned? %>
+                    <i class="bi bi-pin-angle-fill text-warning me-2" title="ピン留め"></i>
+                  <% end %>
+                  <% if thread.locked? %>
+                    <i class="bi bi-lock-fill text-muted me-2" title="ロック済み"></i>
+                  <% end %>
+                  
+                  <%= link_to festival_forum_forum_thread_path(@festival, @forum, thread), 
+                              class: "text-decoration-none fw-bold" do %>
+                    <%= thread.title %>
+                  <% end %>
+                  
+                  <% if thread.category.present? %>
+                    <span class="badge bg-secondary ms-2 small">
+                      <%= thread.category.humanize %>
+                    </span>
+                  <% end %>
+                </div>
+                
+                <p class="text-muted mb-2 small">
+                  <%= truncate(thread.content, length: 120) %>
+                </p>
+                
+                <div class="d-flex align-items-center text-muted small">
+                  <div class="d-flex align-items-center me-3">
+                    <% if thread.user.avatar.attached? %>
+                      <%= image_tag thread.user.avatar, class: "rounded-circle me-1", style: "width: 20px; height: 20px;" %>
+                    <% else %>
+                      <i class="bi bi-person-circle me-1"></i>
+                    <% end %>
+                    <%= thread.user.name %>
+                  </div>
+                  
+                  <div class="me-3">
+                    <i class="bi bi-clock me-1"></i>
+                    <%= time_ago_in_words(thread.created_at) %>前
+                  </div>
+                  
+                  <% if thread.latest_post && thread.latest_post.user != thread.user %>
+                    <div class="me-3">
+                      <i class="bi bi-reply me-1"></i>
+                      最終返信: <%= thread.latest_post.user.name %>
+                      (<%= time_ago_in_words(thread.last_activity) %>前)
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+              
+              <div class="text-end">
+                <div class="d-flex align-items-center text-muted small mb-1">
+                  <i class="bi bi-chat-dots me-1"></i>
+                  <span class="me-2"><%= thread.post_count %></span>
+                  <i class="bi bi-people me-1"></i>
+                  <span><%= thread.participant_count %></span>
+                </div>
+                
+                <!-- Reaction Summary -->
+                <% if thread.reaction_summary.any? %>
+                  <div class="d-flex gap-1 justify-content-end">
+                    <% thread.reaction_summary.each do |reaction_type, count| %>
+                      <span class="badge bg-light text-dark small">
+                        <%= reaction_emoji(reaction_type) %> <%= count %>
+                      </span>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      
+      <!-- Pagination -->
+      <% if @forum_threads.respond_to?(:current_page) %>
+        <div class="card-footer">
+          <div class="d-flex justify-content-center">
+            <%= paginate @forum_threads %>
+          </div>
+        </div>
+      <% end %>
+      
+    <% else %>
+      <div class="text-center py-5">
+        <i class="bi bi-chat-square-text display-1 text-muted"></i>
+        <h4 class="text-muted mt-3">スレッドがありません</h4>
+        <p class="text-muted">最初のスレッドを作成して議論を始めましょう。</p>
+        <% if @forum.can_be_accessed_by?(current_user) %>
+          <%= link_to "スレッドを作成", new_festival_forum_forum_thread_path(@festival, @forum), 
+                      class: "btn btn-primary mt-2" %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  .list-group-item {
+    border-left: none;
+    border-right: none;
+    transition: background-color 0.2s;
+  }
+  
+  .list-group-item:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .list-group-item:first-child {
+    border-top: none;
+  }
+  
+  .list-group-item:last-child {
+    border-bottom: none;
+  }
+  
+  .badge {
+    font-size: 0.7rem;
+  }
+  
+  .card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  }
+  
+  .text-decoration-none:hover {
+    text-decoration: underline !important;
+  }
+</style>

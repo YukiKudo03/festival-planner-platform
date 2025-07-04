@@ -1,2 +1,345 @@
-<h1>ForumThreads#show</h1>
-<p>Find me in app/views/forum_threads/show.html.erb</p>
+<% content_for :title, @forum_thread.title %>
+<% content_for :breadcrumb do %>
+  <%= link_to @festival.name, @festival, class: "breadcrumb-item" %>
+  <%= link_to "フォーラム", forums_path, class: "breadcrumb-item" %>
+  <%= link_to @forum.name, festival_forum_path(@festival, @forum), class: "breadcrumb-item" %>
+  <span class="breadcrumb-item active"><%= truncate(@forum_thread.title, length: 30) %></span>
+<% end %>
+
+<!-- Thread Header -->
+<div class="card mb-4">
+  <div class="card-header">
+    <div class="d-flex justify-content-between align-items-start">
+      <div class="flex-grow-1">
+        <div class="d-flex align-items-center mb-2">
+          <% if @forum_thread.pinned? %>
+            <i class="bi bi-pin-angle-fill text-warning me-2" title="ピン留め"></i>
+          <% end %>
+          <% if @forum_thread.locked? %>
+            <i class="bi bi-lock-fill text-muted me-2" title="ロック済み"></i>
+          <% end %>
+          
+          <h4 class="mb-0"><%= @forum_thread.title %></h4>
+          
+          <% if @forum_thread.category.present? %>
+            <span class="badge bg-secondary ms-2">
+              <%= @forum_thread.category.humanize %>
+            </span>
+          <% end %>
+        </div>
+        
+        <div class="d-flex align-items-center text-muted small">
+          <div class="d-flex align-items-center me-3">
+            <%= user_avatar(@forum_thread.user, size: 24) %>
+            <span class="ms-2">
+              <%= @forum_thread.user.name %>
+              <%= badge_for_user_role(@forum_thread.user) %>
+            </span>
+          </div>
+          
+          <div class="me-3">
+            <i class="bi bi-clock me-1"></i>
+            <%= time_ago_in_words(@forum_thread.created_at) %>前に作成
+          </div>
+          
+          <div class="me-3">
+            <i class="bi bi-chat-dots me-1"></i>
+            <%= @forum_thread.post_count %>件の返信
+          </div>
+          
+          <div>
+            <i class="bi bi-people me-1"></i>
+            <%= @forum_thread.participant_count %>名が参加
+          </div>
+        </div>
+      </div>
+      
+      <!-- Thread Actions -->
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <i class="bi bi-three-dots"></i>
+        </button>
+        <ul class="dropdown-menu">
+          <% if @forum_thread.can_be_modified_by?(current_user) %>
+            <li>
+              <%= link_to "編集", edit_festival_forum_forum_thread_path(@festival, @forum, @forum_thread), 
+                          class: "dropdown-item" %>
+            </li>
+            <li>
+              <%= link_to "削除", festival_forum_forum_thread_path(@festival, @forum, @forum_thread), 
+                          method: :delete, 
+                          confirm: "本当に削除しますか？", 
+                          class: "dropdown-item text-danger" %>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+          <% end %>
+          
+          <% if current_user.admin? || current_user.committee_member? %>
+            <li>
+              <%= link_to festival_forum_forum_thread_pin_path(@festival, @forum, @forum_thread), 
+                          method: :patch, 
+                          class: "dropdown-item" do %>
+                <i class="bi bi-pin#{@forum_thread.pinned? ? '-fill' : ''} me-2"></i>
+                <%= @forum_thread.pinned? ? 'ピン留め解除' : 'ピン留め' %>
+              <% end %>
+            </li>
+            <li>
+              <%= link_to festival_forum_forum_thread_lock_path(@festival, @forum, @forum_thread), 
+                          method: :patch, 
+                          class: "dropdown-item" do %>
+                <i class="bi bi-lock#{@forum_thread.locked? ? '-fill' : ''} me-2"></i>
+                <%= @forum_thread.locked? ? 'ロック解除' : 'ロック' %>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card-body">
+    <div class="thread-content">
+      <%= markdown_to_html(@forum_thread.content) %>
+    </div>
+    
+    <!-- Thread Reactions -->
+    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+      <div class="d-flex gap-2" data-controller="reactions" data-reactions-reactable-type-value="ForumThread" data-reactions-reactable-id-value="<%= @forum_thread.id %>">
+        <% %w[like love laugh wow sad angry].each do |reaction_type| %>
+          <button class="btn btn-sm btn-outline-secondary reaction-btn" 
+                  data-action="click->reactions#toggle" 
+                  data-reaction-type="<%= reaction_type %>"
+                  data-active="<%= @forum_thread.user_reaction(current_user) == reaction_type %>">
+            <%= reaction_emoji(reaction_type) %>
+            <span class="reaction-count">
+              <%= @forum_thread.reaction_summary[reaction_type] || 0 %>
+            </span>
+          </button>
+        <% end %>
+      </div>
+      
+      <div class="text-muted small">
+        最終更新: <%= time_ago_in_words(@forum_thread.last_activity) %>前
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Forum Posts -->
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">返信 (<%= @forum_posts.total_count if @forum_posts.respond_to?(:total_count) %>)</h5>
+    <div class="d-flex gap-2">
+      <%= link_to "最新", festival_forum_forum_thread_path(@festival, @forum, @forum_thread), 
+                  class: "btn btn-sm btn-outline-primary" %>
+      <%= link_to "最古", festival_forum_forum_thread_path(@festival, @forum, @forum_thread, sort: 'oldest'), 
+                  class: "btn btn-sm btn-outline-primary" %>
+    </div>
+  </div>
+  
+  <div class="card-body p-0">
+    <% if @forum_posts.any? %>
+      <div class="forum-posts">
+        <% @forum_posts.each_with_index do |post, index| %>
+          <div class="forum-post" id="post-<%= post.id %>">
+            <div class="d-flex">
+              <!-- User Avatar -->
+              <div class="flex-shrink-0 me-3">
+                <%= user_avatar(post.user, size: 40) %>
+              </div>
+              
+              <!-- Post Content -->
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <strong><%= post.user.name %></strong>
+                    <%= badge_for_user_role(post.user) %>
+                    <small class="text-muted ms-2">
+                      <i class="bi bi-clock me-1"></i>
+                      <%= time_ago_in_words(post.created_at) %>前
+                      <% if post.created_at != post.updated_at %>
+                        <span class="text-muted">(編集済み)</span>
+                      <% end %>
+                    </small>
+                  </div>
+                  
+                  <!-- Post Actions -->
+                  <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                      <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li>
+                        <a class="dropdown-item" href="#post-<%= post.id %>">
+                          <i class="bi bi-link me-2"></i>リンクをコピー
+                        </a>
+                      </li>
+                      <% if post.can_be_modified_by?(current_user) %>
+                        <li>
+                          <%= link_to "編集", edit_festival_forum_forum_thread_forum_post_path(@festival, @forum, @forum_thread, post), 
+                                      class: "dropdown-item" %>
+                        </li>
+                        <li>
+                          <%= link_to "削除", festival_forum_forum_thread_forum_post_path(@festival, @forum, @forum_thread, post), 
+                                      method: :delete, 
+                                      confirm: "本当に削除しますか？", 
+                                      class: "dropdown-item text-danger" %>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div class="post-content">
+                  <%= markdown_to_html(post.content) %>
+                </div>
+                
+                <!-- Post Reactions -->
+                <div class="d-flex gap-2 mt-2" data-controller="reactions" data-reactions-reactable-type-value="ForumPost" data-reactions-reactable-id-value="<%= post.id %>">
+                  <% %w[like love laugh wow sad angry].each do |reaction_type| %>
+                    <% count = post.reaction_summary[reaction_type] || 0 %>
+                    <% if count > 0 || post.user_reaction(current_user) == reaction_type %>
+                      <button class="btn btn-sm btn-outline-secondary reaction-btn" 
+                              data-action="click->reactions#toggle" 
+                              data-reaction-type="<%= reaction_type %>"
+                              data-active="<%= post.user_reaction(current_user) == reaction_type %>">
+                        <%= reaction_emoji(reaction_type) %>
+                        <span class="reaction-count"><%= count %></span>
+                      </button>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      
+      <!-- Pagination -->
+      <% if @forum_posts.respond_to?(:current_page) %>
+        <div class="card-footer">
+          <div class="d-flex justify-content-center">
+            <%= paginate @forum_posts %>
+          </div>
+        </div>
+      <% end %>
+      
+    <% else %>
+      <div class="text-center py-4">
+        <i class="bi bi-chat display-1 text-muted"></i>
+        <h5 class="text-muted mt-3">まだ返信がありません</h5>
+        <p class="text-muted">最初の返信を投稿しましょう。</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Reply Form -->
+<% unless @forum_thread.locked? %>
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="mb-0">返信を投稿</h5>
+    </div>
+    <div class="card-body">
+      <%= form_with model: [@festival, @forum, @forum_thread, @new_post], 
+                    url: festival_forum_forum_thread_forum_posts_path(@festival, @forum, @forum_thread),
+                    local: true do |form| %>
+        
+        <div class="d-flex">
+          <div class="flex-shrink-0 me-3">
+            <%= user_avatar(current_user, size: 40) %>
+          </div>
+          
+          <div class="flex-grow-1">
+            <div class="mb-3">
+              <%= form.text_area :content, 
+                                 class: "form-control #{'is-invalid' if @new_post.errors[:content].any?}", 
+                                 rows: 4, 
+                                 placeholder: "返信を入力してください...",
+                                 required: true %>
+              <% if @new_post.errors[:content].any? %>
+                <div class="invalid-feedback">
+                  <%= @new_post.errors[:content].first %>
+                </div>
+              <% end %>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+              <small class="text-muted">
+                Markdown記法が使用できます: **太字**, *斜体*, @ユーザー名
+              </small>
+              
+              <div>
+                <%= form.submit "返信を投稿", class: "btn btn-primary" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <div class="alert alert-warning mt-4">
+    <i class="bi bi-lock-fill me-2"></i>
+    このスレッドはロックされているため、新しい返信を投稿することはできません。
+  </div>
+<% end %>
+
+<style>
+  .thread-content {
+    line-height: 1.6;
+  }
+  
+  .forum-posts {
+    max-height: none;
+  }
+  
+  .forum-post {
+    padding: 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .forum-post:last-child {
+    border-bottom: none;
+  }
+  
+  .forum-post:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .post-content {
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+  }
+  
+  .reaction-btn {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+  }
+  
+  .reaction-btn[data-active="true"] {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: white;
+  }
+  
+  .reaction-count {
+    margin-left: 0.25rem;
+    font-size: 0.75rem;
+  }
+  
+  .card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  }
+  
+  @media (max-width: 768px) {
+    .forum-post {
+      padding: 1rem;
+    }
+    
+    .d-flex .flex-shrink-0 {
+      margin-right: 0.75rem;
+    }
+  }
+</style>

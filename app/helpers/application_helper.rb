@@ -80,4 +80,72 @@ module ApplicationHelper
     else status.humanize
     end
   end
+
+  def reaction_emoji(reaction_type)
+    case reaction_type
+    when 'like'
+      '👍'
+    when 'love'
+      '❤️'
+    when 'laugh'
+      '😄'
+    when 'wow'
+      '😮'
+    when 'sad'
+      '😢'
+    when 'angry'
+      '😠'
+    else
+      '👍'
+    end
+  end
+  
+  def user_avatar(user, size: 32, css_class: 'rounded-circle')
+    if user.avatar.attached?
+      image_tag user.avatar, 
+                class: css_class, 
+                style: "width: #{size}px; height: #{size}px; object-fit: cover;"
+    else
+      content_tag :div, 
+                  user.name.first&.upcase || '?',
+                  class: "#{css_class} d-flex align-items-center justify-content-center bg-secondary text-white",
+                  style: "width: #{size}px; height: #{size}px; font-size: #{size * 0.4}px; font-weight: bold;"
+    end
+  end
+  
+  def badge_for_user_role(user)
+    return unless user
+    
+    if user.admin?
+      content_tag :span, 'Admin', class: 'badge bg-danger ms-1'
+    elsif user.committee_member?
+      content_tag :span, 'Committee', class: 'badge bg-warning ms-1'
+    elsif user.vendor?
+      content_tag :span, 'Vendor', class: 'badge bg-success ms-1'
+    end
+  end
+  
+  def markdown_to_html(text)
+    return '' if text.blank?
+    
+    # Simple markdown-like formatting
+    formatted = text.dup
+    
+    # Bold **text**
+    formatted.gsub!(/\*\*(.*?)\*\*/, '<strong>\1</strong>')
+    
+    # Italic *text*
+    formatted.gsub!(/\*(.*?)\*/, '<em>\1</em>')
+    
+    # Line breaks
+    formatted.gsub!(/\n/, '<br>')
+    
+    # @mentions
+    formatted.gsub!(/@(\w+)/, '<span class="text-primary">@\1</span>')
+    
+    # URLs
+    formatted.gsub!(/(https?:\/\/[^\s]+)/, '<a href="\1" target="_blank" rel="noopener">\1</a>')
+    
+    formatted.html_safe
+  end
 end
