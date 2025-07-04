@@ -1,0 +1,426 @@
+<% content_for :title, "プラットフォーム総合ダッシュボード" %>
+<% content_for :breadcrumb do %>
+  <span class="breadcrumb-item active">プラットフォーム ダッシュボード</span>
+<% end %>
+
+<div class="platform-dashboard" 
+     data-controller="dashboard"
+     data-dashboard-festival-id-value=""
+     data-dashboard-auto-refresh-value="true">
+  
+  <!-- Platform Dashboard Header -->
+  <div class="dashboard-header bg-gradient-primary text-white rounded shadow-lg p-4 mb-4">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h1 class="h2 mb-2">
+          <i class="bi bi-speedometer2 me-2"></i>
+          プラットフォーム総合ダッシュボード
+        </h1>
+        <p class="mb-0 opacity-90">
+          全祭りの統合分析とプラットフォーム全体のパフォーマンス指標
+        </p>
+      </div>
+      <div class="col-lg-4">
+        <div class="d-flex gap-2 justify-content-lg-end">
+          <!-- Global Date Range -->
+          <div class="dropdown">
+            <button class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+              <i class="bi bi-calendar3 me-1"></i>期間
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="?period=last_7_days">過去7日間</a></li>
+              <li><a class="dropdown-item" href="?period=last_30_days">過去30日間</a></li>
+              <li><a class="dropdown-item" href="?period=last_90_days">過去90日間</a></li>
+              <li><a class="dropdown-item" href="?period=this_year">今年</a></li>
+            </ul>
+          </div>
+          
+          <!-- Export Options -->
+          <div class="dropdown">
+            <button class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+              <i class="bi bi-download me-1"></i>Export
+            </button>
+            <ul class="dropdown-menu">
+              <li><%= link_to "CSV", admin_dashboard_export_data_path(format: 'csv'), class: "dropdown-item" %></li>
+              <li><%= link_to "Excel", admin_dashboard_export_data_path(format: 'excel'), class: "dropdown-item" %></li>
+            </ul>
+          </div>
+          
+          <!-- Refresh -->
+          <button class="btn btn-light btn-sm" 
+                  data-action="click->dashboard#refresh"
+                  title="データを更新">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Overview Metrics -->
+  <div class="global-metrics mb-4">
+    <div class="row g-3">
+      <div class="col-xl-2 col-lg-4 col-md-6">
+        <div class="metric-card bg-white border-start border-primary border-4">
+          <div class="metric-content p-3">
+            <div class="d-flex justify-content-between">
+              <div>
+                <div class="metric-value h4 mb-1" data-dashboard-target="totalFestivals">
+                  <%= @dashboard_data[:overview][:total_festivals] %>
+                </div>
+                <div class="metric-label text-muted small">総祭り数</div>
+              </div>
+              <div class="metric-icon">
+                <i class="bi bi-calendar-event text-primary fs-3"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-xl-2 col-lg-4 col-md-6">
+        <div class="metric-card bg-white border-start border-success border-4">
+          <div class="metric-content p-3">
+            <div class="d-flex justify-content-between">
+              <div>
+                <div class="metric-value h4 mb-1" data-dashboard-target="activeFestivals">
+                  <%= @dashboard_data[:overview][:active_festivals] %>
+                </div>
+                <div class="metric-label text-muted small">アクティブ</div>
+              </div>
+              <div class="metric-icon">
+                <i class="bi bi-play-circle text-success fs-3"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-xl-2 col-lg-4 col-md-6">
+        <div class="metric-card bg-white border-start border-info border-4">
+          <div class="metric-content p-3">
+            <div class="d-flex justify-content-between">
+              <div>
+                <div class="metric-value h4 mb-1" data-dashboard-target="totalVendors">
+                  <%= @dashboard_data[:overview][:total_vendors] %>
+                </div>
+                <div class="metric-label text-muted small">総出店者</div>
+              </div>
+              <div class="metric-icon">
+                <i class="bi bi-people text-info fs-3"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-xl-2 col-lg-4 col-md-6">
+        <div class="metric-card bg-white border-start border-warning border-4">
+          <div class="metric-content p-3">
+            <div class="d-flex justify-content-between">
+              <div>
+                <div class="metric-value h4 mb-1" data-dashboard-target="totalRevenue">
+                  ¥<%= number_with_delimiter(@dashboard_data[:overview][:total_revenue]) %>
+                </div>
+                <div class="metric-label text-muted small">総収益</div>
+              </div>
+              <div class="metric-icon">
+                <i class="bi bi-currency-yen text-warning fs-3"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-xl-2 col-lg-4 col-md-6">
+        <div class="metric-card bg-white border-start border-secondary border-4">
+          <div class="metric-content p-3">
+            <div class="d-flex justify-content-between">
+              <div>
+                <div class="metric-value h4 mb-1" data-dashboard-target="completionRate">
+                  <%= @dashboard_data[:overview][:completion_rate] %>%
+                </div>
+                <div class="metric-label text-muted small">完了率</div>
+              </div>
+              <div class="metric-icon">
+                <i class="bi bi-check-circle text-secondary fs-3"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-xl-2 col-lg-4 col-md-6">
+        <div class="metric-card bg-white border-start border-danger border-4">
+          <div class="metric-content p-3">
+            <div class="d-flex justify-content-between">
+              <div>
+                <div class="metric-value h4 mb-1" data-dashboard-target="activeUsers">
+                  <%= @dashboard_data[:overview][:user_activity][:daily_active_users] %>
+                </div>
+                <div class="metric-label text-muted small">DAU</div>
+              </div>
+              <div class="metric-icon">
+                <i class="bi bi-person-check text-danger fs-3"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Platform-wide Charts -->
+  <div class="platform-charts mb-4">
+    <div class="row g-4">
+      <!-- Festival Growth Chart -->
+      <div class="col-lg-6">
+        <div class="chart-card bg-white rounded shadow-sm p-4 h-100">
+          <div class="chart-header mb-3">
+            <h6 class="mb-0">
+              <i class="bi bi-graph-up text-primary me-2"></i>
+              祭り成長トレンド
+            </h6>
+          </div>
+          <div class="chart-container" style="height: 300px;">
+            <canvas id="festivalGrowthChart" 
+                    data-dashboard-target="festivalGrowthChart">
+            </canvas>
+          </div>
+        </div>
+      </div>
+      
+      <!-- User Activity Chart -->
+      <div class="col-lg-6">
+        <div class="chart-card bg-white rounded shadow-sm p-4 h-100">
+          <div class="chart-header mb-3">
+            <h6 class="mb-0">
+              <i class="bi bi-activity text-success me-2"></i>
+              ユーザーアクティビティ
+            </h6>
+          </div>
+          <div class="chart-container" style="height: 300px;">
+            <canvas id="userActivityChart" 
+                    data-dashboard-target="userActivityChart">
+            </canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Platform Analytics Grid -->
+  <div class="platform-analytics">
+    <div class="row g-4">
+      <!-- Trend Analytics -->
+      <div class="col-lg-4">
+        <div class="analytics-card bg-white rounded shadow-sm h-100">
+          <div class="card-header bg-light border-bottom">
+            <h6 class="mb-0">
+              <i class="bi bi-trending-up text-primary me-2"></i>
+              トレンド分析
+            </h6>
+          </div>
+          <div class="card-body">
+            <% if @dashboard_data[:trend_analytics] && @dashboard_data[:trend_analytics].any? %>
+              <!-- Seasonal Trends -->
+              <div class="trend-item mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="small text-muted">季節トレンド</span>
+                  <span class="badge bg-primary">春がピーク</span>
+                </div>
+                <div class="progress" style="height: 4px;">
+                  <div class="progress-bar bg-primary" style="width: 75%"></div>
+                </div>
+              </div>
+              
+              <!-- Year over Year -->
+              <div class="trend-item mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="small text-muted">前年比成長</span>
+                  <span class="badge bg-success">+23%</span>
+                </div>
+                <div class="progress" style="height: 4px;">
+                  <div class="progress-bar bg-success" style="width: 60%"></div>
+                </div>
+              </div>
+              
+              <!-- User Behavior -->
+              <div class="trend-item">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="small text-muted">利用行動変化</span>
+                  <span class="badge bg-info">モバイル増</span>
+                </div>
+                <div class="progress" style="height: 4px;">
+                  <div class="progress-bar bg-info" style="width: 85%"></div>
+                </div>
+              </div>
+            <% else %>
+              <div class="text-center py-4">
+                <i class="bi bi-graph-up-arrow display-6 text-muted"></i>
+                <p class="text-muted small mt-2">トレンドデータを収集中...</p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Performance Indicators -->
+      <div class="col-lg-4">
+        <div class="analytics-card bg-white rounded shadow-sm h-100">
+          <div class="card-header bg-light border-bottom">
+            <h6 class="mb-0">
+              <i class="bi bi-speedometer text-warning me-2"></i>
+              パフォーマンス指標
+            </h6>
+          </div>
+          <div class="card-body">
+            <% if @dashboard_data[:performance_indicators] && @dashboard_data[:performance_indicators].any? %>
+              <!-- KPIs -->
+              <div class="kpi-item d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <div class="kpi-label small text-muted">平均応答時間</div>
+                  <div class="kpi-value fw-bold">2.3秒</div>
+                </div>
+                <div class="kpi-status">
+                  <span class="badge bg-success rounded-pill">良好</span>
+                </div>
+              </div>
+              
+              <div class="kpi-item d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <div class="kpi-label small text-muted">システム稼働率</div>
+                  <div class="kpi-value fw-bold">99.8%</div>
+                </div>
+                <div class="kpi-status">
+                  <span class="badge bg-success rounded-pill">優秀</span>
+                </div>
+              </div>
+              
+              <div class="kpi-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="kpi-label small text-muted">ユーザー満足度</div>
+                  <div class="kpi-value fw-bold">4.6/5.0</div>
+                </div>
+                <div class="kpi-status">
+                  <span class="badge bg-primary rounded-pill">高評価</span>
+                </div>
+              </div>
+            <% else %>
+              <div class="text-center py-4">
+                <i class="bi bi-speedometer2 display-6 text-muted"></i>
+                <p class="text-muted small mt-2">パフォーマンスデータを収集中...</p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Quick Actions -->
+      <div class="col-lg-4">
+        <div class="analytics-card bg-white rounded shadow-sm h-100">
+          <div class="card-header bg-light border-bottom">
+            <h6 class="mb-0">
+              <i class="bi bi-lightning text-danger me-2"></i>
+              クイックアクション
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="d-grid gap-2">
+              <%= link_to "新しい祭りを作成", new_festival_path, class: "btn btn-primary btn-sm" %>
+              <%= link_to "出店者管理", admin_vendor_applications_path, class: "btn btn-outline-secondary btn-sm" %>
+              <%= link_to "システム監視", admin_monitoring_path, class: "btn btn-outline-info btn-sm" %>
+              <%= link_to "ユーザー管理", admin_users_path, class: "btn btn-outline-warning btn-sm" %>
+              
+              <hr class="my-3">
+              
+              <div class="quick-stats">
+                <div class="stat-item d-flex justify-content-between mb-2">
+                  <span class="small text-muted">今日の新規登録</span>
+                  <span class="badge bg-success">12</span>
+                </div>
+                <div class="stat-item d-flex justify-content-between mb-2">
+                  <span class="small text-muted">保留中の申請</span>
+                  <span class="badge bg-warning">8</span>
+                </div>
+                <div class="stat-item d-flex justify-content-between">
+                  <span class="small text-muted">アクティブセッション</span>
+                  <span class="badge bg-info">45</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .platform-dashboard {
+    min-height: 100vh;
+  }
+  
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  }
+  
+  .metric-card {
+    height: 100%;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #e9ecef;
+  }
+  
+  .metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+  }
+  
+  .metric-value {
+    font-weight: 700;
+    color: #495057;
+  }
+  
+  .metric-icon {
+    opacity: 0.8;
+  }
+  
+  .chart-card {
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .chart-container {
+    flex: 1;
+    position: relative;
+  }
+  
+  .analytics-card {
+    border: 1px solid #e9ecef;
+  }
+  
+  .trend-item, .kpi-item {
+    padding: 0.5rem 0;
+  }
+  
+  .progress {
+    background-color: #f8f9fa;
+  }
+  
+  .quick-stats {
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .metric-card {
+      margin-bottom: 1rem;
+    }
+    
+    .chart-card {
+      height: 300px;
+    }
+  }
+</style>

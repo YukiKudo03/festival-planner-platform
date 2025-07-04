@@ -59,6 +59,19 @@ Rails.application.routes.draw do
   resources :reactions, only: [:create, :update, :destroy]
   namespace :admin do
     resources :festivals do
+      resource :dashboard, only: [:show] do
+        get :budget_analytics
+        get :task_analytics
+        get :vendor_analytics
+        get :venue_analytics
+        get :communication_analytics
+        get :time_series_data
+        get :forecast_data
+        get :comparative_data
+        get :recommendations
+        get :export_data
+      end
+      
       resources :budget_categories do
         member do
           post :create_standard_categories
@@ -152,9 +165,11 @@ Rails.application.routes.draw do
   root "home#index"
 
   # Admin routes (system_admin and admin only)
-  get 'admin/dashboard', to: 'admin#dashboard'
-  get 'admin/users', to: 'admin#users'
-  get 'admin/monitoring', to: 'admin#monitoring'
+  namespace :admin do
+    get 'dashboard', to: 'dashboard#platform_overview'
+    get 'users', to: 'admin#users'
+    get 'monitoring', to: 'admin#monitoring'
+  end
 
   # Public festival routes (accessible to all, including non-logged users)
   get 'public_festivals', to: 'public_festivals#index'

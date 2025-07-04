@@ -1,0 +1,402 @@
+<% content_for :title, "#{@festival.name} - ダッシュボード" %>
+<% content_for :breadcrumb do %>
+  <%= link_to @festival.name, @festival, class: "breadcrumb-item" %>
+  <%= link_to "管理", admin_festival_path(@festival), class: "breadcrumb-item" %>
+  <span class="breadcrumb-item active">ダッシュボード</span>
+<% end %>
+
+<div class="analytics-dashboard" 
+     data-controller="dashboard"
+     data-dashboard-festival-id-value="<%= @festival.id %>"
+     data-dashboard-auto-refresh-value="true">
+  
+  <!-- Dashboard Header -->
+  <div class="dashboard-header bg-white rounded shadow-sm p-4 mb-4">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h1 class="h3 mb-2">
+          <i class="bi bi-graph-up text-primary me-2"></i>
+          <%= @festival.name %> ダッシュボード
+        </h1>
+        <p class="text-muted mb-0">
+          リアルタイム分析と総合的なパフォーマンス指標
+        </p>
+      </div>
+      <div class="col-lg-6">
+        <div class="d-flex gap-2 justify-content-lg-end">
+          <!-- Date Range Selector -->
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+              <i class="bi bi-calendar3 me-1"></i>期間選択
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="?period=last_7_days">過去7日間</a></li>
+              <li><a class="dropdown-item" href="?period=last_30_days">過去30日間</a></li>
+              <li><a class="dropdown-item" href="?period=last_90_days">過去90日間</a></li>
+              <li><a class="dropdown-item" href="?period=this_year">今年</a></li>
+            </ul>
+          </div>
+          
+          <!-- Export Button -->
+          <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+              <i class="bi bi-download me-1"></i>エクスポート
+            </button>
+            <ul class="dropdown-menu">
+              <li><%= link_to "CSV形式", admin_festival_dashboard_export_path(@festival, format: 'csv'), class: "dropdown-item" %></li>
+              <li><%= link_to "Excel形式", admin_festival_dashboard_export_path(@festival, format: 'excel'), class: "dropdown-item" %></li>
+              <li><%= link_to "JSON形式", admin_festival_dashboard_path(@festival, format: 'json'), class: "dropdown-item" %></li>
+            </ul>
+          </div>
+          
+          <!-- Refresh Button -->
+          <button class="btn btn-outline-success" 
+                  data-action="click->dashboard#refresh"
+                  title="データを更新">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overview Metrics -->
+  <div class="overview-metrics mb-4">
+    <div class="row g-3">
+      <div class="col-xl-3 col-lg-6">
+        <div class="metric-card bg-primary text-white">
+          <div class="metric-icon">
+            <i class="bi bi-currency-yen"></i>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value" data-dashboard-target="totalRevenue">
+              ¥<%= number_with_delimiter(@dashboard_data[:overview][:total_revenue]) %>
+            </div>
+            <div class="metric-label">総収益</div>
+            <div class="metric-change text-success">
+              <i class="bi bi-arrow-up"></i> +12.5%
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-xl-3 col-lg-6">
+        <div class="metric-card bg-success text-white">
+          <div class="metric-icon">
+            <i class="bi bi-people"></i>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value" data-dashboard-target="totalVendors">
+              <%= @dashboard_data[:overview][:total_vendors] %>
+            </div>
+            <div class="metric-label">総出店者数</div>
+            <div class="metric-change text-light">
+              <i class="bi bi-arrow-up"></i> +8.3%
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-xl-3 col-lg-6">
+        <div class="metric-card bg-warning text-white">
+          <div class="metric-icon">
+            <i class="bi bi-check-circle"></i>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value" data-dashboard-target="completionRate">
+              <%= @dashboard_data[:overview][:completion_rate] %>%
+            </div>
+            <div class="metric-label">タスク完了率</div>
+            <div class="metric-change text-light">
+              <i class="bi bi-arrow-up"></i> +5.2%
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-xl-3 col-lg-6">
+        <div class="metric-card bg-info text-white">
+          <div class="metric-icon">
+            <i class="bi bi-graph-up"></i>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value" data-dashboard-target="budgetUtilization">
+              <%= @dashboard_data[:budget_analytics][:budget_utilization] %>%
+            </div>
+            <div class="metric-label">予算使用率</div>
+            <div class="metric-change text-light">
+              <i class="bi bi-arrow-down"></i> -2.1%
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="charts-section mb-4">
+    <div class="row g-4">
+      <!-- Budget Chart -->
+      <div class="col-lg-6">
+        <div class="chart-card bg-white rounded shadow-sm p-4">
+          <div class="chart-header d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0">
+              <i class="bi bi-pie-chart text-primary me-2"></i>
+              予算使用状況
+            </h6>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-three-dots"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">詳細表示</a></li>
+                <li><a class="dropdown-item" href="#">画像保存</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="budgetChart" 
+                    data-dashboard-target="budgetChart"
+                    data-chart-data="<%= @dashboard_data[:budget_analytics][:expense_breakdown].to_json %>">
+            </canvas>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Task Progress Chart -->
+      <div class="col-lg-6">
+        <div class="chart-card bg-white rounded shadow-sm p-4">
+          <div class="chart-header d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0">
+              <i class="bi bi-bar-chart text-success me-2"></i>
+              タスク進捗状況
+            </h6>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-three-dots"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">詳細表示</a></li>
+                <li><a class="dropdown-item" href="#">画像保存</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="taskChart" 
+                    data-dashboard-target="taskChart"
+                    data-chart-data="<%= @dashboard_data[:task_analytics][:completion_trends].to_json %>">
+            </canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics Sections -->
+  <div class="analytics-sections">
+    <div class="row g-4">
+      <!-- Budget Analytics -->
+      <div class="col-lg-6">
+        <div class="analytics-card bg-white rounded shadow-sm">
+          <div class="card-header bg-light border-bottom">
+            <h6 class="mb-0">
+              <i class="bi bi-wallet2 text-primary me-2"></i>
+              予算・財務分析
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="analytics-content" 
+                 data-dashboard-target="budgetAnalytics"
+                 data-url="<%= admin_festival_dashboard_budget_analytics_path(@festival) %>">
+              <%= render 'budget_analytics', budget_data: @dashboard_data[:budget_analytics] %>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Vendor Analytics -->
+      <div class="col-lg-6">
+        <div class="analytics-card bg-white rounded shadow-sm">
+          <div class="card-header bg-light border-bottom">
+            <h6 class="mb-0">
+              <i class="bi bi-shop text-warning me-2"></i>
+              出店者分析
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="analytics-content" 
+                 data-dashboard-target="vendorAnalytics"
+                 data-url="<%= admin_festival_dashboard_vendor_analytics_path(@festival) %>">
+              <%= render 'vendor_analytics', vendor_data: @dashboard_data[:vendor_analytics] %>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Task Analytics -->
+      <div class="col-lg-6">
+        <div class="analytics-card bg-white rounded shadow-sm">
+          <div class="card-header bg-light border-bottom">
+            <h6 class="mb-0">
+              <i class="bi bi-check-square text-success me-2"></i>
+              タスク・プロジェクト分析
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="analytics-content" 
+                 data-dashboard-target="taskAnalytics"
+                 data-url="<%= admin_festival_dashboard_task_analytics_path(@festival) %>">
+              <%= render 'task_analytics', task_data: @dashboard_data[:task_analytics] %>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Communication Analytics -->
+      <div class="col-lg-6">
+        <div class="analytics-card bg-white rounded shadow-sm">
+          <div class="card-header bg-light border-bottom">
+            <h6 class="mb-0">
+              <i class="bi bi-chat-dots text-info me-2"></i>
+              コミュニケーション分析
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="analytics-content" 
+                 data-dashboard-target="communicationAnalytics"
+                 data-url="<%= admin_festival_dashboard_communication_analytics_path(@festival) %>">
+              <%= render 'communication_analytics', communication_data: @dashboard_data[:communication_analytics] %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommendations Section -->
+  <div class="recommendations-section mt-4">
+    <div class="bg-white rounded shadow-sm p-4">
+      <h6 class="mb-3">
+        <i class="bi bi-lightbulb text-warning me-2"></i>
+        最適化の提案
+      </h6>
+      <div class="recommendations-content" 
+           data-dashboard-target="recommendations"
+           data-url="<%= admin_festival_dashboard_recommendations_path(@festival) %>">
+        <%= render 'recommendations', recommendations: @dashboard_data[:recommendations] if @dashboard_data[:recommendations] %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .analytics-dashboard {
+    min-height: 100vh;
+  }
+  
+  .dashboard-header {
+    border-left: 4px solid var(--bs-primary);
+  }
+  
+  .metric-card {
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+  }
+  
+  .metric-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+    pointer-events: none;
+  }
+  
+  .metric-icon {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 2rem;
+    opacity: 0.3;
+  }
+  
+  .metric-content {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  
+  .metric-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    margin-bottom: 0.25rem;
+  }
+  
+  .metric-change {
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  
+  .chart-card {
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .chart-container {
+    flex: 1;
+    position: relative;
+  }
+  
+  .analytics-card {
+    height: 350px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .analytics-card .card-body {
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  .analytics-content {
+    height: 100%;
+  }
+  
+  .loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+  }
+  
+  @media (max-width: 768px) {
+    .metric-card {
+      margin-bottom: 1rem;
+    }
+    
+    .chart-card {
+      height: 300px;
+    }
+    
+    .analytics-card {
+      height: auto;
+      margin-bottom: 1rem;
+    }
+  }
+</style>

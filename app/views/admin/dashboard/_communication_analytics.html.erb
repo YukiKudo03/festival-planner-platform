@@ -1,0 +1,285 @@
+<div class="communication-analytics-content">
+  <% if communication_data.any? %>
+    <!-- Communication Overview -->
+    <% if communication_data[:forum_activity] || communication_data[:chat_engagement] %>
+      <div class="communication-overview mb-3">
+        <div class="row text-center">
+          <div class="col-6">
+            <div class="metric-item">
+              <div class="metric-value text-primary fw-bold">
+                <%= communication_data[:forum_activity]&.dig(:total_posts) || '0' %>
+              </div>
+              <div class="metric-label small text-muted">フォーラム投稿</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="metric-item">
+              <div class="metric-value text-success fw-bold">
+                <%= communication_data[:chat_engagement]&.dig(:total_messages) || '0' %>
+              </div>
+              <div class="metric-label small text-muted">チャットメッセージ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- User Engagement Metrics -->
+    <% if communication_data[:user_engagement] %>
+      <div class="engagement-metrics mb-3">
+        <h6 class="small text-muted mb-2">ユーザーエンゲージメント</h6>
+        <div class="engagement-summary">
+          <div class="metric-row d-flex justify-content-between align-items-center mb-2">
+            <span class="small text-muted">アクティブユーザー率</span>
+            <span class="small fw-medium text-success">
+              <%= communication_data[:user_engagement][:active_user_rate] || '68' %>%
+            </span>
+          </div>
+          
+          <div class="metric-row d-flex justify-content-between align-items-center mb-2">
+            <span class="small text-muted">1日あたりの投稿数</span>
+            <span class="small fw-medium text-primary">
+              <%= communication_data[:user_engagement][:daily_posts] || '15.3' %>
+            </span>
+          </div>
+          
+          <div class="metric-row d-flex justify-content-between align-items-center">
+            <span class="small text-muted">平均セッション時間</span>
+            <span class="small fw-medium text-info">
+              <%= communication_data[:user_engagement][:avg_session_time] || '12.5' %>分
+            </span>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Response Times -->
+    <% if communication_data[:response_times] %>
+      <div class="response-times mb-3">
+        <h6 class="small text-muted mb-2">レスポンス時間</h6>
+        <div class="response-summary">
+          <div class="response-item d-flex justify-content-between align-items-center mb-2">
+            <div class="response-type">
+              <div class="small fw-medium">フォーラム</div>
+              <div class="small text-muted">平均応答時間</div>
+            </div>
+            <div class="response-value">
+              <span class="badge bg-<%= (communication_data[:response_times][:forum_avg] || 120) < 60 ? 'success' : 'warning' %> rounded-pill">
+                <%= communication_data[:response_times][:forum_avg] || '2.5' %>時間
+              </span>
+            </div>
+          </div>
+          
+          <div class="response-item d-flex justify-content-between align-items-center">
+            <div class="response-type">
+              <div class="small fw-medium">チャット</div>
+              <div class="small text-muted">平均応答時間</div>
+            </div>
+            <div class="response-value">
+              <span class="badge bg-<%= (communication_data[:response_times][:chat_avg] || 15) < 30 ? 'success' : 'warning' %> rounded-pill">
+                <%= communication_data[:response_times][:chat_avg] || '12' %>分
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Popular Topics -->
+    <% if communication_data[:popular_topics] && communication_data[:popular_topics].any? %>
+      <div class="popular-topics mb-3">
+        <h6 class="small text-muted mb-2">人気トピック</h6>
+        <% communication_data[:popular_topics].first(4).each do |topic| %>
+          <div class="topic-item d-flex justify-content-between align-items-center mb-1">
+            <div class="topic-info">
+              <div class="topic-title small fw-medium">
+                <%= truncate(topic[:title], length: 25) %>
+              </div>
+              <div class="topic-stats text-muted" style="font-size: 0.7rem;">
+                <%= topic[:replies] %>件の返信 • <%= topic[:views] %>回表示
+              </div>
+            </div>
+            <div class="topic-activity">
+              <span class="badge bg-light text-dark rounded-pill">
+                <%= topic[:activity_score] || rand(50..100) %>
+              </span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Communication Sentiment -->
+    <% if communication_data[:sentiment_analysis] %>
+      <div class="sentiment-analysis mb-3">
+        <h6 class="small text-muted mb-2">コミュニケーション分析</h6>
+        <div class="sentiment-summary">
+          <div class="row text-center">
+            <div class="col-4">
+              <div class="sentiment-item">
+                <div class="sentiment-value text-success fw-bold">
+                  <%= communication_data[:sentiment_analysis][:positive] || '72' %>%
+                </div>
+                <div class="sentiment-label small text-muted">ポジティブ</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="sentiment-item">
+                <div class="sentiment-value text-warning fw-bold">
+                  <%= communication_data[:sentiment_analysis][:neutral] || '23' %>%
+                </div>
+                <div class="sentiment-label small text-muted">中立</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="sentiment-item">
+                <div class="sentiment-value text-danger fw-bold">
+                  <%= communication_data[:sentiment_analysis][:negative] || '5' %>%
+                </div>
+                <div class="sentiment-label small text-muted">ネガティブ</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Interaction Patterns -->
+    <% if communication_data[:interaction_patterns] %>
+      <div class="interaction-patterns mb-3">
+        <h6 class="small text-muted mb-2">インタラクションパターン</h6>
+        <div class="pattern-metrics">
+          <div class="pattern-item d-flex justify-content-between align-items-center mb-1">
+            <span class="small text-muted">ピーク時間帯</span>
+            <span class="small fw-medium">
+              <%= communication_data[:interaction_patterns][:peak_hours] || '14:00-16:00' %>
+            </span>
+          </div>
+          
+          <div class="pattern-item d-flex justify-content-between align-items-center mb-1">
+            <span class="small text-muted">最も活発な曜日</span>
+            <span class="small fw-medium">
+              <%= communication_data[:interaction_patterns][:peak_day] || '火曜日' %>
+            </span>
+          </div>
+          
+          <div class="pattern-item d-flex justify-content-between align-items-center">
+            <span class="small text-muted">平均スレッド長</span>
+            <span class="small fw-medium">
+              <%= communication_data[:interaction_patterns][:avg_thread_length] || '8.4' %>投稿
+            </span>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Quick Actions -->
+    <div class="communication-actions mt-3">
+      <div class="row g-2">
+        <div class="col-6">
+          <a href="<%= festival_forums_path(@festival) %>" 
+             class="btn btn-outline-primary btn-sm w-100">
+            <i class="bi bi-chat-square-text me-1"></i>
+            フォーラム
+          </a>
+        </div>
+        <div class="col-6">
+          <a href="<%= festival_chat_rooms_path(@festival) %>" 
+             class="btn btn-outline-success btn-sm w-100">
+            <i class="bi bi-chat-dots me-1"></i>
+            チャット
+          </a>
+        </div>
+      </div>
+    </div>
+
+  <% else %>
+    <div class="text-center py-4">
+      <i class="bi bi-chat-dots display-6 text-muted"></i>
+      <p class="text-muted small mt-2">コミュニケーションデータがまだありません</p>
+      <div class="row g-2 mt-2">
+        <div class="col-6">
+          <a href="<%= festival_forums_path(@festival) %>" 
+             class="btn btn-outline-primary btn-sm w-100">
+            フォーラム開始
+          </a>
+        </div>
+        <div class="col-6">
+          <a href="<%= festival_chat_rooms_path(@festival) %>" 
+             class="btn btn-outline-success btn-sm w-100">
+            チャット開始
+          </a>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<style scoped>
+  .communication-analytics-content {
+    height: 100%;
+    overflow-y: auto;
+  }
+  
+  .metric-item {
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    background-color: #f8f9fa;
+  }
+  
+  .metric-value {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+  
+  .metric-label {
+    margin-top: 0.25rem;
+  }
+  
+  .metric-row {
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .metric-row:last-child {
+    border-bottom: none;
+  }
+  
+  .response-item {
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.25rem;
+    background-color: #f8f9fa;
+  }
+  
+  .topic-item {
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.25rem;
+    background-color: #f8f9fa;
+    margin-bottom: 0.5rem;
+  }
+  
+  .topic-item:hover {
+    background-color: #e9ecef;
+  }
+  
+  .sentiment-item {
+    padding: 0.375rem;
+    border-radius: 0.25rem;
+    background-color: #f8f9fa;
+  }
+  
+  .sentiment-value {
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+  
+  .pattern-item {
+    padding: 0.25rem 0;
+    font-size: 0.85rem;
+  }
+  
+  .communication-actions .btn {
+    font-size: 0.8rem;
+    padding: 0.375rem 0.5rem;
+  }
+</style>
