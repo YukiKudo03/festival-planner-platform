@@ -156,7 +156,7 @@ RSpec.describe Revenue, type: :model do
     end
     
     it 'creates a notification' do
-      expect(NotificationService).to receive(:create_notification)
+      expect(NotificationService).to receive(:create_notification).twice
       revenue.confirm!(admin)
     end
   end
@@ -172,7 +172,7 @@ RSpec.describe Revenue, type: :model do
     end
     
     it 'creates a notification' do
-      expect(NotificationService).to receive(:create_notification)
+      expect(NotificationService).to receive(:create_notification).twice
       revenue.mark_received!(admin)
     end
   end

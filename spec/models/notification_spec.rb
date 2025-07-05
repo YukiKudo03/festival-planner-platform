@@ -185,6 +185,24 @@ RSpec.describe Notification, type: :model do
         vendor_application_approved
         vendor_application_rejected
         system_announcement
+        forum_reply
+        forum_mention
+        forum_thread_created
+        chat_message
+        chat_mention
+        expense_approved
+        expense_rejected
+        revenue_confirmed
+        revenue_received
+        revenue_status_changed
+        budget_exceeded
+        budget_warning
+        budget_approval_requested
+        budget_approval_approved
+        budget_approval_rejected
+        booth_assigned
+        booth_unassigned
+        venue_layout_updated
       ]
       
       expect(Notification::NOTIFICATION_TYPES).to eq(expected_types)

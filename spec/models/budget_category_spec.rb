@@ -136,7 +136,7 @@ RSpec.describe BudgetCategory, type: :model do
     it 'creates standard categories for a festival' do
       expect {
         described_class.create_standard_categories_for(festival)
-      }.to change(festival.budget_categories, :count).by(10)
+      }.to change(festival.budget_categories, :count).by(9)  # 9 new categories (1 overlaps with default)
     end
     
     it 'does not create duplicate categories' do

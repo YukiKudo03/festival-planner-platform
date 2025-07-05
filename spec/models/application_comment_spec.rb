@@ -32,11 +32,15 @@ RSpec.describe ApplicationComment, type: :model do
 
     describe '.recent' do
       it 'orders comments by created_at desc' do
+        # Clear any existing comments first
+        ApplicationComment.destroy_all
+        
         older_comment = create(:application_comment, vendor_application: vendor_application, created_at: 1.day.ago)
         newer_comment = create(:application_comment, vendor_application: vendor_application, created_at: 1.hour.ago)
         
-        expect(ApplicationComment.recent.first).to eq(newer_comment)
-        expect(ApplicationComment.recent.last).to eq(older_comment)
+        recent_comments = ApplicationComment.recent
+        expect(recent_comments.first).to eq(newer_comment)
+        expect(recent_comments.last).to eq(older_comment)
       end
     end
   end
