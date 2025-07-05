@@ -30,6 +30,10 @@ class Festival < ApplicationRecord
   validate :main_image_format, if: -> { main_image.attached? }
   validate :gallery_images_format, if: -> { gallery_images.attached? }
   validate :documents_format, if: -> { documents.attached? }
+  
+  # Callbacks
+  after_create :create_default_budget_categories
+  after_create :create_default_venue
 
   enum :status, {
     planning: 0,
@@ -42,6 +46,14 @@ class Festival < ApplicationRecord
   scope :upcoming, -> { where('start_date > ?', Time.current) }
   scope :active, -> { where(status: :active) }
   scope :current_year, -> { where(start_date: Date.current.beginning_of_year..Date.current.end_of_year) }
+  scope :public_festivals, -> { where(public: true) }
+  
+  # Search functionality
+  scope :search, ->(query) do
+    return all if query.blank?
+    where("name ILIKE ? OR location ILIKE ? OR description ILIKE ?", 
+          "%#{query}%", "%#{query}%", "%#{query}%")
+  end
 
   def duration_days
     return 0 unless start_date && end_date
@@ -105,6 +117,65 @@ class Festival < ApplicationRecord
     "#{size.round(1)} #{units[unit_index]}"
   end
   
+  # Budget and financial methods
+  def budget_utilization_rate
+    return 0.0 unless budget && budget > 0
+    total_budget_limit = budget_categories.sum(:budget_limit)
+    return 0.0 if total_budget_limit.zero?
+    
+    total_spent = expenses.approved.sum(:amount)
+    (total_spent.to_f / total_budget_limit.to_f * 100).round(2)
+  end
+  
+  def total_expenses
+    expenses.approved.sum(:amount)
+  end
+  
+  def total_revenues
+    revenues.confirmed.sum(:amount)
+  end
+  
+  def net_profit
+    total_revenues - total_expenses
+  end
+  
+  # Task management methods
+  def completion_rate
+    return 0.0 if tasks.count.zero?
+    (tasks.completed.count.to_f / tasks.count * 100).round(2)
+  end
+  
+  # Vendor management methods
+  def vendor_approval_rate
+    return 0.0 if vendor_applications.count.zero?
+    (vendor_applications.approved.count.to_f / vendor_applications.count * 100).round(2)
+  end
+  
+  # Authorization methods
+  def can_be_edited_by?(user)
+    return true if user.admin? || user.system_admin?
+    return true if user == self.user
+    false
+  end
+  
+  # UI helper methods
+  def status_color
+    case status
+    when 'planning'
+      'secondary'
+    when 'scheduled'
+      'info'
+    when 'active'
+      'success'
+    when 'completed'
+      'primary'
+    when 'cancelled'
+      'danger'
+    else
+      'light'
+    end
+  end
+  
   # Payment-related methods
   def total_payments_amount
     payments.completed.sum(:amount)
@@ -147,6 +218,28 @@ class Festival < ApplicationRecord
   end
 
   private
+  
+  def create_default_budget_categories
+    default_categories = [
+      { name: '会場費', budget_limit: budget * 0.3 },
+      { name: '宣伝費', budget_limit: budget * 0.2 },
+      { name: '運営費', budget_limit: budget * 0.3 },
+      { name: 'その他', budget_limit: budget * 0.2 }
+    ]
+    
+    default_categories.each do |category_attrs|
+      budget_categories.create!(category_attrs)
+    end
+  end
+  
+  def create_default_venue
+    venues.create!(
+      name: "#{name} メイン会場",
+      description: '主要な会場エリア',
+      capacity: 1000,
+      facility_type: 'mixed'
+    )
+  end
 
   def end_date_after_start_date
     return unless start_date && end_date

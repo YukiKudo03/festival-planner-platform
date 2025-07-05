@@ -1,6 +1,6 @@
 # Rate limiting and security configuration
-# Skip initialization in test environment to avoid Redis dependency
-return if Rails.env.test?
+# Skip initialization in test and development environment to avoid Redis dependency
+return if Rails.env.test? || Rails.env.development?
 
 class Rack::Attack
   # Configuration

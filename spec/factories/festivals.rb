@@ -7,6 +7,7 @@ FactoryBot.define do
     location { Faker::Address.street_address + ', ' + Faker::Address.city }
     budget { Faker::Number.between(from: 10000, to: 200000) }
     status { :planning }
+    public { false }
     association :user
 
     trait :summer_festival do
@@ -51,11 +52,11 @@ FactoryBot.define do
       status { :cancelled }
     end
     
-    trait :public do
+    trait :public_festival do
       public { true }
     end
     
-    trait :private do
+    trait :private_festival do
       public { false }
     end
     

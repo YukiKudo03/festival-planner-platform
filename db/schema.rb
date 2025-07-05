@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_04_121904) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_04_192933) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -192,6 +192,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_121904) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "public", default: false, null: false
     t.index ["user_id"], name: "index_festivals_on_user_id"
   end
 
@@ -337,6 +338,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_121904) do
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "revenue_type", default: "other", null: false
     t.index ["budget_category_id"], name: "index_revenues_on_budget_category_id"
     t.index ["festival_id"], name: "index_revenues_on_festival_id"
     t.index ["user_id"], name: "index_revenues_on_user_id"

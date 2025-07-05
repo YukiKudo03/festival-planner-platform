@@ -38,7 +38,7 @@ RSpec.describe Festival, type: :model do
   end
   
   describe 'enums' do
-    it { should define_enum_for(:status).with_values([:planning, :active, :completed, :cancelled]) }
+    it { should define_enum_for(:status).with_values([:planning, :scheduled, :active, :completed, :cancelled]) }
   end
   
   describe 'scopes' do
@@ -84,6 +84,11 @@ RSpec.describe Festival, type: :model do
     describe '#budget_utilization_rate' do
       let!(:budget_category) { create(:budget_category, festival: festival, budget_limit: 10000) }
       let!(:expense) { create(:expense, festival: festival, budget_category: budget_category, amount: 3000, status: :approved) }
+      
+      before do
+        # Clear default budget categories created by callback
+        festival.budget_categories.where.not(id: budget_category.id).destroy_all
+      end
       
       it 'calculates budget utilization rate' do
         expect(festival.budget_utilization_rate).to eq(30.0)
@@ -131,7 +136,7 @@ RSpec.describe Festival, type: :model do
     
     describe '#vendor_approval_rate' do
       let!(:approved_application) { create(:vendor_application, festival: festival, status: :approved) }
-      let!(:pending_application) { create(:vendor_application, festival: festival, status: :pending) }
+      let!(:under_review_application) { create(:vendor_application, festival: festival, status: :under_review) }
       
       it 'calculates vendor approval rate' do
         expect(festival.vendor_approval_rate).to eq(50.0)
