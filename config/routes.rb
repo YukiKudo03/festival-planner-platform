@@ -207,8 +207,34 @@ Rails.application.routes.draw do
 
   # Regular festival management routes (authenticated users)
   resources :festivals do
-    resources :tasks, except: [:index]
-    resources :vendor_applications, except: [:index]
+    resources :tasks, except: [:index] do
+      member do
+        post :assign
+        post :complete
+      end
+      collection do
+        patch :bulk_complete
+        delete :bulk_delete
+      end
+    end
+    resources :vendor_applications, except: [:index] do
+      member do
+        post :submit
+        post :withdraw
+        post :start_review
+        post :approve
+        post :reject
+        post :request_changes
+      end
+    end
+    resources :payments do
+      member do
+        post :process_payment
+        post :confirm
+        post :cancel
+        get :receipt
+      end
+    end
     # Gantt chart for festival-specific tasks
     get 'gantt', to: 'festivals#gantt', as: :gantt
   end
