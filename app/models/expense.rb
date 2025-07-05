@@ -89,8 +89,10 @@ class Expense < ApplicationRecord
         notifiable: self,
         notification_type: 'expense_approved',
         title: '支出が承認されました',
-        message: "#{budget_category.name}: ¥#{amount.to_i.to_s(:delimited)}"
+        message: "#{budget_category.name}: ¥#{number_with_delimiter(amount.to_i)}"
       )
+      
+      true
     end
   end
 
@@ -110,11 +112,13 @@ class Expense < ApplicationRecord
         title: '支出が却下されました',
         message: "理由: #{reason}"
       )
+      
+      true
     end
   end
 
   def amount_formatted
-    "¥#{amount.to_i.to_s(:delimited)}"
+    "¥#{number_with_delimiter(amount.to_i)}"
   end
 
   def tax_amount(tax_rate = 0.1)

@@ -2,8 +2,18 @@ require 'rails_helper'
 
 RSpec.describe ApplicationReview, type: :model do
   describe 'validations' do
-    it { should validate_presence_of(:action) }
-    it { should validate_presence_of(:reviewed_at) }
+    subject { build(:application_review, action: :started_review) }
+    
+    it 'validates reviewed_at for non-submitted actions' do
+      review = build(:application_review, action: :started_review, reviewed_at: nil)
+      expect(review).to be_invalid
+      expect(review.errors[:reviewed_at]).to include("can't be blank")
+    end
+    
+    it 'does not validate reviewed_at for submitted action' do
+      review = build(:application_review, action: :submitted, reviewed_at: nil)
+      expect(review).to be_valid
+    end
   end
 
   describe 'associations' do

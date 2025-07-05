@@ -1,4 +1,6 @@
 class BudgetApproval < ApplicationRecord
+  include ActionView::Helpers::NumberHelper
+  
   belongs_to :festival
   belongs_to :budget_category
   belongs_to :approver, polymorphic: true
@@ -40,11 +42,11 @@ class BudgetApproval < ApplicationRecord
   end
 
   def requested_amount_formatted
-    "¥#{requested_amount.to_i.to_s(:delimited)}"
+    "¥#{number_with_delimiter(requested_amount.to_i)}"
   end
 
   def approved_amount_formatted
-    "¥#{approved_amount.to_i.to_s(:delimited)}"
+    "¥#{number_with_delimiter(approved_amount.to_i)}"
   end
 
   def difference_amount
@@ -53,8 +55,11 @@ class BudgetApproval < ApplicationRecord
 
   def difference_amount_formatted
     amount = difference_amount
-    prefix = amount >= 0 ? '+' : ''
-    "#{prefix}¥#{amount.to_i.to_s(:delimited)}"
+    if amount >= 0
+      "+¥#{number_with_delimiter(amount.to_i)}"
+    else
+      "-¥#{number_with_delimiter(amount.abs.to_i)}"
+    end
   end
 
   def approval_percentage

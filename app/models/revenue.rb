@@ -1,4 +1,6 @@
 class Revenue < ApplicationRecord
+  include ActionView::Helpers::NumberHelper
+  
   belongs_to :festival
   belongs_to :budget_category
   belongs_to :user
@@ -70,6 +72,11 @@ class Revenue < ApplicationRecord
     current_user.admin? || current_user.committee_member? || festival.user == current_user
   end
 
+  def can_be_received_by?(current_user)
+    return false unless current_user
+    current_user.admin? || current_user.committee_member? || festival.user == current_user
+  end
+
   def confirm!(confirmer, notes = nil)
     return false unless can_be_confirmed_by?(confirmer)
     
@@ -82,13 +89,15 @@ class Revenue < ApplicationRecord
         notifiable: self,
         notification_type: 'revenue_confirmed',
         title: '収入が確定されました',
-        message: "#{budget_category.name}: ¥#{amount.to_i.to_s(:delimited)}"
+        message: "#{budget_category.name}: ¥#{number_with_delimiter(amount.to_i)}"
       )
+      
+      true
     end
   end
 
   def mark_received!(receiver, notes = nil)
-    return false unless can_be_confirmed_by?(receiver)
+    return false unless can_be_received_by?(receiver)
     return false unless status == 'confirmed'
     
     transaction do
@@ -100,13 +109,15 @@ class Revenue < ApplicationRecord
         notifiable: self,
         notification_type: 'revenue_received',
         title: '収入を受領しました',
-        message: "#{budget_category.name}: ¥#{amount.to_i.to_s(:delimited)}"
+        message: "#{budget_category.name}: ¥#{number_with_delimiter(amount.to_i)}"
       )
+      
+      true
     end
   end
 
   def amount_formatted
-    "¥#{amount.to_i.to_s(:delimited)}"
+    "¥#{number_with_delimiter(amount.to_i)}"
   end
 
   def tax_amount(tax_rate = 0.1)
@@ -120,11 +131,12 @@ class Revenue < ApplicationRecord
   private
 
   def notify_revenue_status_change
-    return unless user != User.current_user
+    # Skip if this is an automated system update
+    return if festival.user.nil?
 
     NotificationService.create_notification(
       recipient: user,
-      sender: User.current_user,
+      sender: festival.user,
       notifiable: self,
       notification_type: 'revenue_status_changed',
       title: "収入ステータス変更: #{revenue_type_text}",

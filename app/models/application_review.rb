@@ -18,6 +18,7 @@ class ApplicationReview < ApplicationRecord
 
   scope :recent, -> { order(created_at: :desc) }
   scope :by_reviewer, ->(reviewer) { where(reviewer: reviewer) }
+  scope :by_action, ->(action) { where(action: action) }
   scope :pending_review, -> { where(action: [:submitted, :started_review]) }
 
   before_create :set_reviewed_at, unless: :submitted?
