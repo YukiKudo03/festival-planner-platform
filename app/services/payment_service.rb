@@ -104,7 +104,7 @@ class PaymentService
     
     # Method-specific validation
     method_info = available_methods.find { |m| m[:id] == payment_data[:payment_method] }
-    if method_info
+    if method_info && payment_data[:amount].present?
       if payment_data[:amount] < method_info[:min_amount]
         errors << "Amount is below minimum for #{method_info[:name]}"
       end
