@@ -1,15 +1,22 @@
 # Festival Planner Platform API Documentation
 
+[![API Version](https://img.shields.io/badge/API-v1-blue.svg)](https://github.com/YukiKudo03/festival-planner-platform)
+[![Endpoints](https://img.shields.io/badge/endpoints-45-green.svg)](https://github.com/YukiKudo03/festival-planner-platform)
+[![Documentation](https://img.shields.io/badge/docs-complete-brightgreen.svg)](https://github.com/YukiKudo03/festival-planner-platform)
+
 ## 概要
 
-Festival Planner Platform の RESTful API 仕様書です。本APIを使用して、祭りの管理、決済処理、分析データの取得などが可能です。
+Festival Planner Platform の包括的な RESTful API 仕様書です。本APIを使用して、フェスティバル管理、ベンダー処理、決済、分析データの取得などが可能です。
 
 ## 基本情報
 
 - **Base URL**: `https://your-domain.com/api/v1`
-- **認証方式**: Bearer Token
+- **API Version**: v1 (現在の安定版)
+- **認証方式**: Bearer Token (JWT)
 - **データ形式**: JSON
 - **文字エンコーディング**: UTF-8
+- **Total Endpoints**: 45
+- **最終更新**: 2025年7月6日
 
 ## 認証
 
