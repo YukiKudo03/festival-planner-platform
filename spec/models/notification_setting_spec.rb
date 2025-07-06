@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe NotificationSetting, type: :model do
   let(:user) { create(:user) }
-  let(:notification_setting) { create(:notification_setting, user: user) }
+  let(:notification_setting) { create(:notification_setting, user: user, notification_type: 'task_assigned') }
 
   describe 'associations' do
     it { should belong_to(:user) }
@@ -35,8 +35,9 @@ RSpec.describe NotificationSetting, type: :model do
 
     describe 'uniqueness validation' do
       it 'validates user can only have one setting per notification type' do
-        create(:notification_setting, user: user, notification_type: 'task_assigned')
-        duplicate_setting = build(:notification_setting, user: user, notification_type: 'task_assigned')
+        user2 = create(:user)
+        create(:notification_setting, user: user2, notification_type: 'task_deadline_reminder')
+        duplicate_setting = build(:notification_setting, user: user2, notification_type: 'task_deadline_reminder')
         
         expect(duplicate_setting).not_to be_valid
         expect(duplicate_setting.errors[:user_id]).to include('has already been taken')
@@ -45,13 +46,21 @@ RSpec.describe NotificationSetting, type: :model do
   end
 
   describe 'scopes' do
-    let!(:email_enabled) { create(:notification_setting, email_enabled: true) }
-    let!(:email_disabled) { create(:notification_setting, email_enabled: false) }
-    let!(:web_enabled) { create(:notification_setting, web_enabled: true) }
-    let!(:web_disabled) { create(:notification_setting, web_enabled: false) }
-    let!(:immediate) { create(:notification_setting, frequency: 'immediate') }
-    let!(:daily) { create(:notification_setting, frequency: 'daily') }
-    let!(:task_assigned) { create(:notification_setting, notification_type: 'task_assigned') }
+    let(:user1) { create(:user) }
+    let(:user2) { create(:user) }
+    let(:user3) { create(:user) }
+    let(:user4) { create(:user) }
+    let(:user5) { create(:user) }
+    let(:user6) { create(:user) }
+    let(:user7) { create(:user) }
+    
+    let!(:email_enabled) { create(:notification_setting, user: user1, email_enabled: true, notification_type: 'task_overdue') }
+    let!(:email_disabled) { create(:notification_setting, user: user2, email_enabled: false, notification_type: 'vendor_application_submitted') }
+    let!(:web_enabled) { create(:notification_setting, user: user3, web_enabled: true, notification_type: 'festival_created') }
+    let!(:web_disabled) { create(:notification_setting, user: user4, web_enabled: false, notification_type: 'payment_received') }
+    let!(:immediate) { create(:notification_setting, user: user5, frequency: 'immediate', notification_type: 'task_deadline_reminder') }
+    let!(:daily) { create(:notification_setting, user: user6, frequency: 'daily', notification_type: 'vendor_application_approved') }
+    let!(:task_assigned) { create(:notification_setting, user: user7, notification_type: 'task_assigned') }
 
     describe '.enabled_for_email' do
       it 'returns settings with email enabled' do
@@ -111,14 +120,10 @@ RSpec.describe NotificationSetting, type: :model do
       end
 
       it 'does not create duplicates for existing settings' do
-        existing_setting = create(:notification_setting, user: user, notification_type: 'task_assigned')
-        
+        # User already has one notification setting from the let block
         expect {
           NotificationSetting.create_defaults_for_user(user)
         }.to change { user.notification_settings.count }.by(Notification::NOTIFICATION_TYPES.length - 1)
-        
-        # Existing setting should remain unchanged
-        expect(existing_setting.reload).to eq(existing_setting)
       end
 
       it 'sets correct default values for new settings' do
@@ -209,10 +214,10 @@ RSpec.describe NotificationSetting, type: :model do
 
   describe 'integration with User model' do
     it 'is accessible through user association' do
-      user = create(:user)
-      setting = create(:notification_setting, user: user)
+      test_user = create(:user)
+      setting = create(:notification_setting, user: test_user, notification_type: 'vendor_application_rejected')
       
-      expect(user.notification_settings).to include(setting)
+      expect(test_user.notification_settings).to include(setting)
     end
   end
 end

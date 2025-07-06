@@ -7,7 +7,7 @@ RSpec.describe FestivalsController, type: :controller do
   let(:other_festival) { create(:festival) }
   
   before do
-    sign_in_for_test user
+    authenticate_controller_user(user)
   end
   
   describe 'GET #index' do

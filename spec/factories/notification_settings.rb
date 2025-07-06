@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :notification_setting do
-    notification_type { Notification::NOTIFICATION_TYPES.sample }
+    sequence(:notification_type) { |n| Notification::NOTIFICATION_TYPES[n % Notification::NOTIFICATION_TYPES.length] }
     email_enabled { true }
     web_enabled { true }
     frequency { 'immediate' }

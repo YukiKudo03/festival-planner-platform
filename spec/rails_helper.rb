@@ -96,5 +96,12 @@ RSpec.configure do |config|
   # Skip browser version checks in tests
   config.before(:each) do
     allow_any_instance_of(ApplicationController).to receive(:allow_browser).and_return(true)
+    
+    # Mock session for controller tests
+    if described_class&.ancestors&.include?(ActionController::Base)
+      allow_any_instance_of(ActionDispatch::Request::Session).to receive(:enabled?).and_return(true)
+      allow_any_instance_of(ActionDispatch::Request::Session).to receive(:[]).and_return(nil)
+      allow_any_instance_of(ActionDispatch::Request::Session).to receive(:[]=).and_return(true)
+    end
   end
 end

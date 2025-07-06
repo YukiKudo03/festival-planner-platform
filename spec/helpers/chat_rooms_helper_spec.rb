@@ -11,5 +11,10 @@ require 'rails_helper'
 #   end
 # end
 RSpec.describe ChatRoomsHelper, type: :helper do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe "helper methods" do
+    it "provides basic functionality" do
+      # Since this helper has no methods currently, just test it exists
+      expect(ChatRoomsHelper).to be_a(Module)
+    end
+  end
 end

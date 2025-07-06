@@ -11,5 +11,7 @@ require 'rails_helper'
 #   end
 # end
 RSpec.describe NotificationSettingsHelper, type: :helper do
-  pending "add some examples to (or delete) #{__FILE__}"
+  it "exists as a module" do
+    expect(described_class).to be_a(Module)
+  end
 end
