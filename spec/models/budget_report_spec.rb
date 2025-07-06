@@ -39,16 +39,15 @@ RSpec.describe BudgetReport, type: :model do
     context 'with festival dates' do
       it 'sets default dates from festival' do
         report = BudgetReport.new(festival: festival)
-        expect(report.start_date).to eq(festival.start_date)
-        expect(report.end_date).to eq(festival.end_date)
+        expect(report.start_date).to eq(festival.start_date.to_date)
+        expect(report.end_date).to eq(festival.end_date.to_date)
       end
     end
 
     context 'without festival dates' do
-      let(:festival_without_dates) { create(:festival, user: user, start_date: nil, end_date: nil) }
-
-      it 'sets default dates to current month' do
-        report = BudgetReport.new(festival: festival_without_dates)
+      # Since Festival model requires dates, test with nil festival instead
+      it 'sets default dates to current month without festival' do
+        report = BudgetReport.new(festival: nil)
         expect(report.start_date).to eq(Date.current.beginning_of_month)
         expect(report.end_date).to eq(Date.current.end_of_month)
       end

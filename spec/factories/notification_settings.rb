@@ -1,6 +1,7 @@
 FactoryBot.define do
   factory :notification_setting do
-    sequence(:notification_type) { |n| Notification::NOTIFICATION_TYPES[n % Notification::NOTIFICATION_TYPES.length] }
+    # Default to first notification type to avoid conflicts
+    notification_type { 'task_assigned' }
     email_enabled { true }
     web_enabled { true }
     frequency { 'immediate' }

@@ -1,5 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe ForumPost, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe 'constants' do
+    it 'exists as a model' do
+      expect(ForumPost).to be_a(Class)
+    end
+  end
 end

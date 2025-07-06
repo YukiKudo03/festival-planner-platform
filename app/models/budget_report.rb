@@ -13,8 +13,13 @@ class BudgetReport
 
   def initialize(attributes = {})
     super
-    @start_date ||= festival&.start_date || Date.current.beginning_of_month
-    @end_date ||= festival&.end_date || Date.current.end_of_month
+    # Only set defaults if not explicitly provided in attributes
+    unless attributes.key?(:start_date) || attributes.key?('start_date')
+      self.start_date = festival&.start_date&.to_date || Date.current.beginning_of_month
+    end
+    unless attributes.key?(:end_date) || attributes.key?('end_date')
+      self.end_date = festival&.end_date&.to_date || Date.current.end_of_month
+    end
   end
 
   def total_budget_limit
