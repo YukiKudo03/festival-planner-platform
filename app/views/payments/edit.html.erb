@@ -1,0 +1,127 @@
+<% content_for :title, "支払い編集 - #{@payment.id}" %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">支払い編集 #<%= @payment.id %></h1>
+        <div>
+          <%= link_to "詳細", festival_payment_path(@festival, @payment), class: "btn btn-outline-secondary" %>
+          <%= link_to "一覧", festival_payments_path(@festival), class: "btn btn-outline-secondary" %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">支払い情報の編集</h5>
+            </div>
+            <div class="card-body">
+              <%= form_with model: [@festival, @payment], local: true do |form| %>
+                <% if @payment.errors.any? %>
+                  <div class="alert alert-danger">
+                    <h6>エラーが発生しました:</h6>
+                    <ul class="mb-0">
+                      <% @payment.errors.full_messages.each do |message| %>
+                        <li><%= message %></li>
+                      <% end %>
+                    </ul>
+                  </div>
+                <% end %>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <%= form.label :amount, "金額", class: "form-label" %>
+                      <%= form.number_field :amount, step: 0.01, min: 1, class: "form-control", required: true %>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <%= form.label :payment_method, "決済方法", class: "form-label" %>
+                      <%= form.select :payment_method, 
+                                     options_for_select([
+                                       ['Stripe', 'stripe'],
+                                       ['PayPal', 'paypal'],
+                                       ['銀行振込', 'bank_transfer'],
+                                       ['現金', 'cash']
+                                     ], @payment.payment_method), 
+                                     { prompt: "選択してください" }, 
+                                     { class: "form-select", required: true } %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <%= form.label :customer_name, "顧客名", class: "form-label" %>
+                      <%= form.text_field :customer_name, class: "form-control", required: true %>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <%= form.label :customer_email, "顧客メール", class: "form-label" %>
+                      <%= form.email_field :customer_email, class: "form-control", required: true %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <%= form.label :description, "説明", class: "form-label" %>
+                  <%= form.text_area :description, rows: 3, class: "form-control", 
+                                    placeholder: "支払いの詳細や目的を記入してください" %>
+                </div>
+
+                <div class="mb-3">
+                  <%= form.label :billing_address, "請求先住所", class: "form-label" %>
+                  <%= form.text_area :billing_address, rows: 3, class: "form-control", 
+                                    placeholder: "必要に応じて請求先住所を入力してください" %>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                  <%= link_to "キャンセル", festival_payment_path(@festival, @payment), class: "btn btn-secondary" %>
+                  <%= form.submit "更新", class: "btn btn-primary" %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">現在のステータス</h5>
+            </div>
+            <div class="card-body">
+              <p>
+                <strong>ステータス:</strong> 
+                <span class="badge bg-<%= @payment.status_color %> fs-6">
+                  <%= @payment.status.humanize %>
+                </span>
+              </p>
+              <p><strong>作成日:</strong> <%= @payment.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+              <% if @payment.external_transaction_id.present? %>
+                <p><strong>取引ID:</strong> <code><%= @payment.external_transaction_id %></code></p>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="card mt-4">
+            <div class="card-header">
+              <h5 class="card-title mb-0">編集制限</h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled">
+                <li><i class="bi bi-info-circle text-info"></i> 保留中の支払いのみ編集可能</li>
+                <li><i class="bi bi-lock text-warning"></i> 処理済みの支払いは編集不可</li>
+                <li><i class="bi bi-shield-check text-success"></i> 変更内容は即座に反映されます</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

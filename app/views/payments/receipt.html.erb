@@ -1,0 +1,148 @@
+<% content_for :title, "領収書 - #{@payment.id}" %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <h1 class="h3">領収書</h1>
+        <div>
+          <%= link_to "支払い詳細", festival_payment_path(@festival, @payment), class: "btn btn-outline-secondary" %>
+          <%= link_to "PDF保存", receipt_festival_payment_path(@festival, @payment, format: :pdf), 
+                     class: "btn btn-outline-primary" %>
+          <button onclick="window.print()" class="btn btn-primary">印刷</button>
+        </div>
+      </div>
+
+      <div class="receipt-container">
+        <div class="card">
+          <div class="card-body">
+            <!-- Header -->
+            <div class="text-center mb-4">
+              <h2 class="h4 mb-0">領収書</h2>
+              <p class="text-muted">Receipt</p>
+            </div>
+
+            <!-- Receipt Details -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <h5>発行者情報</h5>
+                <p class="mb-1"><strong>お祭り名:</strong> <%= @festival.name %></p>
+                <p class="mb-1"><strong>開催場所:</strong> <%= @festival.location %></p>
+                <p class="mb-1"><strong>開催日:</strong> <%= @festival.start_date.strftime("%Y年%m月%d日") %></p>
+              </div>
+              <div class="col-md-6 text-md-end">
+                <h5>領収書情報</h5>
+                <p class="mb-1"><strong>領収書番号:</strong> <%= @payment.id %></p>
+                <p class="mb-1"><strong>発行日:</strong> <%= Date.current.strftime("%Y年%m月%d日") %></p>
+                <p class="mb-1"><strong>取引ID:</strong> <%= @payment.external_transaction_id %></p>
+              </div>
+            </div>
+
+            <!-- Customer Details -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <h5>宛先</h5>
+                <p class="mb-1"><strong>お名前:</strong> <%= @payment.customer_name %> 様</p>
+                <p class="mb-1"><strong>メールアドレス:</strong> <%= @payment.customer_email %></p>
+                <% if @payment.billing_address.present? %>
+                  <p class="mb-1"><strong>住所:</strong> <%= @payment.billing_address %></p>
+                <% end %>
+              </div>
+            </div>
+
+            <!-- Payment Details -->
+            <div class="table-responsive mb-4">
+              <table class="table table-bordered">
+                <thead class="table-light">
+                  <tr>
+                    <th>項目</th>
+                    <th>説明</th>
+                    <th>決済方法</th>
+                    <th class="text-end">金額</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>お祭り参加費</td>
+                    <td><%= @payment.description.presence || "#{@festival.name} 参加費用" %></td>
+                    <td><%= @payment.payment_method.humanize %></td>
+                    <td class="text-end"><%= @payment.formatted_amount %></td>
+                  </tr>
+                  <% if @payment.processing_fee > 0 %>
+                    <tr>
+                      <td>処理手数料</td>
+                      <td>決済処理手数料</td>
+                      <td>-</td>
+                      <td class="text-end"><%= number_to_currency(@payment.processing_fee, unit: "¥") %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+                <tfoot class="table-light">
+                  <tr>
+                    <th colspan="3" class="text-end">合計金額</th>
+                    <th class="text-end h5"><%= @payment.formatted_amount %></th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <!-- Payment Status -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <h5>支払い状況</h5>
+                <p class="mb-1">
+                  <strong>ステータス:</strong> 
+                  <span class="badge bg-<%= @payment.status_color %> fs-6">
+                    <%= @payment.status.humanize %>
+                  </span>
+                </p>
+                <p class="mb-1"><strong>支払い日:</strong> <%= @payment.confirmed_at.strftime("%Y年%m月%d日") %></p>
+              </div>
+              <div class="col-md-6 text-md-end">
+                <h5>確認情報</h5>
+                <p class="mb-1"><strong>処理日時:</strong> <%= @payment.processed_at.strftime("%Y-%m-%d %H:%M:%S") %></p>
+                <p class="mb-1"><strong>確認日時:</strong> <%= @payment.confirmed_at.strftime("%Y-%m-%d %H:%M:%S") %></p>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-5 pt-4 border-top">
+              <p class="text-muted small">
+                この領収書は <%= @festival.name %> の正式な領収書です。<br>
+                お問い合わせは <%= @payment.customer_email %> までご連絡ください。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .receipt-container {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  body {
+    font-size: 12px !important;
+  }
+}
+
+.receipt-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+</style>

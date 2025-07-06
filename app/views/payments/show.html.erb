@@ -1,0 +1,178 @@
+<% content_for :title, "支払い詳細 - #{@payment.id}" %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">支払い詳細 #<%= @payment.id %></h1>
+        <div>
+          <%= link_to "一覧に戻る", festival_payments_path(@festival), class: "btn btn-outline-secondary" %>
+          <% if @payment.can_be_modified_by?(current_user) %>
+            <%= link_to "編集", edit_festival_payment_path(@festival, @payment), class: "btn btn-outline-primary" %>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-8">
+          <!-- Payment Details -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h5 class="card-title mb-0">支払い情報</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <strong>金額:</strong>
+                  <p class="h4 text-primary"><%= @payment.formatted_amount %></p>
+                </div>
+                <div class="col-md-6">
+                  <strong>ステータス:</strong>
+                  <p>
+                    <span class="badge bg-<%= @payment.status_color %> fs-6">
+                      <%= @payment.status.humanize %>
+                    </span>
+                  </p>
+                </div>
+              </div>
+              
+              <div class="row mt-3">
+                <div class="col-md-6">
+                  <strong>決済方法:</strong>
+                  <p><%= @payment.payment_method.humanize %></p>
+                </div>
+                <div class="col-md-6">
+                  <strong>処理手数料:</strong>
+                  <p><%= number_to_currency(@payment.processing_fee, unit: "¥") %></p>
+                </div>
+              </div>
+              
+              <div class="row mt-3">
+                <div class="col-md-6">
+                  <strong>顧客名:</strong>
+                  <p><%= @payment.customer_name %></p>
+                </div>
+                <div class="col-md-6">
+                  <strong>顧客メール:</strong>
+                  <p><%= @payment.customer_email %></p>
+                </div>
+              </div>
+              
+              <% if @payment.description.present? %>
+                <div class="row mt-3">
+                  <div class="col-12">
+                    <strong>説明:</strong>
+                    <p><%= @payment.description %></p>
+                  </div>
+                </div>
+              <% end %>
+              
+              <% if @payment.external_transaction_id.present? %>
+                <div class="row mt-3">
+                  <div class="col-12">
+                    <strong>外部取引ID:</strong>
+                    <p><code><%= @payment.external_transaction_id %></code></p>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">処理履歴</h5>
+            </div>
+            <div class="card-body">
+              <div class="timeline">
+                <div class="timeline-item">
+                  <strong>作成日:</strong>
+                  <span class="text-muted"><%= @payment.created_at.strftime("%Y-%m-%d %H:%M:%S") %></span>
+                </div>
+                
+                <% if @payment.processed_at.present? %>
+                  <div class="timeline-item">
+                    <strong>処理開始:</strong>
+                    <span class="text-muted"><%= @payment.processed_at.strftime("%Y-%m-%d %H:%M:%S") %></span>
+                  </div>
+                <% end %>
+                
+                <% if @payment.confirmed_at.present? %>
+                  <div class="timeline-item">
+                    <strong>確認完了:</strong>
+                    <span class="text-muted"><%= @payment.confirmed_at.strftime("%Y-%m-%d %H:%M:%S") %></span>
+                  </div>
+                <% end %>
+                
+                <% if @payment.cancelled_at.present? %>
+                  <div class="timeline-item">
+                    <strong>キャンセル:</strong>
+                    <span class="text-muted"><%= @payment.cancelled_at.strftime("%Y-%m-%d %H:%M:%S") %></span>
+                    <% if @payment.cancellation_reason.present? %>
+                      <br><small class="text-muted">理由: <%= @payment.cancellation_reason %></small>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <!-- Actions -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h5 class="card-title mb-0">操作</h5>
+            </div>
+            <div class="card-body">
+              <% if @payment.confirmable_by?(current_user) %>
+                <%= link_to "支払いを確認", confirm_festival_payment_path(@festival, @payment), 
+                           method: :post, class: "btn btn-success w-100 mb-2",
+                           confirm: "支払いを確認しますか？" %>
+              <% end %>
+              
+              <% if @payment.can_be_cancelled_by?(current_user) %>
+                <%= form_with url: cancel_festival_payment_path(@festival, @payment), method: :post, class: "mb-2" do |form| %>
+                  <%= form.text_field :cancellation_reason, placeholder: "キャンセル理由（任意）", class: "form-control mb-2" %>
+                  <%= form.submit "キャンセル", class: "btn btn-danger w-100", 
+                                 confirm: "本当にキャンセルしますか？" %>
+                <% end %>
+              <% end %>
+              
+              <% if @payment.completed? %>
+                <%= link_to "領収書", receipt_festival_payment_path(@festival, @payment), 
+                           class: "btn btn-outline-primary w-100 mb-2" %>
+                <%= link_to "領収書PDF", receipt_festival_payment_path(@festival, @payment, format: :pdf), 
+                           class: "btn btn-outline-secondary w-100 mb-2" %>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Festival Info -->
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">お祭り情報</h5>
+            </div>
+            <div class="card-body">
+              <p><strong>名前:</strong> <%= @festival.name %></p>
+              <p><strong>開催日:</strong> <%= @festival.start_date.strftime("%Y-%m-%d") %></p>
+              <p><strong>場所:</strong> <%= @festival.location %></p>
+              <%= link_to "お祭り詳細", festival_path(@festival), class: "btn btn-outline-info btn-sm" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.timeline-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.timeline-item:last-child {
+  border-bottom: none;
+}
+</style>

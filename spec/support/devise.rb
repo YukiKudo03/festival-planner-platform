@@ -1,0 +1,15 @@
+RSpec.configure do |config|
+  # Properly configure Devise for test environment
+  config.include Devise::Test::IntegrationHelpers, type: :request
+  config.include Devise::Test::IntegrationHelpers, type: :feature
+  config.include Devise::Test::ControllerHelpers, type: :controller
+  
+  # Set up Warden test mode
+  config.before(:suite) do
+    Warden.test_mode!
+  end
+  
+  config.after(:each) do
+    Warden.test_reset!
+  end
+end

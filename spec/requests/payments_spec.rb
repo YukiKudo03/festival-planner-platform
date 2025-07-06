@@ -7,13 +7,13 @@ RSpec.describe "Payments", type: :request do
   let(:payment) { create(:payment, festival: festival, user: user) }
   let(:other_payment) { create(:payment) }
 
-  before { sign_in user }
 
   describe "GET /festivals/:festival_id/payments" do
     let!(:festival_payment) { create(:payment, festival: festival, user: user) }
     let!(:other_festival_payment) { create(:payment, festival: festival) }
 
     it "returns a successful response" do
+      sign_in user
       get festival_payments_path(festival)
       expect(response).to be_successful
     end
