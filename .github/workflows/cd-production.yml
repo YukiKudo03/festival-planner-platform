@@ -1,0 +1,254 @@
+name: Deploy to Production
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to deploy'
+        required: true
+        default: 'latest'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  PRODUCTION_HOST: festival-planner.example.com
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=tag
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=raw,value=production-latest
+
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: linux/amd64
+
+    - name: Sign container image
+      env:
+        COSIGN_EXPERIMENTAL: 1
+      run: |
+        echo "${{ secrets.COSIGN_PRIVATE_KEY }}" > cosign.key
+        cosign sign --key cosign.key ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+        rm cosign.key
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    
+    steps:
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ needs.build-and-push.outputs.image-tag }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [build-and-push, security-scan]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    
+    environment:
+      name: production
+      url: https://${{ env.PRODUCTION_HOST }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Create backup before deployment
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.PRODUCTION_SSH_KEY }}
+        port: ${{ secrets.PRODUCTION_PORT || 22 }}
+        script: |
+          cd /opt/festival-planner-platform
+          
+          # Create database backup
+          sudo docker-compose --profile backup run --rm backup /backup.sh
+          
+          # Backup current deployment state
+          sudo docker-compose ps > deployment_backup_$(date +%Y%m%d_%H%M%S).log
+
+    - name: Deploy to production server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.PRODUCTION_SSH_KEY }}
+        port: ${{ secrets.PRODUCTION_PORT || 22 }}
+        script: |
+          cd /opt/festival-planner-platform
+          
+          # Pull latest images
+          sudo docker-compose pull
+          
+          # Run database migrations
+          sudo docker-compose run --rm app bundle exec rails db:migrate
+          
+          # Deploy with zero downtime
+          sudo docker-compose up -d --force-recreate --renew-anon-volumes
+          
+          # Wait for services to be healthy
+          sleep 60
+          
+          # Health check
+          curl -f https://${{ env.PRODUCTION_HOST }}/up || exit 1
+          
+          # Clean up old images
+          sudo docker image prune -f
+
+    - name: Run production health checks
+      run: |
+        # Comprehensive health checks
+        curl -f https://${{ env.PRODUCTION_HOST }}/up
+        curl -f https://${{ env.PRODUCTION_HOST }}/api/health
+        
+        # Check SSL certificate
+        echo | openssl s_client -connect ${{ env.PRODUCTION_HOST }}:443 -servername ${{ env.PRODUCTION_HOST }} 2>/dev/null | openssl x509 -noout -dates
+
+    - name: Run smoke tests
+      run: |
+        # Run smoke tests to verify critical functionality
+        echo "Running smoke tests..."
+        
+        # Test user authentication endpoint
+        response=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.PRODUCTION_HOST }}/login)
+        if [ "$response" != "200" ]; then
+          echo "Login page not accessible"
+          exit 1
+        fi
+        
+        # Test API health
+        response=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.PRODUCTION_HOST }}/api/health)
+        if [ "$response" != "200" ]; then
+          echo "API health check failed"
+          exit 1
+        fi
+        
+        echo "All smoke tests passed"
+
+    - name: Update deployment status
+      if: always()
+      run: |
+        # Create deployment record
+        curl -X POST \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/${{ github.repository }}/deployments \
+          -d '{
+            "ref": "${{ github.sha }}",
+            "environment": "production",
+            "description": "Production deployment",
+            "auto_merge": false
+          }'
+
+    - name: Notify deployment status
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        text: |
+          Production deployment ${{ job.status }}!
+          Tag: ${{ github.ref_name }}
+          Commit: ${{ github.sha }}
+          URL: https://${{ env.PRODUCTION_HOST }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  rollback:
+    runs-on: ubuntu-latest
+    if: failure() && github.event_name == 'push'
+    needs: [deploy-production]
+    
+    steps:
+    - name: Rollback deployment
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.PRODUCTION_SSH_KEY }}
+        port: ${{ secrets.PRODUCTION_PORT || 22 }}
+        script: |
+          cd /opt/festival-planner-platform
+          
+          # Get previous stable image
+          PREVIOUS_IMAGE=$(sudo docker images --format "table {{.Repository}}:{{.Tag}}" | grep production | head -2 | tail -1)
+          
+          if [ -n "$PREVIOUS_IMAGE" ]; then
+            echo "Rolling back to: $PREVIOUS_IMAGE"
+            
+            # Update compose file to use previous image
+            sed -i "s|image: .*|image: $PREVIOUS_IMAGE|g" docker-compose.yml
+            
+            # Deploy previous version
+            sudo docker-compose up -d --force-recreate
+            
+            # Health check
+            sleep 30
+            curl -f https://${{ env.PRODUCTION_HOST }}/up || exit 1
+            
+            echo "Rollback completed successfully"
+          else
+            echo "No previous image found for rollback"
+            exit 1
+          fi
+
+    - name: Notify rollback
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        text: |
+          Production rollback ${{ job.status }}!
+          Original deployment failed, rolled back to previous version.
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

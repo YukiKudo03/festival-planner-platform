@@ -1,0 +1,80 @@
+filebeat.inputs:
+  # Docker container logs
+  - type: container
+    paths:
+      - '/var/lib/docker/containers/*/*.log'
+    processors:
+      - add_docker_metadata:
+          host: "unix:///var/run/docker.sock"
+      - decode_json_fields:
+          fields: ["message"]
+          target: ""
+          overwrite_keys: true
+    fields:
+      environment: production
+      service: festival-planner-platform
+
+  # Application-specific log files (if mounted)
+  - type: log
+    paths:
+      - '/app/log/*.log'
+    fields:
+      service: festival-planner-platform
+      logtype: application
+    multiline.pattern: '^\d{4}-\d{2}-\d{2}'
+    multiline.negate: true
+    multiline.match: after
+
+  # Nginx access logs
+  - type: log
+    paths:
+      - '/var/log/nginx/access.log'
+    fields:
+      service: nginx
+      logtype: access
+    json.keys_under_root: true
+    json.overwrite_keys: true
+
+  # Nginx error logs
+  - type: log
+    paths:
+      - '/var/log/nginx/error.log'
+    fields:
+      service: nginx
+      logtype: error
+    multiline.pattern: '^\d{4}/\d{2}/\d{2}'
+    multiline.negate: true
+    multiline.match: after
+
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+  index: "festival-planner-platform-%{+yyyy.MM.dd}"
+  template.name: "festival-planner-platform"
+  template.pattern: "festival-planner-platform-*"
+  template.settings:
+    index.number_of_shards: 1
+    index.number_of_replicas: 0
+    index.refresh_interval: "5s"
+
+setup.template.settings:
+  index.number_of_shards: 1
+  index.codec: best_compression
+
+setup.kibana:
+  host: "kibana:5601"
+
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /usr/share/filebeat/logs
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644
+
+monitoring.enabled: false

@@ -49,3 +49,19 @@
 # Ignore Docker-related files
 /.dockerignore
 /Dockerfile*
+
+# Ignore additional development files
+/coverage
+/spec/tmp
+/test/tmp
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.rdoc
+doc/
+
+# Ignore secrets directory (mounted as Docker secrets)
+/secrets/*.txt

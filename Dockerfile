@@ -29,7 +29,10 @@ RUN apt-get update -qq && \
 ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development"
+    BUNDLE_WITHOUT="development test" \
+    RAILS_SERVE_STATIC_FILES="true" \
+    RAILS_LOG_TO_STDOUT="true" \
+    MALLOC_CONF="dirty_decay_ms:1000,narenas:2,background_thread:true"
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
@@ -48,7 +51,9 @@ RUN apt-get update -qq && \
 
 # Install application gems
 COPY Gemfile Gemfile.lock ./
-RUN bundle install && \
+RUN bundle config set --local deployment 'true' && \
+    bundle config set --local without 'development test' && \
+    bundle install --jobs 4 --retry 3 && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     bundle exec bootsnap precompile --gemfile
 
@@ -59,7 +64,8 @@ COPY . .
 RUN bundle exec bootsnap precompile app/ lib/
 
 # Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile && \
+    rm -rf node_modules tmp/cache
 
 
 

@@ -1,0 +1,103 @@
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@festival-planner.example.com'
+  smtp_auth_username: 'alerts@festival-planner.example.com'
+  smtp_auth_password: 'your_smtp_password'
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'web.hook'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 5s
+      repeat_interval: 30m
+    - match:
+        severity: warning
+      receiver: 'warning-alerts'
+      group_wait: 10s
+      repeat_interval: 1h
+    - match:
+        severity: info
+      receiver: 'info-alerts'
+      group_wait: 30s
+      repeat_interval: 6h
+
+receivers:
+  - name: 'web.hook'
+    webhook_configs:
+      - url: 'http://127.0.0.1:5001/'
+
+  - name: 'critical-alerts'
+    email_configs:
+      - to: 'admin@festival-planner.example.com'
+        subject: '[CRITICAL] Festival Planner Platform Alert'
+        body: |
+          Alert: {{ .GroupLabels.alertname }}
+          Summary: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+          Description: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+          
+          Grafana Dashboard: http://grafana:3001/d/festival-planner/overview
+          
+          Time: {{ .CommonAnnotations.time }}
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#alerts-critical'
+        title: 'Critical Alert - Festival Planner Platform'
+        text: |
+          *Alert:* {{ .GroupLabels.alertname }}
+          *Summary:* {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+          *Description:* {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+          *Grafana:* http://grafana:3001/d/festival-planner/overview
+        color: 'danger'
+
+  - name: 'warning-alerts'
+    email_configs:
+      - to: 'devops@festival-planner.example.com'
+        subject: '[WARNING] Festival Planner Platform Alert'
+        body: |
+          Alert: {{ .GroupLabels.alertname }}
+          Summary: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+          Description: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+          
+          Grafana Dashboard: http://grafana:3001/d/festival-planner/overview
+          
+          Time: {{ .CommonAnnotations.time }}
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#alerts-warning'
+        title: 'Warning Alert - Festival Planner Platform'
+        text: |
+          *Alert:* {{ .GroupLabels.alertname }}
+          *Summary:* {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+          *Description:* {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+          *Grafana:* http://grafana:3001/d/festival-planner/overview
+        color: 'warning'
+
+  - name: 'info-alerts'
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#alerts-info'
+        title: 'Info Alert - Festival Planner Platform'
+        text: |
+          *Alert:* {{ .GroupLabels.alertname }}
+          *Summary:* {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+          *Description:* {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+        color: 'good'
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']
+
+  - source_match:
+      severity: 'warning'
+    target_match:
+      severity: 'info'
+    equal: ['alertname', 'dev', 'instance']

@@ -1,0 +1,46 @@
+# Production database configuration
+# This file should be used as a template for production deployment
+
+production:
+  adapter: postgresql
+  encoding: unicode
+  host: <%= ENV['POSTGRES_HOST'] || 'localhost' %>
+  port: <%= ENV['POSTGRES_PORT'] || 5432 %>
+  database: <%= ENV['POSTGRES_DB'] || 'festival_planner_platform_production' %>
+  username: <%= ENV['POSTGRES_USER'] || 'postgres' %>
+  password: <%= ENV['POSTGRES_PASSWORD'] || File.read('/run/secrets/postgres_password').strip %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+  
+  # Connection pool settings
+  pool: 25
+  checkout_timeout: 5
+  
+  # PostgreSQL-specific settings
+  connect_timeout: 5
+  read_timeout: 5
+  write_timeout: 5
+  
+  # SSL configuration for production
+  sslmode: <%= ENV['POSTGRES_SSL_MODE'] || 'prefer' %>
+  sslrootcert: <%= ENV['POSTGRES_SSL_ROOTCERT'] if ENV['POSTGRES_SSL_ROOTCERT'] %>
+  sslcert: <%= ENV['POSTGRES_SSL_CERT'] if ENV['POSTGRES_SSL_CERT'] %>
+  sslkey: <%= ENV['POSTGRES_SSL_KEY'] if ENV['POSTGRES_SSL_KEY'] %>
+  
+  # Additional PostgreSQL settings
+  application_name: festival_planner_platform
+  statement_timeout: 30000
+  lock_timeout: 10000
+  idle_in_transaction_session_timeout: 60000
+  
+  # Prepared statements
+  prepared_statements: true
+  
+  # Connection retries
+  retry_on_failure: 3
+  
+  # Extensions
+  extensions:
+    - pg_stat_statements
+    - uuid-ossp
+    - hstore

@@ -1,0 +1,218 @@
+groups:
+  - name: festival_planner_platform
+    rules:
+      # Application Health Alerts
+      - alert: ApplicationDown
+        expr: up{job="festival-planner-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Festival Planner Platform application is down"
+          description: "The Festival Planner Platform application has been down for more than 1 minute."
+
+      - alert: HighResponseTime
+        expr: http_request_duration_seconds{quantile="0.95"} > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s for more than 5 minutes."
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} for more than 5 minutes."
+
+      # Database Alerts
+      - alert: DatabaseDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL database is down"
+          description: "PostgreSQL database has been down for more than 1 minute."
+
+      - alert: HighDatabaseConnections
+        expr: pg_stat_database_numbackends / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High database connection usage"
+          description: "Database connection usage is {{ $value | humanizePercentage }} for more than 5 minutes."
+
+      - alert: DatabaseSlowQueries
+        expr: pg_stat_activity_max_tx_duration > 300
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow database queries detected"
+          description: "Longest running query has been active for {{ $value }}s."
+
+      # Redis Alerts
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+          description: "Redis has been down for more than 1 minute."
+
+      - alert: RedisHighMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Redis memory usage"
+          description: "Redis memory usage is {{ $value | humanizePercentage }} for more than 5 minutes."
+
+      # System Resource Alerts
+      - alert: HighCpuUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value }}% for more than 5 minutes on {{ $labels.instance }}."
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value | humanizePercentage }} for more than 5 minutes on {{ $labels.instance }}."
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space"
+          description: "Disk space usage is {{ $value | humanizePercentage }} on {{ $labels.device }} ({{ $labels.instance }})."
+
+      # Container Alerts
+      - alert: ContainerHighCpuUsage
+        expr: rate(container_cpu_usage_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High container CPU usage"
+          description: "Container {{ $labels.name }} CPU usage is {{ $value | humanizePercentage }} for more than 5 minutes."
+
+      - alert: ContainerHighMemoryUsage
+        expr: container_memory_usage_bytes / container_spec_memory_limit_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High container memory usage"
+          description: "Container {{ $labels.name }} memory usage is {{ $value | humanizePercentage }} for more than 5 minutes."
+
+      - alert: ContainerRestarting
+        expr: increase(container_restart_count[1h]) > 3
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container restarting frequently"
+          description: "Container {{ $labels.name }} has restarted {{ $value }} times in the last hour."
+
+      # Sidekiq Job Queue Alerts
+      - alert: SidekiqQueueBacklog
+        expr: sidekiq_queue_size > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Sidekiq queue backlog"
+          description: "Sidekiq queue {{ $labels.queue }} has {{ $value }} jobs waiting for more than 5 minutes."
+
+      - alert: SidekiqJobFailures
+        expr: rate(sidekiq_jobs_failed_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Sidekiq job failure rate"
+          description: "Sidekiq job failure rate is {{ $value }} failures/second for more than 5 minutes."
+
+      # SSL Certificate Alerts
+      - alert: SSLCertificateExpiringSoon
+        expr: probe_ssl_earliest_cert_expiry - time() < 7 * 24 * 3600
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "SSL certificate for {{ $labels.instance }} expires in {{ $value | humanizeDuration }}."
+
+      - alert: SSLCertificateExpired
+        expr: probe_ssl_earliest_cert_expiry - time() <= 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SSL certificate expired"
+          description: "SSL certificate for {{ $labels.instance }} has expired."
+
+      # Load Balancer/Nginx Alerts
+      - alert: NginxDown
+        expr: up{job="nginx"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Nginx is down"
+          description: "Nginx has been down for more than 1 minute."
+
+      - alert: NginxHighRequestRate
+        expr: rate(nginx_http_requests_total[5m]) > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Nginx request rate"
+          description: "Nginx request rate is {{ $value }} requests/second for more than 5 minutes."
+
+      # Business Logic Alerts
+      - alert: HighUserRegistrationRate
+        expr: rate(user_registrations_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: "High user registration rate"
+          description: "User registration rate is {{ $value }} registrations/second for more than 5 minutes."
+
+      - alert: PaymentFailureRate
+        expr: rate(payment_failures_total[5m]) / rate(payment_attempts_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High payment failure rate"
+          description: "Payment failure rate is {{ $value | humanizePercentage }} for more than 5 minutes."
+
+      - alert: LowFestivalCreationRate
+        expr: rate(festival_created_total[1h]) < 0.1
+        for: 2h
+        labels:
+          severity: info
+        annotations:
+          summary: "Low festival creation rate"
+          description: "Festival creation rate is {{ $value }} festivals/hour for more than 2 hours."

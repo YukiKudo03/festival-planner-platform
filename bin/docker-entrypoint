@@ -8,7 +8,19 @@ fi
 
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
+  echo "Preparing database..."
+  
+  # Wait for database to be ready
+  echo "Waiting for database to be ready..."
+  while ! pg_isready -h "${POSTGRES_HOST:-localhost}" -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-festival_planner_platform_production}" > /dev/null 2>&1; do
+    echo "Database is unavailable - sleeping"
+    sleep 1
+  done
+  
+  echo "Database is ready!"
   ./bin/rails db:prepare
+  
+  echo "Database preparation complete!"
 fi
 
 exec "${@}"
