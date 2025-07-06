@@ -92,4 +92,9 @@ RSpec.configure do |config|
       example.run
     end
   end
+  
+  # Skip browser version checks in tests
+  config.before(:each) do
+    allow_any_instance_of(ApplicationController).to receive(:allow_browser).and_return(true)
+  end
 end
