@@ -40,6 +40,21 @@ Rails.application.routes.draw do
           get 'reports/:type', to: 'reports#show'
           get 'dashboard', to: 'dashboard#index'
         end
+
+        # AI-powered recommendations and analytics
+        namespace :ai_recommendations do
+          member do
+            post :attendance_prediction
+            post :layout_optimization
+            post :budget_allocation
+            post :risk_assessment
+            get :predictive_dashboard
+            post :roi_optimization
+            get :market_trends
+            get :performance_benchmark
+            get :realtime_monitoring
+          end
+        end
       end
       
       # Payment methods endpoint
@@ -49,6 +64,14 @@ Rails.application.routes.draw do
       resources :payments, only: [:index, :show] do
         member do
           post :confirm
+        end
+      end
+
+      # AI recommendations - batch and industry-wide endpoints
+      namespace :ai_recommendations do
+        collection do
+          get :batch_analysis
+          get :industry_insights
         end
       end
     end

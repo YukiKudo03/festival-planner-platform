@@ -1,0 +1,324 @@
+<!-- AI Insights Dashboard Widget -->
+<div class="ai-insights-widget bg-white rounded-lg shadow-md p-6 mb-6">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+      <i class="fas fa-brain text-blue-500 mr-2"></i>
+      AI推奨・分析
+    </h3>
+    <div class="flex space-x-2">
+      <button id="refresh-ai-insights" class="btn btn-sm btn-outline-primary">
+        <i class="fas fa-sync-alt"></i> 更新
+      </button>
+      <button id="ai-settings" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-cog"></i> 設定
+      </button>
+    </div>
+  </div>
+
+  <!-- AI Quick Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="ai-stat-card bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-blue-600 font-medium">予測来場者数</p>
+          <p class="text-2xl font-bold text-blue-800" id="predicted-attendance">-</p>
+          <p class="text-xs text-blue-500" id="attendance-confidence">信頼度: -</p>
+        </div>
+        <i class="fas fa-users text-blue-400 text-2xl"></i>
+      </div>
+    </div>
+
+    <div class="ai-stat-card bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-green-600 font-medium">ROI予測</p>
+          <p class="text-2xl font-bold text-green-800" id="predicted-roi">-</p>
+          <p class="text-xs text-green-500" id="roi-trend">-</p>
+        </div>
+        <i class="fas fa-chart-line text-green-400 text-2xl"></i>
+      </div>
+    </div>
+
+    <div class="ai-stat-card bg-gradient-to-r from-yellow-50 to-yellow-100 p-4 rounded-lg">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-yellow-600 font-medium">リスクレベル</p>
+          <p class="text-2xl font-bold text-yellow-800" id="risk-level">-</p>
+          <p class="text-xs text-yellow-500" id="risk-score">-</p>
+        </div>
+        <i class="fas fa-exclamation-triangle text-yellow-400 text-2xl"></i>
+      </div>
+    </div>
+
+    <div class="ai-stat-card bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-purple-600 font-medium">最適化機会</p>
+          <p class="text-2xl font-bold text-purple-800" id="optimization-count">-</p>
+          <p class="text-xs text-purple-500">改善提案</p>
+        </div>
+        <i class="fas fa-lightbulb text-purple-400 text-2xl"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Recommendations Panel -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Smart Recommendations -->
+    <div class="ai-recommendations bg-gray-50 rounded-lg p-4">
+      <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+        <i class="fas fa-magic text-indigo-500 mr-2"></i>
+        スマート推奨
+      </h4>
+      <div id="ai-recommendations-list" class="space-y-2">
+        <div class="recommendation-item p-3 bg-white rounded border-l-4 border-blue-400">
+          <p class="text-sm font-medium text-gray-800">レイアウト最適化</p>
+          <p class="text-xs text-gray-600">出店者配置の最適化により、来場者の満足度を15%向上できます</p>
+          <button class="text-blue-600 text-xs hover:underline mt-1">詳細を見る</button>
+        </div>
+        <div class="recommendation-item p-3 bg-white rounded border-l-4 border-green-400">
+          <p class="text-sm font-medium text-gray-800">予算配分調整</p>
+          <p class="text-xs text-gray-600">マーケティング予算を20%増加することで、ROIが25%向上予測</p>
+          <button class="text-green-600 text-xs hover:underline mt-1">詳細を見る</button>
+        </div>
+        <div class="recommendation-item p-3 bg-white rounded border-l-4 border-yellow-400">
+          <p class="text-sm font-medium text-gray-800">リスク軽減</p>
+          <p class="text-xs text-gray-600">天候リスクに対する対策準備を推奨します</p>
+          <button class="text-yellow-600 text-xs hover:underline mt-1">詳細を見る</button>
+        </div>
+      </div>
+      <button class="w-full mt-3 btn btn-sm btn-primary">
+        全ての推奨を表示
+      </button>
+    </div>
+
+    <!-- Market Insights -->
+    <div class="market-insights bg-gray-50 rounded-lg p-4">
+      <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+        <i class="fas fa-chart-bar text-teal-500 mr-2"></i>
+        市場インサイト
+      </h4>
+      <div id="market-insights-content">
+        <div class="insight-item mb-3">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-700">業界成長率</span>
+            <span class="text-sm font-bold text-green-600">+8.5%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+            <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
+          </div>
+        </div>
+        <div class="insight-item mb-3">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-700">競合優位性</span>
+            <span class="text-sm font-bold text-blue-600">72%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+            <div class="bg-blue-500 h-2 rounded-full" style="width: 72%"></div>
+          </div>
+        </div>
+        <div class="insight-item mb-3">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-700">季節性要因</span>
+            <span class="text-sm font-bold text-purple-600">高</span>
+          </div>
+          <div class="text-xs text-gray-600 mt-1">春季イベントの需要が増加傾向</div>
+        </div>
+      </div>
+      <button class="w-full mt-3 btn btn-sm btn-outline-teal">
+        詳細分析を表示
+      </button>
+    </div>
+  </div>
+
+  <!-- AI Action Items -->
+  <div class="mt-6 bg-blue-50 rounded-lg p-4">
+    <h4 class="font-semibold text-blue-800 mb-3 flex items-center">
+      <i class="fas fa-tasks text-blue-600 mr-2"></i>
+      AI推奨アクション
+    </h4>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <button class="action-btn bg-white hover:bg-blue-50 border border-blue-200 rounded-lg p-3 text-left transition-colors">
+        <div class="flex items-center mb-2">
+          <i class="fas fa-users text-blue-500 mr-2"></i>
+          <span class="font-medium text-blue-800">来場者予測を実行</span>
+        </div>
+        <p class="text-xs text-blue-600">最新データで来場者数を予測し、準備計画を最適化</p>
+      </button>
+      
+      <button class="action-btn bg-white hover:bg-green-50 border border-green-200 rounded-lg p-3 text-left transition-colors">
+        <div class="flex items-center mb-2">
+          <i class="fas fa-map-marked-alt text-green-500 mr-2"></i>
+          <span class="font-medium text-green-800">レイアウト最適化</span>
+        </div>
+        <p class="text-xs text-green-600">AIによる最適な出店者配置と動線設計を生成</p>
+      </button>
+      
+      <button class="action-btn bg-white hover:bg-purple-50 border border-purple-200 rounded-lg p-3 text-left transition-colors">
+        <div class="flex items-center mb-2">
+          <i class="fas fa-calculator text-purple-500 mr-2"></i>
+          <span class="font-medium text-purple-800">予算配分最適化</span>
+        </div>
+        <p class="text-xs text-purple-600">ROI最大化のための予算配分を提案</p>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // AI Insights initialization
+  initializeAIInsights();
+  
+  // Auto-refresh every 5 minutes
+  setInterval(refreshAIInsights, 300000);
+  
+  // Event listeners
+  document.getElementById('refresh-ai-insights').addEventListener('click', refreshAIInsights);
+  
+  // Action button listeners
+  document.querySelectorAll('.action-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const action = this.textContent.trim();
+      executeAIAction(action);
+    });
+  });
+});
+
+function initializeAIInsights() {
+  // Load initial AI insights data
+  fetch('/api/v1/ai_recommendations/dashboard_summary')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        updateAIInsightsDisplay(data.data);
+      }
+    })
+    .catch(error => {
+      console.error('Failed to load AI insights:', error);
+    });
+}
+
+function refreshAIInsights() {
+  const refreshBtn = document.getElementById('refresh-ai-insights');
+  const originalHTML = refreshBtn.innerHTML;
+  
+  refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 更新中...';
+  refreshBtn.disabled = true;
+  
+  fetch('/api/v1/ai_recommendations/dashboard_summary')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        updateAIInsightsDisplay(data.data);
+        showNotification('AI推奨が更新されました', 'success');
+      } else {
+        showNotification('AI推奨の更新に失敗しました', 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Failed to refresh AI insights:', error);
+      showNotification('AI推奨の更新に失敗しました', 'error');
+    })
+    .finally(() => {
+      refreshBtn.innerHTML = originalHTML;
+      refreshBtn.disabled = false;
+    });
+}
+
+function updateAIInsightsDisplay(data) {
+  // Update quick stats
+  if (data.attendance_forecast) {
+    document.getElementById('predicted-attendance').textContent = 
+      data.attendance_forecast.total_predicted_attendance.toLocaleString();
+    document.getElementById('attendance-confidence').textContent = 
+      `信頼度: ${(data.attendance_forecast.confidence_score * 100).toFixed(1)}%`;
+  }
+  
+  if (data.roi_optimization) {
+    document.getElementById('predicted-roi').textContent = 
+      `${data.roi_optimization.current_roi.roi_percentage}%`;
+    document.getElementById('roi-trend').textContent = 
+      data.roi_optimization.historical_analysis.roi_trend;
+  }
+  
+  if (data.risk_assessment) {
+    document.getElementById('risk-level').textContent = 
+      data.risk_assessment.risk_level.toUpperCase();
+    document.getElementById('risk-score').textContent = 
+      `スコア: ${(data.risk_assessment.overall_risk_score * 100).toFixed(1)}%`;
+  }
+  
+  if (data.optimization_opportunities) {
+    document.getElementById('optimization-count').textContent = 
+      data.optimization_opportunities.total_opportunities;
+  }
+  
+  // Update recommendations list
+  if (data.recommendations) {
+    updateRecommendationsList(data.recommendations);
+  }
+}
+
+function updateRecommendationsList(recommendations) {
+  const container = document.getElementById('ai-recommendations-list');
+  container.innerHTML = '';
+  
+  recommendations.slice(0, 3).forEach(rec => {
+    const item = document.createElement('div');
+    item.className = 'recommendation-item p-3 bg-white rounded border-l-4 border-blue-400';
+    item.innerHTML = `
+      <p class="text-sm font-medium text-gray-800">${rec.title}</p>
+      <p class="text-xs text-gray-600">${rec.description}</p>
+      <button class="text-blue-600 text-xs hover:underline mt-1" onclick="showRecommendationDetails('${rec.id}')">詳細を見る</button>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function executeAIAction(action) {
+  // Implement AI action execution
+  console.log('Executing AI action:', action);
+  showNotification(`${action}を実行中...`, 'info');
+}
+
+function showRecommendationDetails(id) {
+  // Show detailed recommendation modal
+  console.log('Showing recommendation details for:', id);
+}
+
+function showNotification(message, type) {
+  // Implement notification display
+  console.log(`${type.toUpperCase()}: ${message}`);
+}
+</script>
+
+<style>
+.ai-insights-widget {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: white;
+}
+
+.ai-stat-card:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease-in-out;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation-item:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.ai-insights-widget.loading {
+  animation: pulse 2s infinite;
+}
+</style>
