@@ -177,3 +177,60 @@ FOREIGN KEY ("user_id")
   [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
   [1m[35m (0.3ms)[0m  [1m[34mSELECT pg_advisory_unlock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
   [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_try_advisory_lock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.5ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.0ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateLineIntegrations (20250712133419)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (11.4ms)[0m  [1m[35mCREATE TABLE "line_integrations" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "user_id" bigint NOT NULL, "line_channel_id" character varying NOT NULL, "line_channel_secret" character varying NOT NULL, "line_access_token" character varying NOT NULL, "webhook_url" character varying, "settings" text, "status" integer DEFAULT 0, "is_active" boolean DEFAULT FALSE, "line_user_id" character varying, "notification_preferences" character varying, "last_sync_at" timestamp(6), "last_webhook_received_at" timestamp(6), "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_08e6e7dd1c"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+, CONSTRAINT "fk_rails_d417e463e4"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE INDEX "index_line_integrations_on_festival_id" ON "line_integrations" ("festival_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE INDEX "index_line_integrations_on_user_id" ON "line_integrations" ("user_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.7ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_line_integrations_on_line_channel_id" ON "line_integrations" ("line_channel_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_line_integrations_on_festival_id_and_user_id" ON "line_integrations" ("festival_id", "user_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE INDEX "index_line_integrations_on_status" ON "line_integrations" ("status") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_line_integrations_on_is_active" ON "line_integrations" ("is_active") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250712133419') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.6ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateLineGroups (20250712133425)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (5.0ms)[0m  [1m[35mCREATE TABLE "line_groups" ("id" bigserial primary key, "line_integration_id" bigint NOT NULL, "line_group_id" character varying NOT NULL, "name" character varying NOT NULL, "description" text, "is_active" boolean DEFAULT TRUE, "member_count" integer DEFAULT 0, "last_activity_at" timestamp(6), "group_settings" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_9f554a6dd2"
+FOREIGN KEY ("line_integration_id")
+  REFERENCES "line_integrations" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_line_groups_on_line_integration_id" ON "line_groups" ("line_integration_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_line_groups_on_line_group_id" ON "line_groups" ("line_group_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_line_groups_on_line_integration_id_and_line_group_id" ON "line_groups" ("line_integration_id", "line_group_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE INDEX "index_line_groups_on_is_active" ON "line_groups" ("is_active") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE INDEX "index_line_groups_on_last_activity_at" ON "line_groups" ("last_activity_at") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250712133425') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateLineMessages (20250712133430)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (7.0ms)[0m  [1m[35mCREATE TABLE "line_messages" ("id" bigserial primary key, "line_group_id" bigint NOT NULL, "user_id" bigint, "line_message_id" character varying NOT NULL, "message_text" text NOT NULL, "message_type" character varying DEFAULT 'text', "parsed_content" text, "task_id" bigint, "is_processed" boolean DEFAULT FALSE, "sender_line_user_id" character varying, "sender_display_name" character varying, "line_timestamp" timestamp(6), "processing_errors" text, "intent_type" character varying, "confidence_score" decimal(5,3), "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_6f00f587b8"
+FOREIGN KEY ("line_group_id")
+  REFERENCES "line_groups" ("id")
+, CONSTRAINT "fk_rails_83ca74835c"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_680f36b461"
+FOREIGN KEY ("task_id")
+  REFERENCES "tasks" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "index_line_messages_on_line_group_id" ON "line_messages" ("line_group_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "index_line_messages_on_user_id" ON "line_messages" ("user_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_line_messages_on_task_id" ON "line_messages" ("task_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_line_messages_on_line_message_id" ON "line_messages" ("line_message_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE INDEX "index_line_messages_on_line_group_id_and_line_timestamp" ON "line_messages" ("line_group_id", "line_timestamp") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (2.0ms)[0m  [1m[35mCREATE INDEX "index_line_messages_on_is_processed" ON "line_messages" ("is_processed") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_line_messages_on_intent_type" ON "line_messages" ("intent_type") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE INDEX "index_line_messages_on_sender_line_user_id" ON "line_messages" ("sender_line_user_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250712133430') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.3ms)[0m  [1m[34mSELECT pg_advisory_unlock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m

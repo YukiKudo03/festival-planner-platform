@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_12_034200) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_12_133430) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -275,6 +275,75 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_12_034200) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["venue_id"], name: "index_layout_elements_on_venue_id"
+  end
+
+  create_table "line_groups", force: :cascade do |t|
+    t.bigint "line_integration_id", null: false
+    t.string "line_group_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.boolean "is_active", default: true
+    t.integer "member_count", default: 0
+    t.datetime "last_activity_at"
+    t.text "group_settings"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["is_active"], name: "index_line_groups_on_is_active"
+    t.index ["last_activity_at"], name: "index_line_groups_on_last_activity_at"
+    t.index ["line_group_id"], name: "index_line_groups_on_line_group_id", unique: true
+    t.index ["line_integration_id", "line_group_id"], name: "index_line_groups_on_line_integration_id_and_line_group_id", unique: true
+    t.index ["line_integration_id"], name: "index_line_groups_on_line_integration_id"
+  end
+
+  create_table "line_integrations", force: :cascade do |t|
+    t.bigint "festival_id", null: false
+    t.bigint "user_id", null: false
+    t.string "line_channel_id", null: false
+    t.string "line_channel_secret", null: false
+    t.string "line_access_token", null: false
+    t.string "webhook_url"
+    t.text "settings"
+    t.integer "status", default: 0
+    t.boolean "is_active", default: false
+    t.string "line_user_id"
+    t.string "notification_preferences"
+    t.datetime "last_sync_at"
+    t.datetime "last_webhook_received_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["festival_id", "user_id"], name: "index_line_integrations_on_festival_id_and_user_id", unique: true
+    t.index ["festival_id"], name: "index_line_integrations_on_festival_id"
+    t.index ["is_active"], name: "index_line_integrations_on_is_active"
+    t.index ["line_channel_id"], name: "index_line_integrations_on_line_channel_id", unique: true
+    t.index ["status"], name: "index_line_integrations_on_status"
+    t.index ["user_id"], name: "index_line_integrations_on_user_id"
+  end
+
+  create_table "line_messages", force: :cascade do |t|
+    t.bigint "line_group_id", null: false
+    t.bigint "user_id"
+    t.string "line_message_id", null: false
+    t.text "message_text", null: false
+    t.string "message_type", default: "text"
+    t.text "parsed_content"
+    t.bigint "task_id"
+    t.boolean "is_processed", default: false
+    t.string "sender_line_user_id"
+    t.string "sender_display_name"
+    t.datetime "line_timestamp"
+    t.text "processing_errors"
+    t.string "intent_type"
+    t.decimal "confidence_score", precision: 5, scale: 3
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["intent_type"], name: "index_line_messages_on_intent_type"
+    t.index ["is_processed"], name: "index_line_messages_on_is_processed"
+    t.index ["line_group_id", "line_timestamp"], name: "index_line_messages_on_line_group_id_and_line_timestamp"
+    t.index ["line_group_id"], name: "index_line_messages_on_line_group_id"
+    t.index ["line_message_id"], name: "index_line_messages_on_line_message_id", unique: true
+    t.index ["sender_line_user_id"], name: "index_line_messages_on_sender_line_user_id"
+    t.index ["task_id"], name: "index_line_messages_on_task_id"
+    t.index ["user_id"], name: "index_line_messages_on_user_id"
   end
 
   create_table "municipal_authorities", force: :cascade do |t|
@@ -580,6 +649,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_12_034200) do
   add_foreign_key "forums", "festivals"
   add_foreign_key "industry_specializations", "festivals"
   add_foreign_key "layout_elements", "venues"
+  add_foreign_key "line_groups", "line_integrations"
+  add_foreign_key "line_integrations", "festivals"
+  add_foreign_key "line_integrations", "users"
+  add_foreign_key "line_messages", "line_groups"
+  add_foreign_key "line_messages", "tasks"
+  add_foreign_key "line_messages", "users"
   add_foreign_key "notification_settings", "users"
   add_foreign_key "notifications", "users", column: "recipient_id"
   add_foreign_key "notifications", "users", column: "sender_id"

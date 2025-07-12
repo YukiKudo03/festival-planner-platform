@@ -1,0 +1,186 @@
+<% content_for :title, "LINE連携管理" %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">LINE連携管理</h1>
+        <%= link_to "新しい連携を作成", new_line_integration_path, class: "btn btn-primary" %>
+      </div>
+
+      <!-- 統計カード -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card bg-primary text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h4 class="mb-0"><%= @line_integrations.count %></h4>
+                  <p class="mb-0">総連携数</p>
+                </div>
+                <div class="align-self-center">
+                  <i class="fas fa-link fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-success text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h4 class="mb-0"><%= @active_integrations.count %></h4>
+                  <p class="mb-0">アクティブ</p>
+                </div>
+                <div class="align-self-center">
+                  <i class="fas fa-check-circle fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-info text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h4 class="mb-0"><%= @recent_activity.count %></h4>
+                  <p class="mb-0">最近のメッセージ</p>
+                </div>
+                <div class="align-self-center">
+                  <i class="fas fa-comments fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-warning text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h4 class="mb-0"><%= @line_integrations.count - @active_integrations.count %></h4>
+                  <p class="mb-0">非アクティブ</p>
+                </div>
+                <div class="align-self-center">
+                  <i class="fas fa-exclamation-triangle fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LINE連携一覧 -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">LINE連携一覧</h5>
+        </div>
+        <div class="card-body">
+          <% if @line_integrations.any? %>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>お祭り</th>
+                    <th>ステータス</th>
+                    <th>グループ数</th>
+                    <th>最終アクティビティ</th>
+                    <th>作成日</th>
+                    <th>アクション</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @line_integrations.each do |integration| %>
+                    <tr>
+                      <td>
+                        <strong><%= integration.festival.name %></strong><br>
+                        <small class="text-muted">Channel ID: <%= integration.line_channel_id %></small>
+                      </td>
+                      <td>
+                        <% if integration.active? %>
+                          <span class="badge bg-success">アクティブ</span>
+                        <% elsif integration.status == 'error' %>
+                          <span class="badge bg-danger">エラー</span>
+                        <% else %>
+                          <span class="badge bg-secondary">非アクティブ</span>
+                        <% end %>
+                      </td>
+                      <td>
+                        <%= integration.line_groups.active_groups.count %>
+                        <small class="text-muted">/ <%= integration.line_groups.count %></small>
+                      </td>
+                      <td>
+                        <% if integration.last_webhook_received_at %>
+                          <%= time_ago_in_words(integration.last_webhook_received_at) %>前
+                        <% else %>
+                          <span class="text-muted">なし</span>
+                        <% end %>
+                      </td>
+                      <td><%= integration.created_at.strftime('%Y/%m/%d') %></td>
+                      <td>
+                        <div class="btn-group" role="group">
+                          <%= link_to "詳細", integration, class: "btn btn-sm btn-outline-primary" %>
+                          <%= link_to "編集", edit_line_integration_path(integration), class: "btn btn-sm btn-outline-secondary" %>
+                          <% if integration.active? %>
+                            <%= link_to "無効化", disconnect_line_integration_path(integration), 
+                                method: :delete, class: "btn btn-sm btn-outline-warning",
+                                confirm: "この連携を無効化しますか？" %>
+                          <% else %>
+                            <%= link_to "認証", authenticate_line_integration_path(integration), 
+                                method: :post, class: "btn btn-sm btn-outline-success" %>
+                          <% end %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center py-5">
+              <i class="fas fa-link fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">LINE連携が設定されていません</h5>
+              <p class="text-muted mb-4">LINEグループでタスク管理を始めましょう</p>
+              <%= link_to "最初の連携を作成", new_line_integration_path, class: "btn btn-primary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- 最近のアクティビティ -->
+      <% if @recent_activity.any? %>
+        <div class="card mt-4">
+          <div class="card-header">
+            <h5 class="mb-0">最近のメッセージ</h5>
+          </div>
+          <div class="card-body">
+            <div class="list-group list-group-flush">
+              <% @recent_activity.each do |message| %>
+                <div class="list-group-item">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">
+                      <%= message.line_group.name %>
+                      <% if message.has_task? %>
+                        <span class="badge bg-success ms-2">タスク作成</span>
+                      <% end %>
+                    </h6>
+                    <small><%= time_ago_in_words(message.line_timestamp || message.created_at) %>前</small>
+                  </div>
+                  <p class="mb-1"><%= truncate(message.message_text, length: 100) %></p>
+                  <small class="text-muted">
+                    送信者: <%= message.sender_name %>
+                    <% if message.confidence_score %>
+                      | 信頼度: <%= (message.confidence_score * 100).round %>%
+                    <% end %>
+                  </small>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

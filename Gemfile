@@ -40,8 +40,8 @@ gem "line-bot-api"
 # HTTP client for API requests
 gem "httparty"
 
-# Japanese natural language processing
-gem "mecab", "~> 0.996"
+# Japanese text processing gem for parsing
+gem "pry"
 
 # Environment variables management
 gem "dotenv-rails"

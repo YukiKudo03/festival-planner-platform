@@ -1,0 +1,276 @@
+<% content_for :title, "LINE連携詳細" %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h3 mb-0">LINE連携詳細</h1>
+          <p class="text-muted mb-0"><%= @line_integration.festival.name %></p>
+        </div>
+        <div class="btn-group">
+          <%= link_to "編集", edit_line_integration_path(@line_integration), class: "btn btn-outline-primary" %>
+          <% if @line_integration.active? %>
+            <%= link_to "接続テスト", test_connection_line_integration_path(@line_integration), 
+                method: :post, class: "btn btn-outline-info", remote: true %>
+            <%= link_to "グループ同期", sync_groups_line_integration_path(@line_integration), 
+                method: :post, class: "btn btn-outline-success" %>
+          <% else %>
+            <%= link_to "認証", authenticate_line_integration_path(@line_integration), 
+                method: :post, class: "btn btn-success" %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- ステータスカード -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body text-center">
+              <% if @line_integration.active? %>
+                <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
+                <h5 class="text-success">アクティブ</h5>
+              <% else %>
+                <i class="fas fa-times-circle fa-3x text-danger mb-2"></i>
+                <h5 class="text-danger">非アクティブ</h5>
+              <% end %>
+              <small class="text-muted">ステータス</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body text-center">
+              <i class="fas fa-users fa-3x text-primary mb-2"></i>
+              <h5><%= @stats[:active_groups] %></h5>
+              <small class="text-muted">アクティブグループ</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body text-center">
+              <i class="fas fa-comments fa-3x text-info mb-2"></i>
+              <h5><%= @stats[:processed_messages] %></h5>
+              <small class="text-muted">処理済メッセージ</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body text-center">
+              <i class="fas fa-tasks fa-3x text-warning mb-2"></i>
+              <h5><%= @stats[:created_tasks] %></h5>
+              <small class="text-muted">作成タスク</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 基本情報 -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">基本情報</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <dl class="row">
+                <dt class="col-sm-4">チャネルID:</dt>
+                <dd class="col-sm-8"><code><%= @line_integration.line_channel_id %></code></dd>
+                
+                <dt class="col-sm-4">Webhook URL:</dt>
+                <dd class="col-sm-8">
+                  <% if @line_integration.webhook_configured? %>
+                    <span class="badge bg-success">設定済み</span>
+                    <small class="text-muted d-block"><%= @line_integration.webhook_url %></small>
+                  <% else %>
+                    <span class="badge bg-warning">未設定</span>
+                  <% end %>
+                </dd>
+                
+                <dt class="col-sm-4">作成日:</dt>
+                <dd class="col-sm-8"><%= @line_integration.created_at.strftime('%Y年%m月%d日 %H:%M') %></dd>
+                
+                <dt class="col-sm-4">最終同期:</dt>
+                <dd class="col-sm-8">
+                  <% if @line_integration.last_sync_at %>
+                    <%= time_ago_in_words(@line_integration.last_sync_at) %>前
+                  <% else %>
+                    <span class="text-muted">なし</span>
+                  <% end %>
+                </dd>
+              </dl>
+            </div>
+            <div class="col-md-6">
+              <dl class="row">
+                <dt class="col-sm-4">最終Webhook:</dt>
+                <dd class="col-sm-8">
+                  <% if @line_integration.last_webhook_received_at %>
+                    <%= time_ago_in_words(@line_integration.last_webhook_received_at) %>前
+                  <% else %>
+                    <span class="text-muted">なし</span>
+                  <% end %>
+                </dd>
+                
+                <dt class="col-sm-4">タスク自動作成:</dt>
+                <dd class="col-sm-8">
+                  <% if @line_integration.settings['auto_task_creation'] %>
+                    <span class="badge bg-success">有効</span>
+                  <% else %>
+                    <span class="badge bg-secondary">無効</span>
+                  <% end %>
+                </dd>
+                
+                <dt class="col-sm-4">リマインダー:</dt>
+                <dd class="col-sm-8">
+                  <% if @line_integration.settings['task_reminder_enabled'] %>
+                    <span class="badge bg-success">有効</span>
+                  <% else %>
+                    <span class="badge bg-secondary">無効</span>
+                  <% end %>
+                </dd>
+                
+                <dt class="col-sm-4">通知時間:</dt>
+                <dd class="col-sm-8">
+                  <% times = @line_integration.notification_preferences['notification_times'] %>
+                  <% if times && times['start'] && times['end'] %>
+                    <%= times['start'] %> - <%= times['end'] %>
+                  <% else %>
+                    <span class="text-muted">24時間</span>
+                  <% end %>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LINEグループ一覧 -->
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">LINEグループ (<%= @line_groups.count %>)</h5>
+          <%= link_to "グループ管理", groups_line_integration_path(@line_integration), class: "btn btn-sm btn-outline-primary" %>
+        </div>
+        <div class="card-body">
+          <% if @line_groups.any? %>
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>グループ名</th>
+                    <th>メンバー数</th>
+                    <th>メッセージ数</th>
+                    <th>最終アクティビティ</th>
+                    <th>ステータス</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @line_groups.each do |group| %>
+                    <tr>
+                      <td>
+                        <strong><%= group.name %></strong><br>
+                        <small class="text-muted"><%= group.line_group_id %></small>
+                      </td>
+                      <td><%= group.member_count %></td>
+                      <td><%= group.line_messages.count %></td>
+                      <td>
+                        <% if group.last_activity_at %>
+                          <%= time_ago_in_words(group.last_activity_at) %>前
+                        <% else %>
+                          <span class="text-muted">なし</span>
+                        <% end %>
+                      </td>
+                      <td>
+                        <% if group.active? %>
+                          <span class="badge bg-success">アクティブ</span>
+                        <% else %>
+                          <span class="badge bg-secondary">非アクティブ</span>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center py-4">
+              <i class="fas fa-users fa-2x text-muted mb-2"></i>
+              <p class="text-muted">グループが見つかりません</p>
+              <small class="text-muted">LINEボットをグループに招待すると自動的に検出されます</small>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- 最近のメッセージ -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">最近のメッセージ</h5>
+        </div>
+        <div class="card-body">
+          <% if @recent_messages.any? %>
+            <div class="list-group list-group-flush">
+              <% @recent_messages.each do |message| %>
+                <div class="list-group-item">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">
+                      <%= message.line_group.name %>
+                      <% if message.has_task? %>
+                        <span class="badge bg-success ms-2">
+                          <i class="fas fa-check"></i> タスク作成
+                        </span>
+                      <% end %>
+                      <% if message.intent_type != 'unknown' %>
+                        <span class="badge bg-info ms-1"><%= message.intent_type.humanize %></span>
+                      <% end %>
+                    </h6>
+                    <small><%= time_ago_in_words(message.line_timestamp || message.created_at) %>前</small>
+                  </div>
+                  <p class="mb-1"><%= truncate(message.message_text, length: 120) %></p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                      <i class="fas fa-user"></i> <%= message.sender_name %>
+                      <% if message.confidence_score %>
+                        | 信頼度: <%= (message.confidence_score * 100).round %>%
+                      <% end %>
+                    </small>
+                    <% if message.has_task? %>
+                      <%= link_to "タスク詳細", message.task, class: "btn btn-sm btn-outline-primary" %>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-4">
+              <i class="fas fa-comments fa-2x text-muted mb-2"></i>
+              <p class="text-muted">メッセージがありません</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 接続テストのAJAX処理
+  const testButton = document.querySelector('[data-remote="true"]');
+  if (testButton) {
+    testButton.addEventListener('ajax:success', function(event) {
+      const response = event.detail[0];
+      if (response.success) {
+        alert('✅ ' + response.message);
+      } else {
+        alert('❌ ' + response.message);
+      }
+    });
+    
+    testButton.addEventListener('ajax:error', function(event) {
+      alert('❌ 接続テスト中にエラーが発生しました');
+    });
+  }
+});
+</script>

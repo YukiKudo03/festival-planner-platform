@@ -14,6 +14,11 @@ class NotificationService
       broadcast_notification(notification)
     end
     
+    # LINE通知
+    if setting.should_send_line? && setting.should_send_immediately?
+      send_line_notification(notification)
+    end
+    
     notification
   end
 
@@ -131,7 +136,156 @@ class NotificationService
     end
   end
 
+  def self.send_line_task_created_notification(task)
+    return unless task.festival.line_integrations.active_integrations.any?
+
+    task.festival.line_integrations.active_integrations.each do |integration|
+      next unless integration.notification_preferences['task_created']
+
+      message = build_line_task_message(task, 'created')
+      integration.send_notification(message)
+    end
+  end
+
+  def self.send_line_task_completed_notification(task)
+    return unless task.festival.line_integrations.active_integrations.any?
+
+    task.festival.line_integrations.active_integrations.each do |integration|
+      next unless integration.notification_preferences['task_completed']
+
+      message = build_line_task_message(task, 'completed')
+      integration.send_notification(message)
+    end
+  end
+
+  def self.send_line_task_assigned_notification(task, sender)
+    return unless task.festival.line_integrations.active_integrations.any?
+
+    task.festival.line_integrations.active_integrations.each do |integration|
+      next unless integration.notification_preferences['task_assigned']
+
+      message = build_line_task_assignment_message(task, sender)
+      integration.send_notification(message)
+    end
+  end
+
+  def self.send_line_deadline_reminder(task)
+    return unless task.festival.line_integrations.active_integrations.any?
+
+    task.festival.line_integrations.active_integrations.each do |integration|
+      next unless integration.notification_preferences['deadline_reminder']
+      next unless within_notification_hours?(integration)
+
+      message = build_line_deadline_message(task)
+      integration.send_notification(message)
+    end
+  end
+
   private
+
+  def self.send_line_notification(notification)
+    return unless notification.recipient.present?
+
+    # Find LINE integrations for the user's festivals
+    line_integrations = LineIntegration.joins(:festival)
+                                      .where(festivals: { user: notification.recipient })
+                                      .active_integrations
+
+    line_integrations.each do |integration|
+      next unless should_send_line_notification?(integration, notification)
+
+      message = build_line_notification_message(notification)
+      integration.send_notification(message)
+    end
+  end
+
+  def self.should_send_line_notification?(integration, notification)
+    prefs = integration.notification_preferences
+    return false unless prefs[notification.notification_type]
+    return false unless within_notification_hours?(integration)
+    
+    # Check if mention-only mode is enabled
+    if prefs['mention_only'] && notification.notifiable.respond_to?(:mentioned_users)
+      return notification.notifiable.mentioned_users.include?(notification.recipient)
+    end
+    
+    true
+  end
+
+  def self.within_notification_hours?(integration)
+    return true unless integration.notification_preferences['quiet_hours_enabled']
+
+    times = integration.notification_preferences['notification_times']
+    return true unless times['start'] && times['end']
+
+    current_time = Time.current.strftime('%H:%M')
+    start_time = times['start']
+    end_time = times['end']
+
+    if start_time < end_time
+      current_time >= start_time && current_time <= end_time
+    else
+      # Handle overnight period (e.g., 22:00 to 07:00)
+      current_time >= start_time || current_time <= end_time
+    end
+  end
+
+  def self.build_line_notification_message(notification)
+    case notification.notification_type
+    when 'task_deadline_reminder'
+      "⏰ #{notification.title}\n#{notification.message}"
+    when 'task_assigned'
+      "📝 #{notification.title}\n#{notification.message}"
+    when 'task_completed'
+      "✅ #{notification.title}\n#{notification.message}"
+    when 'festival_created'
+      "🎭 #{notification.title}\n#{notification.message}"
+    else
+      "📢 #{notification.title}\n#{notification.message}"
+    end
+  end
+
+  def self.build_line_task_message(task, action)
+    case action
+    when 'created'
+      "📝 新しいタスクが作成されました\n" \
+      "タイトル: #{task.title}\n" \
+      "担当者: #{task.user&.display_name || '未設定'}\n" \
+      "期限: #{task.due_date&.strftime('%Y年%m月%d日') || '未設定'}\n" \
+      "優先度: #{task.priority_label}"
+    when 'completed'
+      "✅ タスクが完了しました\n" \
+      "タイトル: #{task.title}\n" \
+      "完了者: #{task.user&.display_name}"
+    end
+  end
+
+  def self.build_line_task_assignment_message(task, sender)
+    "👤 タスクが割り当てられました\n" \
+    "タイトル: #{task.title}\n" \
+    "担当者: #{task.user&.display_name}\n" \
+    "割り当て者: #{sender&.display_name || 'システム'}\n" \
+    "期限: #{task.due_date&.strftime('%Y年%m月%d日') || '未設定'}"
+  end
+
+  def self.build_line_deadline_message(task)
+    days_until = (task.due_date - Date.current).to_i
+    
+    if days_until == 0
+      urgency = "⚠️ 今日が期限です！"
+    elsif days_until == 1
+      urgency = "📅 明日が期限です"
+    elsif days_until < 0
+      urgency = "🚨 期限を#{-days_until}日過ぎています"
+    else
+      urgency = "📅 あと#{days_until}日で期限です"
+    end
+
+    "#{urgency}\n" \
+    "タスク: #{task.title}\n" \
+    "担当者: #{task.user&.display_name}\n" \
+    "期限: #{task.due_date.strftime('%Y年%m月%d日')}"
+  end
 
   def self.broadcast_notification(notification)
     # ActionCableでリアルタイム通知を送信
