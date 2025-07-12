@@ -1,0 +1,397 @@
+  [1m[36mActiveRecord::InternalMetadata Load (1.8ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (1.5ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.0ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[35mSQL (0.1ms)[0m  [1m[35mSET search_path TO public[0m
+  [1m[35m (150.2ms)[0m  [1m[35mDROP DATABASE IF EXISTS "festival_planner_platform_test"[0m
+  [1m[35m (135.2ms)[0m  [1m[35mCREATE DATABASE "festival_planner_platform_test" ENCODING = 'unicode'[0m
+  [1m[35mSQL (7.4ms)[0m  [1m[35mCREATE EXTENSION IF NOT EXISTS "plpgsql" SCHEMA pg_catalog[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "active_storage_attachments" CASCADE[0m
+  [1m[35m (2.8ms)[0m  [1m[35mCREATE TABLE "active_storage_attachments" ("id" bigserial primary key, "name" character varying NOT NULL, "record_type" character varying NOT NULL, "record_id" bigint NOT NULL, "blob_id" bigint NOT NULL, "created_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_active_storage_attachments_on_blob_id" ON "active_storage_attachments" ("blob_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_active_storage_attachments_uniqueness" ON "active_storage_attachments" ("record_type", "record_id", "name", "blob_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "active_storage_blobs" CASCADE[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE TABLE "active_storage_blobs" ("id" bigserial primary key, "key" character varying NOT NULL, "filename" character varying NOT NULL, "content_type" character varying, "metadata" text, "service_name" character varying NOT NULL, "byte_size" bigint NOT NULL, "checksum" character varying, "created_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_active_storage_blobs_on_key" ON "active_storage_blobs" ("key")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "active_storage_variant_records" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "active_storage_variant_records" ("id" bigserial primary key, "blob_id" bigint NOT NULL, "variation_digest" character varying NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_active_storage_variant_records_uniqueness" ON "active_storage_variant_records" ("blob_id", "variation_digest")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "application_comments" CASCADE[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE TABLE "application_comments" ("id" bigserial primary key, "vendor_application_id" bigint NOT NULL, "user_id" bigint NOT NULL, "content" text NOT NULL, "internal" boolean DEFAULT FALSE NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_application_comments_on_internal" ON "application_comments" ("internal")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_application_comments_on_user_id_and_created_at" ON "application_comments" ("user_id", "created_at")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_application_comments_on_user_id" ON "application_comments" ("user_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "idx_on_vendor_application_id_created_at_84101e4b46" ON "application_comments" ("vendor_application_id", "created_at")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_application_comments_on_vendor_application_id" ON "application_comments" ("vendor_application_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "application_reviews" CASCADE[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE TABLE "application_reviews" ("id" bigserial primary key, "vendor_application_id" bigint NOT NULL, "reviewer_id" bigint NOT NULL, "action" integer NOT NULL, "comment" text, "conditions" text, "reviewed_at" timestamp(6), "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_application_reviews_on_action" ON "application_reviews" ("action")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_application_reviews_on_reviewer_id_and_reviewed_at" ON "application_reviews" ("reviewer_id", "reviewed_at")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_application_reviews_on_reviewer_id" ON "application_reviews" ("reviewer_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "idx_on_vendor_application_id_created_at_4e2add9370" ON "application_reviews" ("vendor_application_id", "created_at")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_application_reviews_on_vendor_application_id" ON "application_reviews" ("vendor_application_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "booths" CASCADE[0m
+  [1m[35m (1.4ms)[0m  [1m[35mCREATE TABLE "booths" ("id" bigserial primary key, "venue_area_id" bigint NOT NULL, "festival_id" bigint NOT NULL, "vendor_application_id" bigint NOT NULL, "name" character varying, "booth_number" character varying, "size" character varying, "width" decimal, "height" decimal, "x_position" decimal, "y_position" decimal, "rotation" decimal, "status" character varying, "power_required" boolean, "water_required" boolean, "special_requirements" text, "setup_instructions" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_booths_on_festival_id" ON "booths" ("festival_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_booths_on_vendor_application_id" ON "booths" ("vendor_application_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_booths_on_venue_area_id" ON "booths" ("venue_area_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "budget_approvals" CASCADE[0m
+  [1m[35m (1.4ms)[0m  [1m[35mCREATE TABLE "budget_approvals" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "budget_category_id" bigint NOT NULL, "approver_type" character varying NOT NULL, "approver_id" bigint NOT NULL, "requested_amount" decimal(10,2) NOT NULL, "approved_amount" decimal(10,2) DEFAULT 0.0 NOT NULL, "status" character varying DEFAULT 'pending' NOT NULL, "notes" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_approver" ON "budget_approvals" ("approver_type", "approver_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_approver_type_and_approver_id" ON "budget_approvals" ("approver_type", "approver_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_budget_category_id_and_status" ON "budget_approvals" ("budget_category_id", "status")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_budget_category_id" ON "budget_approvals" ("budget_category_id")[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_festival_id_and_status" ON "budget_approvals" ("festival_id", "status")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_festival_id" ON "budget_approvals" ("festival_id")[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_status" ON "budget_approvals" ("status")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "budget_categories" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "budget_categories" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "name" character varying, "description" text, "parent_type" character varying, "parent_id" bigint, "budget_limit" decimal, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_budget_categories_on_festival_id" ON "budget_categories" ("festival_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_budget_categories_on_parent" ON "budget_categories" ("parent_type", "parent_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "chat_messages" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "chat_messages" ("id" bigserial primary key, "chat_room_id" bigint NOT NULL, "user_id" bigint NOT NULL, "content" text, "message_type" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_chat_messages_on_chat_room_id" ON "chat_messages" ("chat_room_id")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_chat_messages_on_user_id" ON "chat_messages" ("user_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "chat_room_members" CASCADE[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE TABLE "chat_room_members" ("id" bigserial primary key, "chat_room_id" bigint NOT NULL, "user_id" bigint NOT NULL, "role" character varying, "joined_at" timestamp(6), "last_read_at" timestamp(6), "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_chat_room_members_on_chat_room_id" ON "chat_room_members" ("chat_room_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_chat_room_members_on_user_id" ON "chat_room_members" ("user_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "chat_rooms" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "chat_rooms" ("id" bigserial primary key, "name" character varying, "description" text, "room_type" character varying, "festival_id" bigint NOT NULL, "private" boolean, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_chat_rooms_on_festival_id" ON "chat_rooms" ("festival_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "expenses" CASCADE[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE TABLE "expenses" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "budget_category_id" bigint NOT NULL, "user_id" bigint NOT NULL, "amount" decimal, "description" text, "expense_date" date, "payment_method" character varying, "vendor_name" character varying, "receipt_number" character varying, "status" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_expenses_on_budget_category_id" ON "expenses" ("budget_category_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_expenses_on_festival_id" ON "expenses" ("festival_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_expenses_on_user_id" ON "expenses" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "festivals" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "festivals" ("id" bigserial primary key, "name" character varying, "description" text, "start_date" timestamp(6), "end_date" timestamp(6), "location" character varying, "budget" decimal, "status" integer, "user_id" bigint NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "public" boolean DEFAULT FALSE NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_festivals_on_user_id" ON "festivals" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "forum_posts" CASCADE[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE TABLE "forum_posts" ("id" bigserial primary key, "forum_thread_id" bigint NOT NULL, "user_id" bigint NOT NULL, "content" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_forum_posts_on_forum_thread_id" ON "forum_posts" ("forum_thread_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_forum_posts_on_user_id" ON "forum_posts" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "forum_threads" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "forum_threads" ("id" bigserial primary key, "forum_id" bigint NOT NULL, "user_id" bigint NOT NULL, "title" character varying, "content" text, "pinned" boolean, "locked" boolean, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_forum_threads_on_forum_id" ON "forum_threads" ("forum_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_forum_threads_on_user_id" ON "forum_threads" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "forums" CASCADE[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE TABLE "forums" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "name" character varying, "description" text, "category" character varying, "private" boolean, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_forums_on_festival_id" ON "forums" ("festival_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "industry_specializations" CASCADE[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE TABLE "industry_specializations" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "industry_type" character varying NOT NULL, "specialization_level" character varying DEFAULT 'basic' NOT NULL, "status" character varying DEFAULT 'planning' NOT NULL, "certification_required" boolean DEFAULT FALSE, "description" text, "priority" character varying DEFAULT 'medium', "specialization_code" character varying, "activated_at" timestamp(6), "completed_at" timestamp(6), "completion_notes" text, "compliance_standards" text, "specialized_features" text, "industry_regulations" text, "certification_requirements" text, "performance_kpis" text, "vendor_criteria" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "idx_on_festival_id_industry_type_c6db393dc4" ON "industry_specializations" ("festival_id", "industry_type")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_industry_specializations_on_festival_id" ON "industry_specializations" ("festival_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_industry_specializations_on_industry_type" ON "industry_specializations" ("industry_type")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_industry_specializations_on_specialization_code" ON "industry_specializations" ("specialization_code")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_industry_specializations_on_status" ON "industry_specializations" ("status")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "layout_elements" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "layout_elements" ("id" bigserial primary key, "venue_id" bigint NOT NULL, "element_type" character varying, "name" character varying, "description" text, "x_position" decimal, "y_position" decimal, "width" decimal, "height" decimal, "rotation" decimal, "color" character varying, "properties" text, "layer" integer, "locked" boolean, "visible" boolean, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_layout_elements_on_venue_id" ON "layout_elements" ("venue_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "municipal_authorities" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "municipal_authorities" ("id" bigserial primary key, "name" character varying NOT NULL, "authority_type" character varying NOT NULL, "contact_person" character varying, "email" character varying, "phone" character varying, "address" text, "code" character varying, "api_endpoint" character varying, "api_key" character varying, "description" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_municipal_authorities_on_authority_type" ON "municipal_authorities" ("authority_type")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_municipal_authorities_on_code" ON "municipal_authorities" ("code")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_municipal_authorities_on_email" ON "municipal_authorities" ("email")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "notification_settings" CASCADE[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE TABLE "notification_settings" ("id" bigserial primary key, "user_id" bigint NOT NULL, "notification_type" character varying NOT NULL, "email_enabled" boolean DEFAULT TRUE, "web_enabled" boolean DEFAULT TRUE, "frequency" character varying DEFAULT 'immediate', "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_notification_settings_on_notification_type" ON "notification_settings" ("notification_type")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_notification_settings_on_user_id_and_notification_type" ON "notification_settings" ("user_id", "notification_type")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_notification_settings_on_user_id" ON "notification_settings" ("user_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "notifications" CASCADE[0m
+  [1m[35m (2.5ms)[0m  [1m[35mCREATE TABLE "notifications" ("id" bigserial primary key, "recipient_id" bigint NOT NULL, "sender_id" bigint, "notifiable_type" character varying NOT NULL, "notifiable_id" bigint NOT NULL, "notification_type" character varying NOT NULL, "title" character varying NOT NULL, "message" text, "read_at" timestamp(6), "sent_at" timestamp(6), "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_notifications_on_notifiable" ON "notifications" ("notifiable_type", "notifiable_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_notifications_on_notifiable_type_and_notifiable_id" ON "notifications" ("notifiable_type", "notifiable_id")[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_notifications_on_notification_type" ON "notifications" ("notification_type")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_notifications_on_recipient_id_and_created_at" ON "notifications" ("recipient_id", "created_at")[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_notifications_on_recipient_id_and_read_at" ON "notifications" ("recipient_id", "read_at")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_notifications_on_recipient_id" ON "notifications" ("recipient_id")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_notifications_on_sender_id" ON "notifications" ("sender_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "payments" CASCADE[0m
+  [1m[35m (1.7ms)[0m  [1m[35mCREATE TABLE "payments" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "user_id" bigint NOT NULL, "amount" decimal(10,2) NOT NULL, "payment_method" character varying NOT NULL, "status" character varying DEFAULT 'pending' NOT NULL, "currency" character varying DEFAULT 'JPY', "description" text, "customer_email" character varying, "customer_name" character varying, "billing_address" text, "external_transaction_id" character varying, "processing_fee" decimal(8,2) DEFAULT 0.0, "metadata" json DEFAULT '{}', "processed_at" timestamp(6), "confirmed_at" timestamp(6), "cancelled_at" timestamp(6), "cancellation_reason" text, "error_message" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_payments_on_confirmed_at" ON "payments" ("confirmed_at")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_payments_on_external_transaction_id" ON "payments" ("external_transaction_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_payments_on_festival_id_and_status" ON "payments" ("festival_id", "status")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_payments_on_festival_id" ON "payments" ("festival_id")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_payments_on_payment_method" ON "payments" ("payment_method")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_payments_on_processed_at" ON "payments" ("processed_at")[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_payments_on_status" ON "payments" ("status")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_payments_on_user_id_and_status" ON "payments" ("user_id", "status")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_payments_on_user_id" ON "payments" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "reactions" CASCADE[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE TABLE "reactions" ("id" bigserial primary key, "reactable_type" character varying NOT NULL, "reactable_id" bigint NOT NULL, "user_id" bigint NOT NULL, "reaction_type" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_reactions_on_reactable" ON "reactions" ("reactable_type", "reactable_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_reactions_on_user_id" ON "reactions" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "revenues" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "revenues" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "budget_category_id" bigint NOT NULL, "user_id" bigint NOT NULL, "amount" decimal, "description" text, "revenue_date" date, "source" character varying, "status" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "revenue_type" character varying DEFAULT 'other' NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_revenues_on_budget_category_id" ON "revenues" ("budget_category_id")[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_revenues_on_festival_id" ON "revenues" ("festival_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_revenues_on_user_id" ON "revenues" ("user_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "tasks" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "tasks" ("id" bigserial primary key, "title" character varying, "description" text, "due_date" timestamp(6), "priority" integer, "status" integer, "user_id" bigint NOT NULL, "festival_id" bigint NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_tasks_on_festival_id" ON "tasks" ("festival_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_tasks_on_user_id" ON "tasks" ("user_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "tourism_collaborations" CASCADE[0m
+  [1m[35m (1.4ms)[0m  [1m[35mCREATE TABLE "tourism_collaborations" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "tourism_board_id" bigint NOT NULL, "coordinator_id" bigint NOT NULL, "collaboration_type" character varying NOT NULL, "status" character varying DEFAULT 'proposed' NOT NULL, "priority" character varying DEFAULT 'medium', "start_date" date NOT NULL, "end_date" date NOT NULL, "budget_allocation" decimal(12,2) NOT NULL, "expected_visitors" integer NOT NULL, "collaboration_number" character varying, "activated_at" timestamp(6), "completed_at" timestamp(6), "approved_at" timestamp(6), "approved_by" integer, "cancelled_at" timestamp(6), "cancelled_by" integer, "cancellation_reason" text, "completion_notes" text, "approval_notes" text, "description" text, "marketing_objectives" text, "target_demographics" text, "promotional_channels" text, "collaboration_benefits" text, "performance_metrics" text, "visitor_data" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_tourism_collaborations_on_collaboration_number" ON "tourism_collaborations" ("collaboration_number")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_tourism_collaborations_on_collaboration_type" ON "tourism_collaborations" ("collaboration_type")[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_tourism_collaborations_on_coordinator_id" ON "tourism_collaborations" ("coordinator_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_tourism_collaborations_on_festival_id" ON "tourism_collaborations" ("festival_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_tourism_collaborations_on_start_date_and_end_date" ON "tourism_collaborations" ("start_date", "end_date")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_tourism_collaborations_on_status" ON "tourism_collaborations" ("status")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_tourism_collaborations_on_tourism_board_id" ON "tourism_collaborations" ("tourism_board_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mDROP TABLE IF EXISTS "users" CASCADE[0m
+  [1m[35m (1.4ms)[0m  [1m[35mCREATE TABLE "users" ("id" bigserial primary key, "email" character varying DEFAULT '' NOT NULL, "encrypted_password" character varying DEFAULT '' NOT NULL, "reset_password_token" character varying, "reset_password_sent_at" timestamp(6), "remember_created_at" timestamp(6), "first_name" character varying, "last_name" character varying, "phone" character varying, "bio" text, "role" integer DEFAULT 0, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "api_token" character varying, "api_token_expires_at" timestamp(6), "last_api_access_at" timestamp(6), "api_request_count" integer DEFAULT 0, "api_permissions" json DEFAULT '{}')[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_api_token" ON "users" ("api_token")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_users_on_api_token_expires_at" ON "users" ("api_token_expires_at")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_email" ON "users" ("email")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_users_on_last_api_access_at" ON "users" ("last_api_access_at")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_reset_password_token" ON "users" ("reset_password_token")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "vendor_applications" CASCADE[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE TABLE "vendor_applications" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "user_id" bigint NOT NULL, "business_name" character varying, "business_type" character varying, "description" text, "requirements" text, "status" integer, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "submission_deadline" timestamp(6), "review_deadline" timestamp(6), "priority" integer DEFAULT 1, "notes" text, "submitted_at" timestamp(6), "reviewed_at" timestamp(6))[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_festival_id" ON "vendor_applications" ("festival_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_priority" ON "vendor_applications" ("priority")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_review_deadline" ON "vendor_applications" ("review_deadline")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_submission_deadline" ON "vendor_applications" ("submission_deadline")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_submitted_at" ON "vendor_applications" ("submitted_at")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_user_id" ON "vendor_applications" ("user_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "venue_areas" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "venue_areas" ("id" bigserial primary key, "venue_id" bigint NOT NULL, "name" character varying NOT NULL, "description" text, "area_type" character varying NOT NULL, "width" decimal(8,2) NOT NULL, "height" decimal(8,2) NOT NULL, "x_position" decimal(8,2) NOT NULL, "y_position" decimal(8,2) NOT NULL, "rotation" decimal(5,2) DEFAULT 0.0, "color" character varying, "capacity" integer, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_venue_areas_on_area_type" ON "venue_areas" ("area_type")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_venue_areas_on_venue_id" ON "venue_areas" ("venue_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_venue_areas_on_x_position_and_y_position" ON "venue_areas" ("x_position", "y_position")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "venues" CASCADE[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE TABLE "venues" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "name" character varying NOT NULL, "description" text, "capacity" integer NOT NULL, "address" text, "latitude" decimal(10,6), "longitude" decimal(10,6), "facility_type" character varying NOT NULL, "contact_info" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_venues_on_facility_type" ON "venues" ("facility_type")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_venues_on_festival_id" ON "venues" ("festival_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_venues_on_latitude_and_longitude" ON "venues" ("latitude", "longitude")[0m
+  [1m[35m (1.9ms)[0m  [1m[35mALTER TABLE "active_storage_attachments" ADD CONSTRAINT "fk_rails_c3b3935057"
+FOREIGN KEY ("blob_id")
+  REFERENCES "active_storage_blobs" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "active_storage_variant_records" ADD CONSTRAINT "fk_rails_993965df05"
+FOREIGN KEY ("blob_id")
+  REFERENCES "active_storage_blobs" ("id")
+[0m
+  [1m[35m (0.8ms)[0m  [1m[35mALTER TABLE "application_comments" ADD CONSTRAINT "fk_rails_5a5b6d4e04"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "application_comments" ADD CONSTRAINT "fk_rails_71d1bd1b52"
+FOREIGN KEY ("vendor_application_id")
+  REFERENCES "vendor_applications" ("id")
+[0m
+  [1m[35m (0.8ms)[0m  [1m[35mALTER TABLE "application_reviews" ADD CONSTRAINT "fk_rails_e66acce10b"
+FOREIGN KEY ("reviewer_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "application_reviews" ADD CONSTRAINT "fk_rails_5eb184daf9"
+FOREIGN KEY ("vendor_application_id")
+  REFERENCES "vendor_applications" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "booths" ADD CONSTRAINT "fk_rails_fc1955b739"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "booths" ADD CONSTRAINT "fk_rails_5a302757a8"
+FOREIGN KEY ("vendor_application_id")
+  REFERENCES "vendor_applications" ("id")
+[0m
+  [1m[35m (0.7ms)[0m  [1m[35mALTER TABLE "booths" ADD CONSTRAINT "fk_rails_6685e6f25a"
+FOREIGN KEY ("venue_area_id")
+  REFERENCES "venue_areas" ("id")
+[0m
+  [1m[35m (0.7ms)[0m  [1m[35mALTER TABLE "budget_approvals" ADD CONSTRAINT "fk_rails_25535ebca8"
+FOREIGN KEY ("budget_category_id")
+  REFERENCES "budget_categories" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "budget_approvals" ADD CONSTRAINT "fk_rails_febcdf0f5f"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "budget_categories" ADD CONSTRAINT "fk_rails_a66a75355a"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.8ms)[0m  [1m[35mALTER TABLE "chat_messages" ADD CONSTRAINT "fk_rails_3070841b05"
+FOREIGN KEY ("chat_room_id")
+  REFERENCES "chat_rooms" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "chat_messages" ADD CONSTRAINT "fk_rails_918ef7acc4"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "chat_room_members" ADD CONSTRAINT "fk_rails_6345dbba03"
+FOREIGN KEY ("chat_room_id")
+  REFERENCES "chat_rooms" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "chat_room_members" ADD CONSTRAINT "fk_rails_de55eaa4a9"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "chat_rooms" ADD CONSTRAINT "fk_rails_8c27b7873e"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.8ms)[0m  [1m[35mALTER TABLE "expenses" ADD CONSTRAINT "fk_rails_e7241256d1"
+FOREIGN KEY ("budget_category_id")
+  REFERENCES "budget_categories" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "expenses" ADD CONSTRAINT "fk_rails_05d86a2a16"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "expenses" ADD CONSTRAINT "fk_rails_c3ee69df61"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "festivals" ADD CONSTRAINT "fk_rails_e798b43fcb"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.8ms)[0m  [1m[35mALTER TABLE "forum_posts" ADD CONSTRAINT "fk_rails_4ff57ffa34"
+FOREIGN KEY ("forum_thread_id")
+  REFERENCES "forum_threads" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "forum_posts" ADD CONSTRAINT "fk_rails_c76798dc77"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "forum_threads" ADD CONSTRAINT "fk_rails_9178ac1ed2"
+FOREIGN KEY ("forum_id")
+  REFERENCES "forums" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "forum_threads" ADD CONSTRAINT "fk_rails_bc51c711fd"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (1.5ms)[0m  [1m[35mALTER TABLE "forums" ADD CONSTRAINT "fk_rails_bd36b1486c"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "industry_specializations" ADD CONSTRAINT "fk_rails_f36f449e74"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.7ms)[0m  [1m[35mALTER TABLE "layout_elements" ADD CONSTRAINT "fk_rails_ffd0e5cde6"
+FOREIGN KEY ("venue_id")
+  REFERENCES "venues" ("id")
+[0m
+  [1m[35m (0.8ms)[0m  [1m[35mALTER TABLE "notification_settings" ADD CONSTRAINT "fk_rails_0c95e91db7"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "notifications" ADD CONSTRAINT "fk_rails_4aea6afa11"
+FOREIGN KEY ("recipient_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "notifications" ADD CONSTRAINT "fk_rails_8780923399"
+FOREIGN KEY ("sender_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.7ms)[0m  [1m[35mALTER TABLE "payments" ADD CONSTRAINT "fk_rails_b8bd0b55d0"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "payments" ADD CONSTRAINT "fk_rails_081dc04a02"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "reactions" ADD CONSTRAINT "fk_rails_9f02fc96a0"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "revenues" ADD CONSTRAINT "fk_rails_0f47f89a71"
+FOREIGN KEY ("budget_category_id")
+  REFERENCES "budget_categories" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "revenues" ADD CONSTRAINT "fk_rails_c3e62f53a6"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.7ms)[0m  [1m[35mALTER TABLE "revenues" ADD CONSTRAINT "fk_rails_cca0f1dd77"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "tasks" ADD CONSTRAINT "fk_rails_89d2a3e6ba"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "tasks" ADD CONSTRAINT "fk_rails_4d2a9e4d7e"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (1.0ms)[0m  [1m[35mALTER TABLE "tourism_collaborations" ADD CONSTRAINT "fk_rails_d4941f1ba0"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "tourism_collaborations" ADD CONSTRAINT "fk_rails_1eb73fd19c"
+FOREIGN KEY ("tourism_board_id")
+  REFERENCES "municipal_authorities" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "tourism_collaborations" ADD CONSTRAINT "fk_rails_c1f5e908b7"
+FOREIGN KEY ("coordinator_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "vendor_applications" ADD CONSTRAINT "fk_rails_37c4f63f62"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "vendor_applications" ADD CONSTRAINT "fk_rails_62503e48bf"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "venue_areas" ADD CONSTRAINT "fk_rails_884f6f47e7"
+FOREIGN KEY ("venue_id")
+  REFERENCES "venues" ("id")
+[0m
+  [1m[35m (1.5ms)[0m  [1m[35mALTER TABLE "venues" ADD CONSTRAINT "fk_rails_f909993903"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL PRIMARY KEY)[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[35m (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" (version) VALUES (20250712034200)[0m
+  [1m[35m (0.4ms)[0m  [1m[32mINSERT INTO "schema_migrations" (version) VALUES
+(20250712034138),
+(20250712034044),
+(20250712000001),
+(20250704192933),
+(20250704192724),
+(20250704121904),
+(20250704121323),
+(20250703100843),
+(20250703100836),
+(20250703100829),
+(20250703100821),
+(20250703100028),
+(20250703095949),
+(20250702123306),
+(20250702123259),
+(20250702123251),
+(20250702123244),
+(20250702112039),
+(20250702112033),
+(20250702112027),
+(20250702110721),
+(20250702110709),
+(20250702110704),
+(20250702110658),
+(20250629231803),
+(20250629231758),
+(20250629231752),
+(20250629144921),
+(20250629144916),
+(20250629005146),
+(20250629005142),
+(20250629005049);[0m
+  [1m[35m (2.0ms)[0m  [1m[35mCREATE TABLE "ar_internal_metadata" ("key" character varying NOT NULL PRIMARY KEY, "value" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.4ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::InternalMetadata Create (0.3ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('environment', 'test', '2025-07-12 13:05:45.409779', '2025-07-12 13:05:45.409781') RETURNING "key"[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::InternalMetadata Load (0.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::InternalMetadata Create (0.1ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('schema_sha1', '3f31c117081515f0bdbc9ea6627cebd3aa06d769', '2025-07-12 13:05:45.410932', '2025-07-12 13:05:45.410933') RETURNING "key"[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.4ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m

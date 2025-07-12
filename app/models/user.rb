@@ -58,6 +58,9 @@ class User < ApplicationRecord
   # 支払い関連
   has_many :payments, dependent: :destroy
 
+  # ユーザー設定関連
+  has_one :user_preference, dependent: :destroy
+
   after_create :create_default_notification_settings
 
   def unread_notifications_count

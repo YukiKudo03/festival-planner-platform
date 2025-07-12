@@ -442,6 +442,31 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_12_034200) do
     t.index ["tourism_board_id"], name: "index_tourism_collaborations_on_tourism_board_id"
   end
 
+  create_table "user_preferences", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "language", limit: 10
+    t.string "timezone", limit: 50
+    t.text "dashboard_widgets"
+    t.text "dashboard_layout"
+    t.text "notification_preferences"
+    t.text "theme_settings"
+    t.text "quick_actions"
+    t.text "favorite_features"
+    t.boolean "high_contrast_mode", default: false
+    t.boolean "screen_reader_optimized", default: false
+    t.integer "font_scale", limit: 2, default: 100
+    t.boolean "enable_animations", default: true
+    t.boolean "auto_refresh_enabled", default: true
+    t.integer "auto_refresh_interval", default: 30
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["high_contrast_mode"], name: "index_user_preferences_on_high_contrast_mode"
+    t.index ["language"], name: "index_user_preferences_on_language"
+    t.index ["screen_reader_optimized"], name: "index_user_preferences_on_screen_reader_optimized"
+    t.index ["timezone"], name: "index_user_preferences_on_timezone"
+    t.index ["user_id"], name: "index_user_preferences_on_user_id", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -569,6 +594,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_12_034200) do
   add_foreign_key "tourism_collaborations", "festivals"
   add_foreign_key "tourism_collaborations", "municipal_authorities", column: "tourism_board_id"
   add_foreign_key "tourism_collaborations", "users", column: "coordinator_id"
+  add_foreign_key "user_preferences", "users"
   add_foreign_key "vendor_applications", "festivals"
   add_foreign_key "vendor_applications", "users"
   add_foreign_key "venue_areas", "venues"

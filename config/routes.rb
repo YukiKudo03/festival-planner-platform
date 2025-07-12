@@ -214,6 +214,21 @@ Rails.application.routes.draw do
   end
   resources :notification_settings, only: [:index, :edit, :update]
   resources :notifications, only: [:index, :show, :update, :destroy]
+  
+  # User Preferences
+  resource :user_preferences, only: [:show, :update] do
+    member do
+      patch :update_dashboard
+      patch :update_theme
+      patch :update_notifications
+      patch :toggle_quick_action
+      patch :toggle_favorite_feature
+      patch :reset_to_defaults
+      get :export_preferences
+      post :import_preferences
+    end
+  end
+  
   devise_for :users
   root "home#index"
 

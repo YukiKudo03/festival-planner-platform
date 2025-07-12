@@ -1,0 +1,649 @@
+<% content_for :title, "User Preferences" %>
+
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h3 class="mb-0">
+            <i class="fas fa-cog me-2"></i>
+            User Preferences
+          </h3>
+          <div class="btn-group">
+            <%= link_to "Export Preferences", export_preferences_user_preferences_path, 
+                        class: "btn btn-outline-secondary btn-sm" %>
+            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#importModal">
+              Import Preferences
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Preference Tabs -->
+          <ul class="nav nav-tabs" id="preferenceTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
+                <i class="fas fa-user me-1"></i> General
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab">
+                <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="theme-tab" data-bs-toggle="tab" data-bs-target="#theme" type="button" role="tab">
+                <i class="fas fa-palette me-1"></i> Theme
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">
+                <i class="fas fa-bell me-1"></i> Notifications
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="shortcuts-tab" data-bs-toggle="tab" data-bs-target="#shortcuts" type="button" role="tab">
+                <i class="fas fa-bolt me-1"></i> Shortcuts
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="accessibility-tab" data-bs-toggle="tab" data-bs-target="#accessibility" type="button" role="tab">
+                <i class="fas fa-universal-access me-1"></i> Accessibility
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content mt-4" id="preferenceTabsContent">
+            <!-- General Tab -->
+            <div class="tab-pane fade show active" id="general" role="tabpanel">
+              <%= form_with model: @user_preference, url: user_preferences_path, method: :patch, local: true, class: "row g-3" do |form| %>
+                <div class="col-md-6">
+                  <%= form.label :language, class: "form-label" %>
+                  <%= form.select :language, 
+                                  options_for_select([['English', 'en'], ['日本語', 'ja']], @user_preference.language),
+                                  { include_blank: "Select Language" }, 
+                                  { class: "form-select" } %>
+                </div>
+                <div class="col-md-6">
+                  <%= form.label :timezone, class: "form-label" %>
+                  <%= form.select :timezone, 
+                                  options_for_select(ActiveSupport::TimeZone.all.map { |tz| [tz.to_s, tz.name] }, @user_preference.timezone),
+                                  { include_blank: "Select Timezone" }, 
+                                  { class: "form-select" } %>
+                </div>
+                <div class="col-12">
+                  <%= form.submit "Save General Preferences", class: "btn btn-primary" %>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div class="tab-pane fade" id="dashboard" role="tabpanel">
+              <h5>Dashboard Widgets</h5>
+              <p class="text-muted">Customize which widgets appear on your dashboard</p>
+              
+              <div class="row" id="dashboard-widgets">
+                <% available_widgets = [
+                     ['Recent Festivals', 'recent_festivals', 'fas fa-calendar-alt'],
+                     ['Budget Overview', 'budget_overview', 'fas fa-chart-pie'],
+                     ['Pending Tasks', 'pending_tasks', 'fas fa-tasks'],
+                     ['Vendor Applications', 'vendor_applications', 'fas fa-store'],
+                     ['Upcoming Deadlines', 'upcoming_deadlines', 'fas fa-clock'],
+                     ['Analytics Summary', 'analytics_summary', 'fas fa-chart-line'],
+                     ['Recent Activity', 'recent_activity', 'fas fa-history'],
+                     ['Quick Actions', 'quick_actions', 'fas fa-bolt'],
+                     ['Weather Widget', 'weather_widget', 'fas fa-cloud-sun'],
+                     ['Festival Calendar', 'festival_calendar', 'fas fa-calendar-week']
+                   ] %>
+                
+                <% available_widgets.each do |name, key, icon| %>
+                  <div class="col-md-4 mb-3">
+                    <div class="card widget-card <%= 'active' if @user_preference.dashboard_widgets.include?(key) %>" 
+                         data-widget="<%= key %>">
+                      <div class="card-body text-center">
+                        <i class="<%= icon %> fa-2x mb-2"></i>
+                        <h6><%= name %></h6>
+                        <div class="form-check">
+                          <input class="form-check-input widget-toggle" type="checkbox" 
+                                 id="widget_<%= key %>" value="<%= key %>"
+                                 <%= 'checked' if @user_preference.dashboard_widgets.include?(key) %>>
+                          <label class="form-check-label" for="widget_<%= key %>">
+                            Enable
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+              
+              <div class="mt-3">
+                <button type="button" class="btn btn-primary" id="save-dashboard-prefs">
+                  Save Dashboard Preferences
+                </button>
+                <button type="button" class="btn btn-outline-secondary" data-reset="dashboard">
+                  Reset to Defaults
+                </button>
+              </div>
+            </div>
+
+            <!-- Theme Tab -->
+            <div class="tab-pane fade" id="theme" role="tabpanel">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Theme</label>
+                  <div class="btn-group w-100" role="group">
+                    <input type="radio" class="btn-check" name="theme" id="light-theme" value="light" 
+                           <%= 'checked' if @user_preference.preferred_theme == 'light' %>>
+                    <label class="btn btn-outline-primary" for="light-theme">
+                      <i class="fas fa-sun me-1"></i> Light
+                    </label>
+                    
+                    <input type="radio" class="btn-check" name="theme" id="dark-theme" value="dark"
+                           <%= 'checked' if @user_preference.preferred_theme == 'dark' %>>
+                    <label class="btn btn-outline-primary" for="dark-theme">
+                      <i class="fas fa-moon me-1"></i> Dark
+                    </label>
+                    
+                    <input type="radio" class="btn-check" name="theme" id="auto-theme" value="auto"
+                           <%= 'checked' if @user_preference.preferred_theme == 'auto' %>>
+                    <label class="btn btn-outline-primary" for="auto-theme">
+                      <i class="fas fa-adjust me-1"></i> Auto
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <label class="form-label">Font Size</label>
+                  <select class="form-select" name="font_size">
+                    <option value="small" <%= 'selected' if @user_preference.theme_settings['font_size'] == 'small' %>>Small</option>
+                    <option value="medium" <%= 'selected' if @user_preference.theme_settings['font_size'] == 'medium' %>>Medium</option>
+                    <option value="large" <%= 'selected' if @user_preference.theme_settings['font_size'] == 'large' %>>Large</option>
+                  </select>
+                </div>
+                
+                <div class="col-md-6">
+                  <label class="form-label">Primary Color</label>
+                  <input type="color" class="form-control form-control-color" name="primary_color" 
+                         value="<%= @user_preference.theme_settings['primary_color'] || '#007bff' %>">
+                </div>
+                
+                <div class="col-md-6">
+                  <label class="form-label">Secondary Color</label>
+                  <input type="color" class="form-control form-control-color" name="secondary_color"
+                         value="<%= @user_preference.theme_settings['secondary_color'] || '#6c757d' %>">
+                </div>
+                
+                <div class="col-12">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="compact_mode" id="compact-mode"
+                           <%= 'checked' if @user_preference.theme_settings['compact_mode'] %>>
+                    <label class="form-check-label" for="compact-mode">
+                      Compact Mode
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="col-12">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="animation_enabled" id="animations"
+                           <%= 'checked' if @user_preference.theme_settings['animation_enabled'] != false %>>
+                    <label class="form-check-label" for="animations">
+                      Enable Animations
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="col-12">
+                  <button type="button" class="btn btn-primary" id="save-theme-prefs">
+                    Save Theme Preferences
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary" data-reset="theme">
+                    Reset to Defaults
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notifications Tab -->
+            <div class="tab-pane fade" id="notifications" role="tabpanel">
+              <div class="row g-3">
+                <% notification_categories = [
+                     ['Email Notifications', 'email_notifications', 'Send notifications via email'],
+                     ['Browser Notifications', 'browser_notifications', 'Show browser push notifications'],
+                     ['Mobile Notifications', 'mobile_notifications', 'Send notifications to mobile devices'],
+                     ['Festival Updates', 'festival_updates', 'Notify about festival status changes'],
+                     ['Budget Alerts', 'budget_alerts', 'Notify about budget thresholds and warnings'],
+                     ['Task Reminders', 'task_reminders', 'Remind about due dates and deadlines'],
+                     ['Vendor Notifications', 'vendor_notifications', 'Notify about vendor applications and updates'],
+                     ['Chat Messages', 'chat_messages', 'Notify about new chat messages'],
+                     ['Forum Replies', 'forum_replies', 'Notify about forum thread replies'],
+                     ['System Announcements', 'system_announcements', 'Notify about system-wide announcements']
+                   ] %>
+                
+                <% notification_categories.each do |name, key, description| %>
+                  <div class="col-12">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div>
+                            <h6 class="mb-1"><%= name %></h6>
+                            <small class="text-muted"><%= description %></small>
+                          </div>
+                          <div class="form-check form-switch">
+                            <input class="form-check-input notification-toggle" type="checkbox" 
+                                   id="notification_<%= key %>" data-category="<%= key %>"
+                                   <%= 'checked' if @user_preference.notification_preferences[key] != false %>>
+                            <label class="form-check-label" for="notification_<%= key %>"></label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                
+                <div class="col-12">
+                  <button type="button" class="btn btn-primary" id="save-notification-prefs">
+                    Save Notification Preferences
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary" data-reset="notifications">
+                    Reset to Defaults
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Shortcuts Tab -->
+            <div class="tab-pane fade" id="shortcuts" role="tabpanel">
+              <h5>Quick Actions</h5>
+              <p class="text-muted">Customize which actions appear in your quick access toolbar</p>
+              
+              <div class="row" id="quick-actions">
+                <% available_actions = [
+                     ['Create Festival', 'create_festival', 'fas fa-plus-circle'],
+                     ['Create Task', 'create_task', 'fas fa-tasks'],
+                     ['View Budget', 'view_budget', 'fas fa-dollar-sign'],
+                     ['Vendor Applications', 'vendor_applications', 'fas fa-store'],
+                     ['Analytics Dashboard', 'analytics_dashboard', 'fas fa-chart-line'],
+                     ['View Calendar', 'view_calendar', 'fas fa-calendar'],
+                     ['Chat Rooms', 'chat_rooms', 'fas fa-comments'],
+                     ['Forum', 'forum', 'fas fa-forum'],
+                     ['Reports', 'reports', 'fas fa-file-alt'],
+                     ['Settings', 'settings', 'fas fa-cog']
+                   ] %>
+                
+                <% available_actions.each do |name, key, icon| %>
+                  <div class="col-md-4 mb-3">
+                    <div class="card action-card <%= 'active' if @user_preference.quick_actions.include?(key) %>" 
+                         data-action="<%= key %>">
+                      <div class="card-body text-center">
+                        <i class="<%= icon %> fa-2x mb-2"></i>
+                        <h6><%= name %></h6>
+                        <div class="form-check">
+                          <input class="form-check-input action-toggle" type="checkbox" 
+                                 id="action_<%= key %>" value="<%= key %>"
+                                 <%= 'checked' if @user_preference.quick_actions.include?(key) %>>
+                          <label class="form-check-label" for="action_<%= key %>">
+                            Enable
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+              
+              <div class="mt-4">
+                <h5>Favorite Features</h5>
+                <p class="text-muted">Mark features as favorites for easier access</p>
+                
+                <div class="row" id="favorite-features">
+                  <% available_features = [
+                       ['Festivals', 'festivals', 'fas fa-calendar-alt'],
+                       ['Budget Management', 'budget_management', 'fas fa-chart-pie'],
+                       ['Task Management', 'task_management', 'fas fa-tasks'],
+                       ['Vendor Management', 'vendor_management', 'fas fa-store'],
+                       ['Analytics', 'analytics', 'fas fa-chart-line'],
+                       ['Communication', 'communication', 'fas fa-comments'],
+                       ['Reporting', 'reporting', 'fas fa-file-alt'],
+                       ['User Management', 'user_management', 'fas fa-users']
+                     ] %>
+                  
+                  <% available_features.each do |name, key, icon| %>
+                    <div class="col-md-3 mb-3">
+                      <div class="card feature-card <%= 'favorite' if @user_preference.favorite_features.include?(key) %>" 
+                           data-feature="<%= key %>">
+                        <div class="card-body text-center">
+                          <i class="<%= icon %> fa-lg mb-2"></i>
+                          <h6><%= name %></h6>
+                          <button class="btn btn-sm btn-outline-warning favorite-toggle" 
+                                  data-feature="<%= key %>"
+                                  data-favorited="<%= @user_preference.favorite_features.include?(key) %>">
+                            <i class="fas fa-star <%= 'text-warning' if @user_preference.favorite_features.include?(key) %>"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+              
+              <div class="mt-3">
+                <button type="button" class="btn btn-outline-secondary" data-reset="shortcuts">
+                  Reset to Defaults
+                </button>
+              </div>
+            </div>
+
+            <!-- Accessibility Tab -->
+            <div class="tab-pane fade" id="accessibility" role="tabpanel">
+              <%= form_with model: @user_preference, url: user_preferences_path, method: :patch, local: true, class: "row g-3" do |form| %>
+                <div class="col-12">
+                  <div class="form-check form-switch">
+                    <%= form.check_box :high_contrast_mode, class: "form-check-input" %>
+                    <%= form.label :high_contrast_mode, "High Contrast Mode", class: "form-check-label" %>
+                  </div>
+                  <small class="form-text text-muted">Increases contrast for better visibility</small>
+                </div>
+                
+                <div class="col-12">
+                  <div class="form-check form-switch">
+                    <%= form.check_box :screen_reader_optimized, class: "form-check-input" %>
+                    <%= form.label :screen_reader_optimized, "Screen Reader Optimized", class: "form-check-label" %>
+                  </div>
+                  <small class="form-text text-muted">Optimizes interface for screen readers</small>
+                </div>
+                
+                <div class="col-md-6">
+                  <%= form.label :font_scale, "Font Scale (%)", class: "form-label" %>
+                  <%= form.range_field :font_scale, in: 75..150, step: 5, class: "form-range" %>
+                  <small class="form-text text-muted">Adjust font size scaling</small>
+                </div>
+                
+                <div class="col-md-6">
+                  <%= form.label :auto_refresh_interval, "Auto Refresh Interval (seconds)", class: "form-label" %>
+                  <%= form.select :auto_refresh_interval, 
+                                  options_for_select([[15, 15], [30, 30], [60, 60], [120, 120], [300, 300]], @user_preference.auto_refresh_interval),
+                                  {}, { class: "form-select" } %>
+                </div>
+                
+                <div class="col-12">
+                  <div class="form-check form-switch">
+                    <%= form.check_box :enable_animations, class: "form-check-input" %>
+                    <%= form.label :enable_animations, "Enable Animations", class: "form-check-label" %>
+                  </div>
+                  <small class="form-text text-muted">Disable animations to reduce motion</small>
+                </div>
+                
+                <div class="col-12">
+                  <%= form.submit "Save Accessibility Preferences", class: "btn btn-primary" %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal fade" id="importModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Import Preferences</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <%= form_with url: import_preferences_user_preferences_path, method: :post, multipart: true do |form| %>
+        <div class="modal-body">
+          <div class="mb-3">
+            <%= form.file_field :preferences_file, accept: ".json", class: "form-control" %>
+            <small class="form-text text-muted">Select a preferences JSON file to import</small>
+          </div>
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-1"></i>
+            Importing preferences will overwrite your current settings.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <%= form.submit "Import", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+.widget-card, .action-card, .feature-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.widget-card:hover, .action-card:hover, .feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.widget-card.active, .action-card.active {
+  border-color: #007bff;
+  background-color: #f8f9fa;
+}
+
+.feature-card.favorite {
+  border-color: #ffc107;
+  background-color: #fffbf0;
+}
+
+.favorite-toggle {
+  border: none;
+  background: none;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Dashboard widget toggles
+  document.querySelectorAll('.widget-toggle').forEach(function(checkbox) {
+    checkbox.addEventListener('change', function() {
+      const card = this.closest('.widget-card');
+      card.classList.toggle('active', this.checked);
+    });
+  });
+
+  // Save dashboard preferences
+  document.getElementById('save-dashboard-prefs').addEventListener('click', function() {
+    const enabledWidgets = Array.from(document.querySelectorAll('.widget-toggle:checked')).map(cb => cb.value);
+    
+    fetch('<%= update_dashboard_user_preferences_path %>', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ widgets: enabledWidgets })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'success') {
+        showNotification('Dashboard preferences saved successfully!', 'success');
+      }
+    });
+  });
+
+  // Theme preferences
+  document.getElementById('save-theme-prefs').addEventListener('click', function() {
+    const themeData = {
+      theme: document.querySelector('input[name="theme"]:checked')?.value,
+      font_size: document.querySelector('select[name="font_size"]').value,
+      primary_color: document.querySelector('input[name="primary_color"]').value,
+      secondary_color: document.querySelector('input[name="secondary_color"]').value,
+      compact_mode: document.querySelector('input[name="compact_mode"]').checked,
+      animation_enabled: document.querySelector('input[name="animation_enabled"]').checked
+    };
+    
+    fetch('<%= update_theme_user_preferences_path %>', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ theme: themeData })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'success') {
+        showNotification('Theme preferences saved successfully!', 'success');
+        // Apply theme changes immediately
+        applyThemeChanges(data.theme);
+      }
+    });
+  });
+
+  // Notification preferences
+  document.querySelectorAll('.notification-toggle').forEach(function(toggle) {
+    toggle.addEventListener('change', function() {
+      const category = this.dataset.category;
+      const enabled = this.checked;
+      
+      const notificationData = {};
+      notificationData[category] = enabled;
+      
+      fetch('<%= update_notifications_user_preferences_path %>', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ notifications: notificationData })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          showNotification(`${category.replace('_', ' ')} ${enabled ? 'enabled' : 'disabled'}`, 'info');
+        }
+      });
+    });
+  });
+
+  // Quick action toggles
+  document.querySelectorAll('.action-toggle').forEach(function(checkbox) {
+    checkbox.addEventListener('change', function() {
+      const card = this.closest('.action-card');
+      card.classList.toggle('active', this.checked);
+      
+      fetch('<%= toggle_quick_action_user_preferences_path %>', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ 
+          action_name: this.value, 
+          enabled: this.checked 
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          showNotification(data.message, 'success');
+        }
+      });
+    });
+  });
+
+  // Favorite feature toggles
+  document.querySelectorAll('.favorite-toggle').forEach(function(button) {
+    button.addEventListener('click', function() {
+      const feature = this.dataset.feature;
+      const currentlyFavorited = this.dataset.favorited === 'true';
+      const newFavorited = !currentlyFavorited;
+      
+      fetch('<%= toggle_favorite_feature_user_preferences_path %>', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ 
+          feature_name: feature, 
+          favorited: newFavorited 
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          this.dataset.favorited = newFavorited;
+          const star = this.querySelector('i');
+          const card = this.closest('.feature-card');
+          
+          if (newFavorited) {
+            star.classList.add('text-warning');
+            card.classList.add('favorite');
+          } else {
+            star.classList.remove('text-warning');
+            card.classList.remove('favorite');
+          }
+          
+          showNotification(data.message, 'success');
+        }
+      });
+    });
+  });
+
+  // Reset to defaults
+  document.querySelectorAll('[data-reset]').forEach(function(button) {
+    button.addEventListener('click', function() {
+      const category = this.dataset.reset;
+      
+      if (confirm(`Are you sure you want to reset ${category} preferences to defaults?`)) {
+        fetch('<%= reset_to_defaults_user_preferences_path %>', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+          },
+          body: JSON.stringify({ category: category })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'success') {
+            showNotification('Preferences reset to defaults', 'success');
+            location.reload();
+          }
+        });
+      }
+    });
+  });
+
+  function showNotification(message, type) {
+    // Create and show a temporary notification
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 5000);
+  }
+
+  function applyThemeChanges(theme) {
+    // Apply theme changes to the current page
+    document.documentElement.style.setProperty('--bs-primary', theme.primary_color);
+    document.documentElement.style.setProperty('--bs-secondary', theme.secondary_color);
+    
+    if (theme.theme === 'dark') {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
+    }
+  }
+});
+</script>

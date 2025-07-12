@@ -8,32 +8,123 @@ FactoryBot.define do
     status { 'draft' }
     
     specialization_config do
-      {
+      base_config = {
         booth_layout: "#{industry_type}_standard",
-        equipment_requirements: equipment_requirements_for_industry,
-        vendor_criteria: vendor_criteria_for_industry,
-        safety_protocols: safety_protocols_for_industry,
-        certification_requirements: certification_requirements_for_industry
-      }.to_json
+        equipment_requirements: ['basic_power', 'internet_access', 'display_space'],
+        vendor_criteria: ['quality_standards', 'customer_reviews', 'industry_experience'],
+        safety_protocols: ['general_safety', 'crowd_management'],
+        certification_requirements: ['business_license', 'liability_insurance']
+      }
+      
+      case industry_type
+      when 'technology'
+        base_config.merge(
+          equipment_requirements: ['high_speed_internet', 'power_outlets', 'presentation_screens'],
+          vendor_criteria: ['innovation_score', 'technical_expertise', 'product_maturity'],
+          safety_protocols: ['electrical_safety', 'data_security'],
+          certification_requirements: ['ISO_27001', 'privacy_compliance']
+        )
+      when 'healthcare'
+        base_config.merge(
+          equipment_requirements: ['medical_grade_power', 'clean_environment', 'privacy_partitions'],
+          vendor_criteria: ['regulatory_compliance', 'safety_record', 'clinical_evidence'],
+          safety_protocols: ['medical_safety', 'sanitation_protocols'],
+          certification_requirements: ['FDA_approval', 'medical_device_certification']
+        )
+      when 'food_beverage'
+        base_config.merge(
+          equipment_requirements: ['commercial_kitchen_access', 'refrigeration', 'waste_disposal'],
+          vendor_criteria: ['licensed_food_vendors', 'local_producers', 'specialty_beverages'],
+          safety_protocols: ['food_safety', 'allergen_management'],
+          certification_requirements: ['food_handling_license', 'health_department_approval']
+        )
+      else
+        base_config
+      end.to_json
     end
     
     compliance_requirements do
-      {
-        safety_standards: compliance_standards_for_industry,
-        certifications: required_certifications_for_industry,
-        inspection_requirements: inspection_requirements_for_industry,
-        documentation: required_documentation_for_industry
-      }.to_json
+      base_compliance = {
+        safety_standards: ['general_business_standards'],
+        certifications: ['industry_certification', 'quality_assurance'],
+        inspection_requirements: ['safety_inspection', 'compliance_check'],
+        documentation: ['product_specifications', 'safety_documentation']
+      }
+      
+      case industry_type
+      when 'technology'
+        base_compliance.merge(
+          safety_standards: ['ISO_27001', 'GDPR_compliance'],
+          certifications: ['cybersecurity_certification', 'product_certification'],
+          inspection_requirements: ['security_audit', 'equipment_inspection'],
+          documentation: ['technical_specifications', 'security_documentation']
+        )
+      when 'healthcare'
+        base_compliance.merge(
+          safety_standards: ['HIPAA', 'FDA_regulations'],
+          certifications: ['medical_device_approval', 'quality_management_certification'],
+          inspection_requirements: ['medical_device_inspection', 'facility_inspection'],
+          documentation: ['clinical_data', 'regulatory_submissions']
+        )
+      when 'food_beverage'
+        base_compliance.merge(
+          safety_standards: ['HACCP', 'local_health_codes'],
+          certifications: ['food_safety_certification', 'organic_certification'],
+          inspection_requirements: ['health_inspection', 'kitchen_inspection'],
+          documentation: ['ingredient_lists', 'nutritional_information']
+        )
+      else
+        base_compliance
+      end.to_json
     end
     
     specialized_metrics do
-      {
-        kpis: kpis_for_industry,
-        targets: targets_for_industry,
+      base_metrics = {
+        kpis: ['quality_rating', 'customer_satisfaction', 'vendor_performance'],
+        targets: { quality_rating: 85, customer_satisfaction: 80, vendor_performance: 75 },
         completed_tasks: 0,
         total_tasks: 10,
-        compliance_checklist: compliance_checklist_for_industry
-      }.to_json
+        compliance_checklist: [
+          { item: 'Business license verified', completed: false },
+          { item: 'Insurance coverage confirmed', completed: false },
+          { item: 'Safety protocols reviewed', completed: false }
+        ]
+      }
+      
+      case industry_type
+      when 'technology'
+        base_metrics.merge(
+          kpis: ['innovation_index', 'tech_adoption_rate', 'developer_engagement'],
+          targets: { innovation_index: 85, tech_adoption_rate: 70, developer_engagement: 60 },
+          compliance_checklist: [
+            { item: 'Data encryption implemented', completed: false },
+            { item: 'Privacy policy reviewed', completed: false },
+            { item: 'Security audit completed', completed: false }
+          ]
+        )
+      when 'healthcare'
+        base_metrics.merge(
+          kpis: ['patient_outcomes', 'safety_score', 'regulatory_compliance_rate'],
+          targets: { patient_outcomes: 95, safety_score: 98, regulatory_compliance_rate: 100 },
+          compliance_checklist: [
+            { item: 'Medical device approvals obtained', completed: false },
+            { item: 'HIPAA compliance verified', completed: false },
+            { item: 'Clinical documentation complete', completed: false }
+          ]
+        )
+      when 'food_beverage'
+        base_metrics.merge(
+          kpis: ['food_safety_score', 'customer_satisfaction', 'local_sourcing_percentage'],
+          targets: { food_safety_score: 95, customer_satisfaction: 90, local_sourcing_percentage: 40 },
+          compliance_checklist: [
+            { item: 'Health permits obtained', completed: false },
+            { item: 'Food safety training completed', completed: false },
+            { item: 'Allergen protocols established', completed: false }
+          ]
+        )
+      else
+        base_metrics
+      end.to_json
     end
     
     # Timestamps
@@ -51,221 +142,65 @@ FactoryBot.define do
       completed_at { 1.day.ago }
       
       specialized_metrics do
-        {
-          kpis: kpis_for_industry,
-          targets: targets_for_industry,
+        base_metrics = {
+          kpis: ['quality_rating', 'customer_satisfaction', 'vendor_performance'],
+          targets: { quality_rating: 85, customer_satisfaction: 80, vendor_performance: 75 },
           completed_tasks: 10,
           total_tasks: 10,
-          compliance_checklist: compliance_checklist_for_industry
-        }.to_json
+          compliance_checklist: [
+            { item: 'Business license verified', completed: true },
+            { item: 'Insurance coverage confirmed', completed: true },
+            { item: 'Safety protocols reviewed', completed: true }
+          ]
+        }
+        
+        case industry_type
+        when 'technology'
+          base_metrics.merge(
+            kpis: ['innovation_index', 'tech_adoption_rate', 'developer_engagement'],
+            targets: { innovation_index: 85, tech_adoption_rate: 70, developer_engagement: 60 },
+            compliance_checklist: [
+              { item: 'Data encryption implemented', completed: true },
+              { item: 'Privacy policy reviewed', completed: true },
+              { item: 'Security audit completed', completed: true }
+            ]
+          )
+        when 'healthcare'
+          base_metrics.merge(
+            kpis: ['patient_outcomes', 'safety_score', 'regulatory_compliance_rate'],
+            targets: { patient_outcomes: 95, safety_score: 98, regulatory_compliance_rate: 100 },
+            compliance_checklist: [
+              { item: 'Medical device approvals obtained', completed: true },
+              { item: 'HIPAA compliance verified', completed: true },
+              { item: 'Clinical documentation complete', completed: true }
+            ]
+          )
+        when 'food_beverage'
+          base_metrics.merge(
+            kpis: ['food_safety_score', 'customer_satisfaction', 'local_sourcing_percentage'],
+            targets: { food_safety_score: 95, customer_satisfaction: 90, local_sourcing_percentage: 40 },
+            compliance_checklist: [
+              { item: 'Health permits obtained', completed: true },
+              { item: 'Food safety training completed', completed: true },
+              { item: 'Allergen protocols established', completed: true }
+            ]
+          )
+        else
+          base_metrics
+        end.to_json
       end
     end
     
     trait :technology do
       industry_type { 'technology' }
-      
-      specialization_config do
-        {
-          booth_layout: 'tech_innovation_zone',
-          equipment_requirements: ['high_speed_internet', 'power_outlets', 'presentation_screens'],
-          vendor_criteria: ['tech_startup', 'established_tech_company', 'innovation_showcase'],
-          safety_protocols: ['electrical_safety', 'data_security'],
-          certification_requirements: ['ISO_27001', 'privacy_compliance']
-        }.to_json
-      end
     end
     
     trait :healthcare do
       industry_type { 'healthcare' }
-      
-      specialization_config do
-        {
-          booth_layout: 'healthcare_pavilion',
-          equipment_requirements: ['medical_grade_power', 'clean_environment', 'privacy_partitions'],
-          vendor_criteria: ['medical_device_companies', 'healthcare_services', 'wellness_providers'],
-          safety_protocols: ['medical_safety', 'sanitation_protocols'],
-          certification_requirements: ['FDA_approval', 'medical_device_certification']
-        }.to_json
-      end
     end
     
     trait :food_beverage do
       industry_type { 'food_beverage' }
-      
-      specialization_config do
-        {
-          booth_layout: 'culinary_marketplace',
-          equipment_requirements: ['commercial_kitchen_access', 'refrigeration', 'waste_disposal'],
-          vendor_criteria: ['licensed_food_vendors', 'local_producers', 'specialty_beverages'],
-          safety_protocols: ['food_safety', 'allergen_management'],
-          certification_requirements: ['food_handling_license', 'health_department_approval']
-        }.to_json
-      end
-    end
-    
-    private
-    
-    def equipment_requirements_for_industry
-      case industry_type
-      when 'technology'
-        ['wifi', 'power_outlets', 'display_screens']
-      when 'healthcare'
-        ['medical_grade_equipment', 'privacy_screens']
-      when 'food_beverage'
-        ['refrigeration', 'cooking_facilities', 'water_access']
-      when 'automotive'
-        ['vehicle_display_area', 'test_drive_space']
-      when 'arts'
-        ['display_lighting', 'security_systems', 'climate_control']
-      else
-        ['basic_power', 'internet_access', 'display_space']
-      end
-    end
-    
-    def vendor_criteria_for_industry
-      case industry_type
-      when 'technology'
-        ['innovation_score', 'technical_expertise', 'product_maturity']
-      when 'healthcare'
-        ['regulatory_compliance', 'safety_record', 'clinical_evidence']
-      when 'food_beverage'
-        ['food_safety_rating', 'local_sourcing', 'menu_variety']
-      else
-        ['quality_standards', 'customer_reviews', 'industry_experience']
-      end
-    end
-    
-    def safety_protocols_for_industry
-      case industry_type
-      when 'technology'
-        ['data_security', 'electrical_safety']
-      when 'healthcare'
-        ['infection_control', 'medical_safety']
-      when 'food_beverage'
-        ['food_safety', 'allergen_protocols']
-      else
-        ['general_safety', 'crowd_management']
-      end
-    end
-    
-    def certification_requirements_for_industry
-      case industry_type
-      when 'technology'
-        ['ISO_27001', 'privacy_compliance']
-      when 'healthcare'
-        ['FDA_approval', 'medical_certification']
-      when 'food_beverage'
-        ['food_handler_license', 'health_permit']
-      else
-        ['business_license', 'liability_insurance']
-      end
-    end
-    
-    def compliance_standards_for_industry
-      case industry_type
-      when 'technology'
-        ['ISO_27001', 'GDPR_compliance']
-      when 'healthcare'
-        ['HIPAA', 'FDA_regulations']
-      when 'food_beverage'
-        ['HACCP', 'local_health_codes']
-      else
-        ['general_business_standards']
-      end
-    end
-    
-    def required_certifications_for_industry
-      case industry_type
-      when 'technology'
-        ['cybersecurity_certification', 'product_certification']
-      when 'healthcare'
-        ['medical_device_approval', 'quality_management_certification']
-      when 'food_beverage'
-        ['food_safety_certification', 'organic_certification']
-      else
-        ['industry_certification', 'quality_assurance']
-      end
-    end
-    
-    def inspection_requirements_for_industry
-      case industry_type
-      when 'technology'
-        ['security_audit', 'equipment_inspection']
-      when 'healthcare'
-        ['medical_device_inspection', 'facility_inspection']
-      when 'food_beverage'
-        ['health_inspection', 'kitchen_inspection']
-      else
-        ['safety_inspection', 'compliance_check']
-      end
-    end
-    
-    def required_documentation_for_industry
-      case industry_type
-      when 'technology'
-        ['technical_specifications', 'security_documentation']
-      when 'healthcare'
-        ['clinical_data', 'regulatory_submissions']
-      when 'food_beverage'
-        ['ingredient_lists', 'nutritional_information']
-      else
-        ['product_specifications', 'safety_documentation']
-      end
-    end
-    
-    def kpis_for_industry
-      case industry_type
-      when 'technology'
-        ['innovation_index', 'tech_adoption_rate', 'developer_engagement']
-      when 'healthcare'
-        ['patient_outcomes', 'safety_score', 'regulatory_compliance_rate']
-      when 'food_beverage'
-        ['food_safety_score', 'customer_satisfaction', 'local_sourcing_percentage']
-      else
-        ['quality_rating', 'customer_satisfaction', 'vendor_performance']
-      end
-    end
-    
-    def targets_for_industry
-      case industry_type
-      when 'technology'
-        { innovation_index: 85, tech_adoption_rate: 70, developer_engagement: 60 }
-      when 'healthcare'
-        { patient_outcomes: 95, safety_score: 98, regulatory_compliance_rate: 100 }
-      when 'food_beverage'
-        { food_safety_score: 95, customer_satisfaction: 90, local_sourcing_percentage: 40 }
-      else
-        { quality_rating: 85, customer_satisfaction: 80, vendor_performance: 75 }
-      end
-    end
-    
-    def compliance_checklist_for_industry
-      case industry_type
-      when 'technology'
-        [
-          { item: 'Data encryption implemented', completed: false },
-          { item: 'Privacy policy reviewed', completed: false },
-          { item: 'Security audit completed', completed: false }
-        ]
-      when 'healthcare'
-        [
-          { item: 'Medical device approvals obtained', completed: false },
-          { item: 'HIPAA compliance verified', completed: false },
-          { item: 'Clinical documentation complete', completed: false }
-        ]
-      when 'food_beverage'
-        [
-          { item: 'Health permits obtained', completed: false },
-          { item: 'Food safety training completed', completed: false },
-          { item: 'Allergen protocols established', completed: false }
-        ]
-      else
-        [
-          { item: 'Business license verified', completed: false },
-          { item: 'Insurance coverage confirmed', completed: false },
-          { item: 'Safety protocols reviewed', completed: false }
-        ]
-      end
     end
   end
 end
