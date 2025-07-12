@@ -34,6 +34,18 @@ gem "dartsass-rails"
 # File uploads
 gem "image_processing", "~> 1.2"
 
+# LINE API integration
+gem "line-bot-api"
+
+# HTTP client for API requests
+gem "httparty"
+
+# Japanese natural language processing
+gem "mecab", "~> 0.996"
+
+# Environment variables management
+gem "dotenv-rails"
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 

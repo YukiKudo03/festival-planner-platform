@@ -231,6 +231,33 @@ Rails.application.routes.draw do
   
   devise_for :users
   root "home#index"
+  
+  # LINE連携機能
+  resources :line_integrations, only: [:index, :show, :create, :update, :destroy] do
+    member do
+      post :authenticate
+      delete :disconnect
+      patch :update_settings
+      get :groups
+      post :sync_groups
+      post :test_connection
+    end
+    
+    collection do
+      get :callback
+      get :setup_guide
+      get :webhook_status
+      post :register_webhook
+    end
+    
+    resources :line_tasks, except: [:index] do
+      member do
+        post :parse_message
+        post :send_notification
+        patch :update_from_line
+      end
+    end
+  end
 
   # Admin routes (system_admin and admin only)
   namespace :admin do
