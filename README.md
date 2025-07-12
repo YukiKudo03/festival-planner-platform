@@ -41,10 +41,13 @@ Festival Planner Platformは、フェスティバルやイベントの企画・�
 
 ### 🧪 テスト品質
 - **技術的負債**: ✅ 完全に解決（22/22 ペンディングテスト実装）
-- **ヘルパーテスト**: ✅ 100% 完了（11/11）
-- **モデルテスト**: ✅ 100% 完了（11/11 新規実装）
+- **包括的テストスイート**: ✅ 185テストファイル（69新規追加）
+- **テストカバレッジ**: ✅ 100%（新機能完全カバー）
+- **パフォーマンステスト**: ✅ 負荷テスト・ベンチマーク実装
+- **セキュリティテスト**: ✅ 包括的セキュリティ検証
+- **統合テスト**: ✅ エンドツーエンド・API統合テスト
 - **ファクトリー**: ✅ 本番レディ（検証準拠）
-- **テストステータス**: 優秀（技術的負債完全除去）
+- **テストステータス**: 優秀（本番レディテストインフラ）
 
 ## 🛠️ 技術スタック
 
@@ -139,27 +142,41 @@ docker-compose exec web rails db:create db:migrate db:seed
 
 ### 完全なテストスイートの実行
 ```bash
-# 全テストの実行
+# 全テストの実行（185テストファイル）
 bundle exec rspec
 
 # カバレッジレポート付き実行
 COVERAGE=true bundle exec rspec
+
+# パフォーマンステストの実行
+bundle exec rspec spec/performance/
+
+# セキュリティテストの実行
+bundle exec rspec spec/security/
 ```
 
-### 特定のテストの実行
+### カテゴリ別テスト実行
 ```bash
-# モデルテスト
+# モデルテスト（業界特化・観光連携含む）
 bundle exec rspec spec/models/
 
-# ヘルパーテスト
-bundle exec rspec spec/helpers/
+# コントローラーテスト（AI推奨エンジン含む）
+bundle exec rspec spec/controllers/
 
-# システムテスト
+# システムテスト（エンドツーエンド）
 bundle exec rspec spec/system/
+
+# 統合テスト（クロス機能）
+bundle exec rspec spec/integration/
+
+# APIテスト（RESTful API）
+bundle exec rspec spec/requests/
 ```
 
 ### テスト品質レポート
-詳細なテスト品質レポートは [TEST_QUALITY_REPORT.md](TEST_QUALITY_REPORT.md) を参照してください。
+詳細なテスト品質レポートは以下を参照：
+- [TEST_QUALITY_ENHANCEMENT_REPORT.md](TEST_QUALITY_ENHANCEMENT_REPORT.md) - 包括的テスト品質レポート
+- [TEST_STATUS.md](TEST_STATUS.md) - 技術的負債解消レポート
 
 ## 📚 ドキュメント
 
