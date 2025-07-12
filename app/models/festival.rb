@@ -16,6 +16,11 @@ class Festival < ApplicationRecord
   has_many :payments, dependent: :destroy
   has_many :industry_specializations, dependent: :destroy
   has_many :tourism_collaborations, dependent: :destroy
+  
+  # LINE連携関連
+  has_many :line_integrations, dependent: :destroy
+  has_many :line_groups, through: :line_integrations
+  has_many :line_messages, through: :line_groups
 
   # Active Storage attachments
   has_one_attached :main_image
@@ -217,6 +222,51 @@ class Festival < ApplicationRecord
     return true if user.admin? || user.system_admin?
     return true if user == self.user # Festival owner
     false
+  end
+
+  # LINE連携関連メソッド
+  def has_line_integration?
+    line_integrations.active_integrations.any?
+  end
+
+  def primary_line_integration
+    line_integrations.active_integrations.first
+  end
+
+  def line_notification_enabled?
+    has_line_integration? && 
+    line_integrations.any? { |integration| integration.can_send_notifications? }
+  end
+
+  def active_line_groups_count
+    line_groups.active_groups.count
+  end
+
+  def line_messages_count
+    line_messages.count
+  end
+
+  def recent_line_activity
+    line_messages.recent.limit(10)
+  end
+
+  def line_created_tasks_count
+    tasks.where(created_via_line: true).count
+  end
+
+  def line_integration_stats
+    return {} unless has_line_integration?
+
+    {
+      total_integrations: line_integrations.count,
+      active_integrations: line_integrations.active_integrations.count,
+      total_groups: line_groups.count,
+      active_groups: active_line_groups_count,
+      total_messages: line_messages_count,
+      processed_messages: line_messages.processed.count,
+      created_tasks: line_created_tasks_count,
+      last_activity: line_messages.maximum(:line_timestamp) || line_messages.maximum(:created_at)
+    }
   end
 
   private

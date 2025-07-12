@@ -27,5 +27,18 @@ module FestivalPlannerPlatform
     # Security configurations
     config.force_ssl = false # Set to true in production
     config.session_store :cookie_store, key: '_festival_planner_session', secure: Rails.env.production?
+
+    # Background job configuration
+    config.active_job.queue_adapter = :solid_queue
+
+    # TIME zone configuration
+    config.time_zone = 'Asia/Tokyo'
+
+    # LINE integration configuration
+    config.line_integration = {
+      webhook_timeout: 10.seconds,
+      max_retry_attempts: 3,
+      rate_limit_per_minute: 60
+    }
   end
 end

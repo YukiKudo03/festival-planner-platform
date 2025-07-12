@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_12_133430) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_12_140348) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -372,6 +372,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_12_133430) do
     t.string "frequency", default: "immediate"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "line_enabled", default: false, null: false
+    t.index ["line_enabled"], name: "index_notification_settings_on_line_enabled"
     t.index ["notification_type"], name: "index_notification_settings_on_notification_type"
     t.index ["user_id", "notification_type"], name: "index_notification_settings_on_user_id_and_notification_type", unique: true
     t.index ["user_id"], name: "index_notification_settings_on_user_id"

@@ -61,6 +61,11 @@ class User < ApplicationRecord
   # ユーザー設定関連
   has_one :user_preference, dependent: :destroy
 
+  # LINE連携関連
+  has_many :line_integrations, dependent: :destroy
+  has_many :line_messages, dependent: :nullify
+  has_many :line_groups, through: :line_integrations
+
   after_create :create_default_notification_settings
 
   def unread_notifications_count
@@ -79,6 +84,26 @@ class User < ApplicationRecord
         web_enabled: true,
         frequency: 'immediate'
       )
+  end
+
+  # LINE連携関連メソッド
+  def has_active_line_integrations?
+    line_integrations.active_integrations.any?
+  end
+
+  def line_integration_for_festival(festival)
+    line_integrations.find_by(festival: festival)
+  end
+
+  def can_receive_line_notifications?
+    has_active_line_integrations? && 
+    line_integrations.any? { |integration| integration.can_send_notifications? }
+  end
+
+  def line_user_id_for_integration(integration)
+    # LINEユーザーIDとプラットフォームユーザーのマッピング
+    # 実装では、別途LineUserMappingテーブルを作成することも検討
+    integration.line_user_id if integration.user == self
   end
 
   private
