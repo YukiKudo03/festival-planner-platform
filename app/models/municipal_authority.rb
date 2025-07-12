@@ -3,21 +3,31 @@
 # Municipal Authority model for government agency integration
 # Represents local government organizations that regulate festivals
 class MunicipalAuthority < ApplicationRecord
+  # Constants
+  AUTHORITY_TYPES = %w[
+    city_hall
+    prefecture_office
+    police_department
+    fire_department
+    health_department
+    tourism_board
+    environmental_agency
+    transport_authority
+  ].freeze
+
   # Associations
   has_many :permit_applications, dependent: :destroy
   has_many :subsidy_programs, dependent: :destroy
   has_many :municipal_contacts, dependent: :destroy
   has_many :festivals, through: :permit_applications
   has_many :safety_compliance_records, dependent: :destroy
+  has_many :tourism_collaborations, foreign_key: 'tourism_board_id', dependent: :destroy
 
   # Validations
-  validates :name, presence: true, uniqueness: { scope: :prefecture }
-  validates :prefecture, presence: true
-  validates :city, presence: true
+  validates :name, presence: true
   validates :authority_type, presence: true, inclusion: { in: AUTHORITY_TYPES }
-  validates :contact_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :phone_number, presence: true
-  validates :jurisdiction_area, presence: true
+  validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
+  validates :phone, presence: true, allow_blank: true
 
   # Enums
   enum authority_type: {
@@ -116,15 +126,15 @@ class MunicipalAuthority < ApplicationRecord
   def typical_processing_time(permit_type)
     case permit_type
     when 'event_permit'
-      business_days: 14
+      { business_days: 14 }
     when 'security_plan_approval'
-      business_days: 21
+      { business_days: 21 }
     when 'fire_safety_inspection'
-      business_days: 10
+      { business_days: 10 }
     when 'food_safety_permit'
-      business_days: 7
+      { business_days: 7 }
     else
-      business_days: 14
+      { business_days: 14 }
     end
   end
 

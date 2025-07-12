@@ -14,6 +14,8 @@ class Festival < ApplicationRecord
   has_many :booths, dependent: :destroy
   has_many :layout_elements, through: :venues
   has_many :payments, dependent: :destroy
+  has_many :industry_specializations, dependent: :destroy
+  has_many :tourism_collaborations, dependent: :destroy
 
   # Active Storage attachments
   has_one_attached :main_image

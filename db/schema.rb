@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_04_192933) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_12_034200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -230,6 +230,33 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_192933) do
     t.index ["festival_id"], name: "index_forums_on_festival_id"
   end
 
+  create_table "industry_specializations", force: :cascade do |t|
+    t.bigint "festival_id", null: false
+    t.string "industry_type", null: false
+    t.string "specialization_level", default: "basic", null: false
+    t.string "status", default: "planning", null: false
+    t.boolean "certification_required", default: false
+    t.text "description"
+    t.string "priority", default: "medium"
+    t.string "specialization_code"
+    t.datetime "activated_at"
+    t.datetime "completed_at"
+    t.text "completion_notes"
+    t.text "compliance_standards"
+    t.text "specialized_features"
+    t.text "industry_regulations"
+    t.text "certification_requirements"
+    t.text "performance_kpis"
+    t.text "vendor_criteria"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["festival_id", "industry_type"], name: "idx_on_festival_id_industry_type_c6db393dc4", unique: true
+    t.index ["festival_id"], name: "index_industry_specializations_on_festival_id"
+    t.index ["industry_type"], name: "index_industry_specializations_on_industry_type"
+    t.index ["specialization_code"], name: "index_industry_specializations_on_specialization_code", unique: true
+    t.index ["status"], name: "index_industry_specializations_on_status"
+  end
+
   create_table "layout_elements", force: :cascade do |t|
     t.bigint "venue_id", null: false
     t.string "element_type"
@@ -248,6 +275,24 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_192933) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["venue_id"], name: "index_layout_elements_on_venue_id"
+  end
+
+  create_table "municipal_authorities", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "authority_type", null: false
+    t.string "contact_person"
+    t.string "email"
+    t.string "phone"
+    t.text "address"
+    t.string "code"
+    t.string "api_endpoint"
+    t.string "api_key"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["authority_type"], name: "index_municipal_authorities_on_authority_type"
+    t.index ["code"], name: "index_municipal_authorities_on_code", unique: true
+    t.index ["email"], name: "index_municipal_authorities_on_email"
   end
 
   create_table "notification_settings", force: :cascade do |t|
@@ -356,6 +401,45 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_192933) do
     t.datetime "updated_at", null: false
     t.index ["festival_id"], name: "index_tasks_on_festival_id"
     t.index ["user_id"], name: "index_tasks_on_user_id"
+  end
+
+  create_table "tourism_collaborations", force: :cascade do |t|
+    t.bigint "festival_id", null: false
+    t.bigint "tourism_board_id", null: false
+    t.bigint "coordinator_id", null: false
+    t.string "collaboration_type", null: false
+    t.string "status", default: "proposed", null: false
+    t.string "priority", default: "medium"
+    t.date "start_date", null: false
+    t.date "end_date", null: false
+    t.decimal "budget_allocation", precision: 12, scale: 2, null: false
+    t.integer "expected_visitors", null: false
+    t.string "collaboration_number"
+    t.datetime "activated_at"
+    t.datetime "completed_at"
+    t.datetime "approved_at"
+    t.integer "approved_by"
+    t.datetime "cancelled_at"
+    t.integer "cancelled_by"
+    t.text "cancellation_reason"
+    t.text "completion_notes"
+    t.text "approval_notes"
+    t.text "description"
+    t.text "marketing_objectives"
+    t.text "target_demographics"
+    t.text "promotional_channels"
+    t.text "collaboration_benefits"
+    t.text "performance_metrics"
+    t.text "visitor_data"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["collaboration_number"], name: "index_tourism_collaborations_on_collaboration_number", unique: true
+    t.index ["collaboration_type"], name: "index_tourism_collaborations_on_collaboration_type"
+    t.index ["coordinator_id"], name: "index_tourism_collaborations_on_coordinator_id"
+    t.index ["festival_id"], name: "index_tourism_collaborations_on_festival_id"
+    t.index ["start_date", "end_date"], name: "index_tourism_collaborations_on_start_date_and_end_date"
+    t.index ["status"], name: "index_tourism_collaborations_on_status"
+    t.index ["tourism_board_id"], name: "index_tourism_collaborations_on_tourism_board_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -469,6 +553,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_192933) do
   add_foreign_key "forum_threads", "forums"
   add_foreign_key "forum_threads", "users"
   add_foreign_key "forums", "festivals"
+  add_foreign_key "industry_specializations", "festivals"
   add_foreign_key "layout_elements", "venues"
   add_foreign_key "notification_settings", "users"
   add_foreign_key "notifications", "users", column: "recipient_id"
@@ -481,6 +566,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_192933) do
   add_foreign_key "revenues", "users"
   add_foreign_key "tasks", "festivals"
   add_foreign_key "tasks", "users"
+  add_foreign_key "tourism_collaborations", "festivals"
+  add_foreign_key "tourism_collaborations", "municipal_authorities", column: "tourism_board_id"
+  add_foreign_key "tourism_collaborations", "users", column: "coordinator_id"
   add_foreign_key "vendor_applications", "festivals"
   add_foreign_key "vendor_applications", "users"
   add_foreign_key "venue_areas", "venues"

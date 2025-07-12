@@ -42,7 +42,7 @@ Rails.application.routes.draw do
         end
 
         # AI-powered recommendations and analytics
-        namespace :ai_recommendations do
+        resources :ai_recommendations, only: [:index] do
           member do
             post :attendance_prediction
             post :layout_optimization
@@ -68,7 +68,7 @@ Rails.application.routes.draw do
       end
 
       # AI recommendations - batch and industry-wide endpoints
-      namespace :ai_recommendations do
+      resources :ai_recommendations, only: [] do
         collection do
           get :batch_analysis
           get :industry_insights
@@ -240,6 +240,46 @@ Rails.application.routes.draw do
         delete :bulk_delete
       end
     end
+    
+    # Industry Specialization routes
+    resources :industry_specializations do
+      member do
+        patch :activate
+        patch :complete
+        patch :update_metrics
+        get :industry_dashboard
+      end
+    end
+    
+    # Tourism Collaboration routes  
+    resources :tourism_collaborations do
+      member do
+        patch :activate
+        patch :complete
+        patch :approve
+        patch :cancel
+        patch :update_visitor_analytics
+        get :collaboration_dashboard
+        get :export_report
+      end
+    end
+    
+    # AI Recommendations for festivals
+    resources :ai_recommendations, only: [:index] do
+      collection do
+        post :attendance_prediction
+        post :layout_optimization
+        post :budget_allocation
+        post :risk_assessment
+        get :predictive_dashboard
+        post :roi_optimization
+        get :market_trends
+        get :performance_benchmark
+        get :realtime_monitoring
+        get :batch_analysis
+        get :industry_insights
+      end
+    end
     resources :vendor_applications, except: [:index] do
       member do
         post :submit
@@ -277,4 +317,66 @@ Rails.application.routes.draw do
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+
+  # Monitoring and health check endpoints
+  get '/metrics', to: proc { |env|
+    if Rails.env.production?
+      [200, { 'Content-Type' => 'text/plain' }, [Prometheus::Client.registry.metrics.values.map(&:to_s).join("\n")]]
+    else
+      [404, {}, ['Not Found']]
+    end
+  }
+  
+  get '/health', to: proc { |env|
+    status = 200
+    response = {
+      status: 'healthy',
+      timestamp: Time.current.iso8601,
+      version: ENV['APP_VERSION'] || 'unknown',
+      environment: Rails.env
+    }
+    
+    # Check database connectivity
+    begin
+      ActiveRecord::Base.connection.execute('SELECT 1')
+      response[:database] = 'connected'
+    rescue => e
+      status = 503
+      response[:database] = 'disconnected'
+      response[:errors] = [e.message]
+    end
+    
+    # Check Redis connectivity if available
+    begin
+      if defined?(Redis)
+        Redis.new.ping
+        response[:redis] = 'connected'
+      else
+        response[:redis] = 'not_configured'
+      end
+    rescue => e
+      status = 503
+      response[:redis] = 'disconnected'
+      response[:errors] ||= []
+      response[:errors] << e.message
+    end
+    
+    # Check disk space
+    begin
+      disk_usage = `df -h /`.split("\n")[1].split
+      usage_percent = disk_usage[4].to_i
+      if usage_percent > 90
+        status = 503
+        response[:disk] = 'critical'
+        response[:errors] ||= []
+        response[:errors] << "Disk usage: #{usage_percent}%"
+      else
+        response[:disk] = 'healthy'
+      end
+    rescue
+      response[:disk] = 'unknown'
+    end
+    
+    [status, { 'Content-Type' => 'application/json' }, [response.to_json]]
+  }
 end
