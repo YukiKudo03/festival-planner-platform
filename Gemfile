@@ -56,6 +56,12 @@ gem "fb_graph2"
 gem "instagram_basic_display"
 gem "koala" # Facebook API
 
+# Payment Processing
+gem "stripe"
+gem "square"
+gem "paypal-sdk-rest"
+gem "omniauth-paypal-oauth2"
+
 # UI Framework
 gem "bootstrap", "~> 5.3"
 gem "jquery-rails"
