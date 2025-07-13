@@ -7,7 +7,7 @@ class LineGroup < ApplicationRecord
   validates :name, presence: true
   validates :line_integration_id, uniqueness: { scope: :line_group_id }
 
-  serialize :group_settings, type: JSON
+  serialize :group_settings, coder: JSON
 
   scope :active_groups, -> { where(is_active: true) }
   scope :recent_activity, -> { where('last_activity_at > ?', 24.hours.ago) }

@@ -9,8 +9,8 @@ class LineMessage < ApplicationRecord
   validates :message_text, presence: true
   validates :message_type, presence: true
 
-  serialize :parsed_content, type: JSON
-  serialize :processing_errors, type: JSON
+  serialize :parsed_content, coder: JSON
+  serialize :processing_errors, coder: JSON
 
   enum :intent_type, {
     unknown: 'unknown',

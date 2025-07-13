@@ -81,6 +81,11 @@ RSpec.configure do |config|
   # Include Rails time test helpers
   config.include ActiveSupport::Testing::TimeHelpers
   
+  # Configure ActiveJob to perform jobs inline in test environment
+  config.before(:each) do
+    ActiveJob::Base.queue_adapter = :test
+  end
+  
   # Database cleaner configuration
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction

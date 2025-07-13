@@ -16,8 +16,8 @@ class LineIntegration < ApplicationRecord
   validates :line_access_token, presence: true
   validates :festival_id, uniqueness: { scope: :user_id }
 
-  serialize :settings, type: JSON
-  serialize :notification_preferences, type: JSON
+  serialize :settings, coder: JSON
+  serialize :notification_preferences, coder: JSON
 
   scope :active_integrations, -> { where(is_active: true, status: :active) }
   scope :for_festival, ->(festival) { where(festival: festival) }
@@ -145,6 +145,7 @@ class LineIntegration < ApplicationRecord
   end
 
   def initialize_webhook
+    return if Rails.env.test?
     LineWebhookSetupJob.perform_later(self) if line_channel_id.present?
   end
 end
