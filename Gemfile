@@ -31,6 +31,11 @@ gem "rack-attack"
 gem "secure_headers"
 gem "rack-protection"
 
+# API Authentication & Authorization
+gem "jwt"
+gem "oauth2"
+gem "doorkeeper"
+
 # UI Framework
 gem "bootstrap", "~> 5.3"
 gem "jquery-rails"

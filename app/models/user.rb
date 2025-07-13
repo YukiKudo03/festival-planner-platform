@@ -1,6 +1,9 @@
 class User < ApplicationRecord
   include ApiAuthenticatable
   
+  has_many :api_keys, dependent: :destroy
+  has_many :api_requests, dependent: :destroy
+  
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -104,6 +107,53 @@ class User < ApplicationRecord
     # LINEユーザーIDとプラットフォームユーザーのマッピング
     # 実装では、別途LineUserMappingテーブルを作成することも検討
     integration.line_user_id if integration.user == self
+  end
+
+  # API関連メソッド
+  def available_api_scopes
+    base_scopes = %w[festivals:read tasks:read budgets:read]
+    
+    case role
+    when 'admin', 'system_admin'
+      ApiKey::SCOPES
+    when 'committee_member'
+      base_scopes + %w[festivals:write tasks:write budgets:write vendors:read analytics:read]
+    when 'vendor'
+      base_scopes + %w[vendors:read payments:read]
+    else
+      base_scopes
+    end
+  end
+
+  def create_api_key!(name, key_type: 'personal', scopes: nil, options: {})
+    scopes ||= available_api_scopes
+    
+    api_keys.create!(
+      name: name,
+      key_type: key_type,
+      scopes: scopes & available_api_scopes, # 許可されたスコープのみ
+      ip_whitelist: options[:ip_whitelist],
+      expires_at: options[:expires_at]
+    )
+  end
+
+  def active_api_keys
+    api_keys.active.where('expires_at IS NULL OR expires_at > ?', Time.current)
+  end
+
+  def api_usage_summary(period: 30.days)
+    {
+      total_requests: api_requests.where('created_at > ?', period.ago).count,
+      total_api_keys: api_keys.count,
+      active_api_keys: active_api_keys.count,
+      last_api_access: last_api_access_at,
+      top_endpoints: api_requests
+                      .where('created_at > ?', period.ago)
+                      .group(:endpoint)
+                      .order('count_all DESC')
+                      .limit(5)
+                      .count
+    }
   end
 
   private

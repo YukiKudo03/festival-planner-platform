@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_12_140348) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_13_030425) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,51 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_12_140348) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "api_keys", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.string "api_key", null: false
+    t.string "key_type", default: "personal", null: false
+    t.text "scopes"
+    t.text "ip_whitelist"
+    t.text "rate_limits"
+    t.datetime "expires_at"
+    t.boolean "active", default: true
+    t.integer "request_count", default: 0
+    t.datetime "last_used_at"
+    t.datetime "revoked_at"
+    t.text "usage_stats"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active", "expires_at"], name: "index_api_keys_on_active_and_expires_at"
+    t.index ["api_key"], name: "index_api_keys_on_api_key", unique: true
+    t.index ["key_type"], name: "index_api_keys_on_key_type"
+    t.index ["last_used_at"], name: "index_api_keys_on_last_used_at"
+    t.index ["user_id"], name: "index_api_keys_on_user_id"
+  end
+
+  create_table "api_requests", force: :cascade do |t|
+    t.bigint "api_key_id", null: false
+    t.bigint "user_id"
+    t.string "endpoint", null: false
+    t.string "method", null: false
+    t.string "ip_address", null: false
+    t.text "user_agent"
+    t.integer "response_status", null: false
+    t.float "response_time_ms"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["api_key_id", "created_at"], name: "index_api_requests_on_api_key_id_and_created_at"
+    t.index ["api_key_id"], name: "index_api_requests_on_api_key_id"
+    t.index ["created_at"], name: "index_api_requests_on_created_at"
+    t.index ["endpoint"], name: "index_api_requests_on_endpoint"
+    t.index ["ip_address"], name: "index_api_requests_on_ip_address"
+    t.index ["method"], name: "index_api_requests_on_method"
+    t.index ["response_status", "created_at"], name: "index_api_requests_on_response_status_and_created_at"
+    t.index ["response_status"], name: "index_api_requests_on_response_status"
+    t.index ["user_id"], name: "index_api_requests_on_user_id"
   end
 
   create_table "application_comments", force: :cascade do |t|
@@ -625,6 +670,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_12_140348) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "api_keys", "users"
+  add_foreign_key "api_requests", "api_keys"
+  add_foreign_key "api_requests", "users"
   add_foreign_key "application_comments", "users"
   add_foreign_key "application_comments", "vendor_applications"
   add_foreign_key "application_reviews", "users", column: "reviewer_id"
