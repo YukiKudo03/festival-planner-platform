@@ -1,6 +1,38 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
+      # User management and profile
+      resources :users, only: [:show, :update] do
+        member do
+          get :festivals
+          get :tasks
+          get :notifications
+          patch :mark_notifications_read
+        end
+        
+        collection do
+          get :me
+          get :search
+        end
+      end
+
+      # Notifications management
+      resources :notifications, only: [:index, :show, :update, :destroy] do
+        member do
+          patch :mark_read
+        end
+        
+        collection do
+          patch :mark_all_read
+          delete :clear_all
+          get :summary
+          post :test
+          get :settings
+          patch :settings, action: :update_settings
+        end
+      end
+
+      # Festival management with nested resources
       resources :festivals do
         member do
           get :analytics
@@ -9,6 +41,14 @@ Rails.application.routes.draw do
           post :join
           delete :leave
           get :export
+        end
+        
+        # Tasks within festivals
+        resources :tasks, except: [:index] do
+          member do
+            post :assign
+            post :complete
+          end
         end
         
         resources :payments do
@@ -56,6 +96,20 @@ Rails.application.routes.draw do
           end
         end
       end
+
+      # Global tasks (cross-festival)
+      resources :tasks, only: [:index, :show, :update, :destroy] do
+        member do
+          post :assign
+          post :complete
+        end
+        
+        collection do
+          get :search
+          patch :bulk_complete
+          delete :bulk_delete
+        end
+      end
       
       # Payment methods endpoint
       get 'payments/methods', to: 'payments#payment_methods'
@@ -74,6 +128,47 @@ Rails.application.routes.draw do
           get :industry_insights
         end
       end
+
+      # Webhook endpoints for external integrations
+      namespace :webhooks do
+        post 'line', to: 'line#receive'
+        post 'slack', to: 'slack#receive'
+        post 'discord', to: 'discord#receive'
+        post 'calendar', to: 'calendar#receive'
+        post 'payment', to: 'payment#receive'
+      end
+
+      # External integrations
+      namespace :integrations do
+        resources :line, only: [:index, :show, :create, :update, :destroy] do
+          member do
+            post :authenticate
+            delete :disconnect
+            post :test_connection
+            get :groups
+            post :sync_groups
+          end
+        end
+        
+        resources :slack, only: [:index, :show, :create, :update, :destroy] do
+          member do
+            post :authenticate
+            delete :disconnect
+            post :test_connection
+          end
+        end
+        
+        resources :calendar, only: [:index, :show, :create, :update, :destroy] do
+          member do
+            post :sync
+            post :export_events
+          end
+        end
+      end
+
+      # API documentation
+      get 'docs', to: 'docs#index'
+      get 'docs/openapi', to: 'docs#openapi'
     end
   end
   # フォーラム機能

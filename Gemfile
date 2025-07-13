@@ -36,6 +36,14 @@ gem "jwt"
 gem "oauth2"
 gem "doorkeeper"
 
+# API Documentation
+gem "rswag"
+gem "rswag-api"
+gem "rswag-ui"
+
+# HTTP Client for webhooks
+gem "httparty"
+
 # UI Framework
 gem "bootstrap", "~> 5.3"
 gem "jquery-rails"
