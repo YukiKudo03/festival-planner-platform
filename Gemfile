@@ -44,6 +44,18 @@ gem "rswag-ui"
 # HTTP Client for webhooks
 gem "httparty"
 
+# Calendar Integration
+gem "google-apis-calendar_v3"
+gem "google-auth"
+gem "oauth2"
+gem "icalendar"
+
+# Social Media Integration
+gem "twitter"
+gem "fb_graph2"
+gem "instagram_basic_display"
+gem "koala" # Facebook API
+
 # UI Framework
 gem "bootstrap", "~> 5.3"
 gem "jquery-rails"
