@@ -26,6 +26,11 @@ gem "devise"
 # Authorization  
 gem "cancancan"
 
+# Security
+gem "rack-attack"
+gem "secure_headers"
+gem "rack-protection"
+
 # UI Framework
 gem "bootstrap", "~> 5.3"
 gem "jquery-rails"

@@ -158,10 +158,10 @@
         <main class="main-content">
           <div class="content-wrapper">
             <% flash.each do |type, message| %>
-              <div class="alert alert-<%= type == 'notice' ? 'success' : 'danger' %> alert-dismissible fade show" role="alert">
-                <%= message %>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-              </div>
+              <%= render 'shared/components/alert',
+                    message: message,
+                    variant: (type == 'notice' ? 'success' : 'danger'),
+                    dismissible: true %>
             <% end %>
 
             <%= turbo_frame_tag "main-content" do %>
@@ -185,10 +185,10 @@
 
       <main class="container my-4">
         <% flash.each do |type, message| %>
-          <div class="alert alert-<%= type == 'notice' ? 'success' : 'danger' %> alert-dismissible fade show" role="alert">
-            <%= message %>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-          </div>
+          <%= render 'shared/components/alert',
+                message: message,
+                variant: (type == 'notice' ? 'success' : 'danger'),
+                dismissible: true %>
         <% end %>
 
         <%= yield %>

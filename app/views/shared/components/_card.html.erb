@@ -1,0 +1,58 @@
+<%
+  # Card Component
+  # Usage: <%= render 'shared/components/card', title: "Title", icon: "bi-house", variant: "primary", actions: [{ label: "Action", path: path, class: "btn-primary" }] do %>
+  #   <p>Card content</p>
+  # <% end %>
+  
+  local_assigns[:variant] ||= "default"
+  local_assigns[:size] ||= "default"
+  local_assigns[:elevation] ||= "sm"
+  local_assigns[:actions] ||= []
+  
+  card_classes = ["card"]
+  card_classes << "card-#{variant}" if variant != "default"
+  card_classes << "card-#{size}" if size != "default"
+  card_classes << "shadow-#{elevation}"
+  card_classes << "h-100" if local_assigns[:full_height]
+  card_classes << "card-hover" if local_assigns[:hover_effect]
+  card_classes << (local_assigns[:class] || "")
+%>
+
+<div class="<%= card_classes.join(' ').strip %>">
+  <% if local_assigns[:title] || local_assigns[:icon] %>
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <% if local_assigns[:icon] %>
+          <i class="<%= icon %> me-2 text-<%= variant == 'default' ? 'primary' : variant %>"></i>
+        <% end %>
+        <% if local_assigns[:title] %>
+          <h5 class="mb-0 card-title-component"><%= title %></h5>
+        <% end %>
+      </div>
+      <% if local_assigns[:header_actions] %>
+        <div class="card-header-actions">
+          <%= header_actions %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+  
+  <div class="card-body">
+    <% if local_assigns[:subtitle] %>
+      <p class="card-text text-muted mb-3"><%= subtitle %></p>
+    <% end %>
+    <%= yield if block_given? %>
+  </div>
+  
+  <% if actions.any? %>
+    <div class="card-footer bg-transparent border-0 pt-0">
+      <div class="d-flex gap-2 flex-wrap">
+        <% actions.each do |action| %>
+          <%= link_to action[:label], action[:path], 
+                class: "btn #{action[:class] || 'btn-outline-primary'} btn-sm",
+                data: action[:data] || {} %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

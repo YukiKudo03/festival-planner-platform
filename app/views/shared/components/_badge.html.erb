@@ -1,0 +1,37 @@
+<%
+  # Badge Component
+  # Usage: <%= render 'shared/components/badge', text: "New", variant: "success" %>
+  # Usage: <%= render 'shared/components/badge', text: "5", variant: "danger", pill: true %>
+  
+  local_assigns[:variant] ||= "secondary"
+  local_assigns[:size] ||= "default"
+  
+  badge_classes = ["badge"]
+  badge_classes << "bg-#{variant}"
+  badge_classes << "rounded-pill" if local_assigns[:pill]
+  badge_classes << "badge-#{size}" if size != "default"
+  badge_classes << (local_assigns[:class] || "")
+  
+  # Special styling for status badges
+  if local_assigns[:status]
+    case local_assigns[:status].to_s.downcase
+    when 'active', 'completed', 'success'
+      badge_classes << "bg-success"
+    when 'pending', 'warning'
+      badge_classes << "bg-warning"
+    when 'cancelled', 'error', 'danger'
+      badge_classes << "bg-danger"
+    when 'draft', 'inactive'
+      badge_classes << "bg-secondary"
+    else
+      badge_classes << "bg-#{variant}"
+    end
+  end
+%>
+
+<span class="<%= badge_classes.join(' ').strip %>">
+  <% if local_assigns[:icon] %>
+    <i class="<%= icon %> me-1"></i>
+  <% end %>
+  <%= local_assigns[:text] %>
+</span>

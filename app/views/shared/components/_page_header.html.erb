@@ -1,0 +1,83 @@
+<%
+  # Page Header Component
+  # Usage: <%= render 'shared/components/page_header', title: "Festivals", icon: "bi-calendar-event", breadcrumbs: [{name: "Dashboard", path: root_path}, {name: "Festivals"}] %>
+  
+  local_assigns[:breadcrumbs] ||= []
+  local_assigns[:actions] ||= []
+%>
+
+<div class="page-header mb-4">
+  <div class="d-flex justify-content-between align-items-start">
+    <div class="page-title-section">
+      <% if local_assigns[:breadcrumbs].any? %>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-2">
+            <% local_assigns[:breadcrumbs].each_with_index do |crumb, index| %>
+              <% if index == local_assigns[:breadcrumbs].length - 1 %>
+                <li class="breadcrumb-item active" aria-current="page">
+                  <%= crumb[:name] %>
+                </li>
+              <% else %>
+                <li class="breadcrumb-item">
+                  <%= link_to crumb[:name], crumb[:path], class: "text-decoration-none" %>
+                </li>
+              <% end %>
+            <% end %>
+          </ol>
+        </nav>
+      <% end %>
+      
+      <div class="d-flex align-items-center mb-2">
+        <% if local_assigns[:icon] %>
+          <div class="page-icon bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+            <i class="<%= icon %> text-primary fs-4"></i>
+          </div>
+        <% end %>
+        <div>
+          <h1 class="page-title mb-0 h2 fw-bold">
+            <%= local_assigns[:title] %>
+          </h1>
+          <% if local_assigns[:subtitle] %>
+            <p class="page-subtitle text-muted mb-0">
+              <%= local_assigns[:subtitle] %>
+            </p>
+          <% end %>
+        </div>
+      </div>
+      
+      <% if local_assigns[:description] %>
+        <p class="page-description text-muted">
+          <%= local_assigns[:description] %>
+        </p>
+      <% end %>
+    </div>
+    
+    <% if local_assigns[:actions].any? %>
+      <div class="page-actions d-flex gap-2 flex-wrap">
+        <% local_assigns[:actions].each do |action| %>
+          <%= render 'shared/components/button', 
+                label: action[:label],
+                path: action[:path],
+                variant: action[:variant] || "primary",
+                size: action[:size] || "default",
+                icon: action[:icon],
+                data: action[:data] || {} %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  
+  <% if local_assigns[:tabs] %>
+    <div class="page-tabs mt-4">
+      <ul class="nav nav-pills">
+        <% local_assigns[:tabs].each do |tab| %>
+          <li class="nav-item">
+            <%= link_to tab[:label], tab[:path], 
+                  class: "nav-link #{'active' if tab[:active]}", 
+                  data: tab[:data] || {} %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>

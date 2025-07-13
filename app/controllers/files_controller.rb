@@ -24,10 +24,25 @@ class FilesController < ApplicationController
 
   def download
     if @file.attached? && can_access_file?(@file)
-      redirect_to @file, allow_other_host: true
+      # セキュリティ: 安全なファイル送信（パス検証付き）
+      begin
+        file_data = @file.download
+        safe_filename = sanitize_filename(@file.filename.to_s)
+        content_type = validate_content_type(@file.content_type)
+        
+        send_data file_data, 
+                  filename: safe_filename, 
+                  type: content_type, 
+                  disposition: 'attachment'
+      rescue => e
+        Rails.logger.error "File download error: #{e.message}"
+        redirect_to files_path, alert: 'ファイルのダウンロードに失敗しました。'
+      end
     else
       redirect_to files_path, alert: 'ファイルにアクセスできません。'
     end
+  rescue ActiveStorage::FileNotFoundError
+    redirect_to files_path, alert: 'ファイルが見つかりません。'
   end
 
   def destroy
@@ -165,5 +180,25 @@ class FilesController < ApplicationController
       record_id: @file.record_id,
       url: @file.attached? ? url_for(@file) : nil
     }
+  end
+
+  def sanitize_filename(filename)
+    # ファイル名から危険な文字を除去
+    safe_name = filename.gsub(/[^\w\-_\.]/, '_')
+    safe_name = safe_name.gsub(/_{2,}/, '_')
+    safe_name.length > 255 ? safe_name[0..254] : safe_name
+  end
+
+  def validate_content_type(content_type)
+    # 許可されたコンテンツタイプのみ許可
+    allowed_types = [
+      'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+      'application/pdf', 'text/plain', 'text/csv',
+      'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/zip', 'application/x-zip-compressed'
+    ]
+    
+    allowed_types.include?(content_type) ? content_type : 'application/octet-stream'
   end
 end

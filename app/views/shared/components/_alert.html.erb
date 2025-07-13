@@ -1,0 +1,44 @@
+<%
+  # Alert Component
+  # Usage: <%= render 'shared/components/alert', message: "Success!", variant: "success", dismissible: true %>
+  # Usage: <%= render 'shared/components/alert', variant: "info", icon: "bi-info-circle" do %>
+  #   <strong>Information:</strong> This is an informational message.
+  # <% end %>
+  
+  local_assigns[:variant] ||= "info"
+  local_assigns[:dismissible] ||= false
+  
+  alert_classes = ["alert"]
+  alert_classes << "alert-#{variant}"
+  alert_classes << "alert-dismissible fade show" if dismissible
+  alert_classes << "d-flex align-items-center" if local_assigns[:icon]
+  alert_classes << (local_assigns[:class] || "")
+  
+  # Icon mapping for common variants
+  default_icons = {
+    "success" => "bi-check-circle",
+    "danger" => "bi-exclamation-triangle",
+    "warning" => "bi-exclamation-triangle", 
+    "info" => "bi-info-circle"
+  }
+  
+  icon_class = local_assigns[:icon] || default_icons[variant]
+%>
+
+<div class="<%= alert_classes.join(' ').strip %>" role="alert">
+  <% if icon_class %>
+    <i class="<%= icon_class %> me-2 flex-shrink-0"></i>
+  <% end %>
+  
+  <div class="flex-grow-1">
+    <% if local_assigns[:message] %>
+      <%= local_assigns[:message] %>
+    <% else %>
+      <%= yield if block_given? %>
+    <% end %>
+  </div>
+  
+  <% if dismissible %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  <% end %>
+</div>

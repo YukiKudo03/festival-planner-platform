@@ -1,0 +1,44 @@
+<%
+  # Button Component
+  # Usage: <%= render 'shared/components/button', label: "Click me", variant: "primary", size: "lg", path: some_path, icon: "bi-plus" %>
+  # Usage: <%= render 'shared/components/button', variant: "danger", icon: "bi-trash", icon_only: true, data: { confirm: "Are you sure?" } %>
+  
+  local_assigns[:variant] ||= "primary"
+  local_assigns[:size] ||= "default"
+  local_assigns[:type] ||= "button"
+  
+  button_classes = ["btn"]
+  button_classes << "btn-#{variant}"
+  button_classes << "btn-#{size}" if size != "default"
+  button_classes << "btn-icon-only" if local_assigns[:icon_only]
+  button_classes << "d-flex align-items-center" if local_assigns[:icon] && !local_assigns[:icon_only]
+  button_classes << (local_assigns[:class] || "")
+  
+  button_attributes = {
+    class: button_classes.join(' ').strip,
+    disabled: local_assigns[:disabled],
+    data: local_assigns[:data] || {}
+  }
+  
+  button_attributes[:type] = type unless local_assigns[:path]
+%>
+
+<% if local_assigns[:path] %>
+  <%= link_to local_assigns[:path], button_attributes do %>
+    <% if local_assigns[:icon] %>
+      <i class="<%= icon %><%= ' me-2' unless local_assigns[:icon_only] %>"></i>
+    <% end %>
+    <% unless local_assigns[:icon_only] %>
+      <span><%= local_assigns[:label] %></span>
+    <% end %>
+  <% end %>
+<% else %>
+  <button <%= button_attributes.map { |k, v| v.present? ? "#{k}=\"#{v}\"" : nil }.compact.join(' ').html_safe %>>
+    <% if local_assigns[:icon] %>
+      <i class="<%= icon %><%= ' me-2' unless local_assigns[:icon_only] %>"></i>
+    <% end %>
+    <% unless local_assigns[:icon_only] %>
+      <span><%= local_assigns[:label] %></span>
+    <% end %>
+  </button>
+<% end %>

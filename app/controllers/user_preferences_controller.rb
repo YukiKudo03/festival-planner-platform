@@ -31,7 +31,11 @@ class UserPreferencesController < ApplicationController
     end
     
     if params[:layout].present?
-      @user_preference.dashboard_layout = params[:layout].permit!.to_h
+      layout_params = params[:layout].permit(
+        :grid_columns, :widget_spacing, :compact_mode, :auto_refresh,
+        widgets: [:id, :position, :size, :collapsed, :order]
+      )
+      @user_preference.dashboard_layout = layout_params.to_h
     end
     
     if @user_preference.save
@@ -60,7 +64,15 @@ class UserPreferencesController < ApplicationController
   def update_notifications
     @user_preference = current_user.user_preference || current_user.build_user_preference
     
-    notification_params = params.require(:notifications).permit!
+    notification_params = params.require(:notifications).permit(
+      :email_enabled, :sms_enabled, :browser_enabled, :mobile_enabled,
+      :task_assigned, :task_completed, :task_overdue, :deadline_reminder,
+      :festival_updates, :budget_alerts, :vendor_updates, :system_notifications,
+      :digest_frequency, :quiet_hours_enabled,
+      quiet_hours: [:start_time, :end_time],
+      email_preferences: [:digest, :immediate, :daily, :weekly],
+      mobile_preferences: [:push_enabled, :vibration, :sound]
+    )
     
     current_prefs = @user_preference.notification_preferences
     updated_prefs = current_prefs.merge(notification_params.to_h)
