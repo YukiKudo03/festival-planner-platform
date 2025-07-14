@@ -468,16 +468,16 @@ RSpec.describe "VendorApplications", type: :request do
         before { sign_in admin }
 
         it "approves the application" do
-          post approve_festival_vendor_application_path(festival, submitted_application), params: { 
-            comment: "Application meets all requirements" 
+          post approve_festival_vendor_application_path(festival, submitted_application), params: {
+            comment: "Application meets all requirements"
           }
           submitted_application.reload
           expect(submitted_application.status).to eq("approved")
         end
 
         it "sets reviewed timestamp" do
-          post approve_festival_vendor_application_path(festival, submitted_application), params: { 
-            comment: "Application approved" 
+          post approve_festival_vendor_application_path(festival, submitted_application), params: {
+            comment: "Application approved"
           }
           submitted_application.reload
           expect(submitted_application.reviewed_at).to be_present
@@ -485,16 +485,16 @@ RSpec.describe "VendorApplications", type: :request do
 
         it "creates approval review record" do
           expect {
-            post approve_festival_vendor_application_path(festival, submitted_application), params: { 
-              comment: "Application approved" 
+            post approve_festival_vendor_application_path(festival, submitted_application), params: {
+              comment: "Application approved"
             }
           }.to change(ApplicationReview, :count).by(1)
         end
 
         it "sends notification to applicant" do
           expect {
-            post approve_festival_vendor_application_path(festival, submitted_application), params: { 
-              comment: "Application approved" 
+            post approve_festival_vendor_application_path(festival, submitted_application), params: {
+              comment: "Application approved"
             }
           }.to change(Notification, :count)
         end
@@ -502,8 +502,8 @@ RSpec.describe "VendorApplications", type: :request do
 
       context "when user is not admin" do
         it "redirects to festivals index" do
-          post approve_festival_vendor_application_path(festival, submitted_application), params: { 
-            comment: "Application approved" 
+          post approve_festival_vendor_application_path(festival, submitted_application), params: {
+            comment: "Application approved"
           }
           expect(response).to redirect_to(festivals_path)
         end
@@ -515,8 +515,8 @@ RSpec.describe "VendorApplications", type: :request do
         before { sign_in admin }
 
         it "rejects the application" do
-          post reject_festival_vendor_application_path(festival, submitted_application), params: { 
-            comment: "Application does not meet requirements" 
+          post reject_festival_vendor_application_path(festival, submitted_application), params: {
+            comment: "Application does not meet requirements"
           }
           submitted_application.reload
           expect(submitted_application.status).to eq("rejected")
@@ -531,8 +531,8 @@ RSpec.describe "VendorApplications", type: :request do
 
         it "creates rejection review record" do
           expect {
-            post reject_festival_vendor_application_path(festival, submitted_application), params: { 
-              comment: "Application rejected" 
+            post reject_festival_vendor_application_path(festival, submitted_application), params: {
+              comment: "Application rejected"
             }
           }.to change(ApplicationReview, :count).by(1)
         end
@@ -544,8 +544,8 @@ RSpec.describe "VendorApplications", type: :request do
         before { sign_in committee_member }
 
         it "requests changes to the application" do
-          post request_changes_festival_vendor_application_path(festival, submitted_application), params: { 
-            comment: "Please provide additional documentation" 
+          post request_changes_festival_vendor_application_path(festival, submitted_application), params: {
+            comment: "Please provide additional documentation"
           }
           submitted_application.reload
           expect(submitted_application.status).to eq("requires_changes")

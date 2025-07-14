@@ -29,8 +29,8 @@ class Task < ApplicationRecord
   attr_accessor :created_via_line
   has_many :line_messages, dependent: :nullify
 
-  scope :overdue, -> { where('due_date < ? AND status != ?', Time.current, statuses[:completed]) }
-  scope :due_soon, -> { where('due_date BETWEEN ? AND ? AND status != ?', Time.current, 3.days.from_now, statuses[:completed]) }
+  scope :overdue, -> { where("due_date < ? AND status != ?", Time.current, statuses[:completed]) }
+  scope :due_soon, -> { where("due_date BETWEEN ? AND ? AND status != ?", Time.current, 3.days.from_now, statuses[:completed]) }
   scope :by_priority, -> { order(:priority) }
   scope :by_due_date, -> { order(:due_date) }
   scope :created_via_line, -> { joins(:line_messages).distinct }
@@ -56,7 +56,7 @@ class Task < ApplicationRecord
   end
 
   def originating_line_message
-    line_messages.where(intent_type: 'task_creation').first
+    line_messages.where(intent_type: "task_creation").first
   end
 
   def line_group_context
@@ -65,31 +65,31 @@ class Task < ApplicationRecord
 
   def priority_label
     case priority
-    when 'low'
-      '低'
-    when 'medium'
-      '中'
-    when 'high'
-      '高'
-    when 'urgent'
-      '緊急'
+    when "low"
+      "低"
+    when "medium"
+      "中"
+    when "high"
+      "高"
+    when "urgent"
+      "緊急"
     else
-      '未設定'
+      "未設定"
     end
   end
 
   def status_label
     case status
-    when 'pending'
-      '待機中'
-    when 'in_progress'
-      '進行中'
-    when 'completed'
-      '完了'
-    when 'cancelled'
-      'キャンセル'
+    when "pending"
+      "待機中"
+    when "in_progress"
+      "進行中"
+    when "completed"
+      "完了"
+    when "cancelled"
+      "キャンセル"
     else
-      '不明'
+      "不明"
     end
   end
 
@@ -108,7 +108,7 @@ class Task < ApplicationRecord
     return unless created_from_line? && completed?
 
     festival.line_integrations.active_integrations.each do |integration|
-      next unless integration.notification_preferences['task_completed']
+      next unless integration.notification_preferences["task_completed"]
 
       message = "✅ タスクが完了しました\n" \
                 "タスク：#{title}\n" \
@@ -124,7 +124,7 @@ class Task < ApplicationRecord
   def due_date_within_festival_period
     return unless due_date && festival&.start_date && festival&.end_date
     unless due_date.between?(festival.start_date - 6.months, festival.end_date + 1.month)
-      errors.add(:due_date, 'should be within reasonable festival planning period')
+      errors.add(:due_date, "should be within reasonable festival planning period")
     end
   end
 
@@ -132,9 +132,9 @@ class Task < ApplicationRecord
     if saved_change_to_status?
       old_status = status_before_last_save
       NotificationService.send_task_status_changed_notification(self, old_status)
-      
+
       # LINE連携タスクの場合は完了通知を送信
-      if status == 'completed'
+      if status == "completed"
         send_line_completion_notification
       end
     end

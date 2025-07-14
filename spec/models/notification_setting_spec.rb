@@ -40,10 +40,10 @@ RSpec.describe NotificationSetting, type: :model do
         # Get the existing setting for this notification type
         existing_setting = unique_user.notification_settings.find_by(notification_type: 'task_deadline_reminder')
         expect(existing_setting).to be_present
-        
+
         # Try to create duplicate
         duplicate_setting = build(:notification_setting, user: unique_user, notification_type: 'task_deadline_reminder')
-        
+
         expect(duplicate_setting).not_to be_valid
         expect(duplicate_setting.errors[:user_id]).to include('has already been taken')
       end
@@ -55,7 +55,7 @@ RSpec.describe NotificationSetting, type: :model do
     let(:scope_user2) { create(:user) }
     let(:scope_user3) { create(:user) }
     let(:scope_user4) { create(:user) }
-    
+
     # Use auto-created notification settings and modify them
     let!(:email_enabled) { scope_user1.notification_settings.find_by(notification_type: 'task_overdue').tap { |s| s.update!(email_enabled: true) } }
     let!(:email_disabled) { scope_user2.notification_settings.find_by(notification_type: 'vendor_application_submitted').tap { |s| s.update!(email_enabled: false) } }
@@ -97,7 +97,7 @@ RSpec.describe NotificationSetting, type: :model do
     describe '.default_settings_for_user' do
       it 'returns default settings for all notification types' do
         defaults = NotificationSetting.default_settings_for_user(user)
-        
+
         expect(defaults.length).to eq(Notification::NOTIFICATION_TYPES.length)
         expect(defaults.first[:user]).to eq(user)
         expect(defaults.first[:email_enabled]).to be true
@@ -108,7 +108,7 @@ RSpec.describe NotificationSetting, type: :model do
       it 'includes all notification types' do
         defaults = NotificationSetting.default_settings_for_user(user)
         notification_types = defaults.map { |setting| setting[:notification_type] }
-        
+
         expect(notification_types).to match_array(Notification::NOTIFICATION_TYPES)
       end
     end
@@ -117,7 +117,7 @@ RSpec.describe NotificationSetting, type: :model do
       it 'creates default settings for new user' do
         # Since users auto-create notification settings, test that they exist
         new_user = create(:user)
-        
+
         expect(new_user.notification_settings.count).to eq(Notification::NOTIFICATION_TYPES.length)
         expect(new_user.notification_settings.pluck(:notification_type)).to match_array(Notification::NOTIFICATION_TYPES)
       end
@@ -126,7 +126,7 @@ RSpec.describe NotificationSetting, type: :model do
         # Users already have all notification settings from after_create callback
         user_with_settings = create(:user)
         initial_count = user_with_settings.notification_settings.count
-        
+
         # Calling create_defaults_for_user again should not create duplicates
         expect {
           NotificationSetting.create_defaults_for_user(user_with_settings)
@@ -136,7 +136,7 @@ RSpec.describe NotificationSetting, type: :model do
       it 'sets correct default values for new settings' do
         new_user = create(:user)
         NotificationSetting.create_defaults_for_user(new_user)
-        
+
         settings = new_user.notification_settings
         expect(settings.all?(&:email_enabled?)).to be true
         expect(settings.all?(&:web_enabled?)).to be true
@@ -224,7 +224,7 @@ RSpec.describe NotificationSetting, type: :model do
       integration_user = create(:user)
       # User automatically has notification settings from after_create callback
       setting = integration_user.notification_settings.find_by(notification_type: 'vendor_application_rejected')
-      
+
       expect(integration_user.notification_settings).to include(setting)
       expect(setting).to be_present
     end

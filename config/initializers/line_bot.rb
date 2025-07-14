@@ -1,14 +1,14 @@
 # LINE Bot API Configuration
-require 'line/bot'
+require "line/bot"
 
 # Load environment variables for LINE API
 Rails.application.configure do
   config.line_bot = {
-    channel_id: ENV['LINE_CHANNEL_ID'],
-    channel_secret: ENV['LINE_CHANNEL_SECRET'],
-    channel_token: ENV['LINE_ACCESS_TOKEN']
+    channel_id: ENV["LINE_CHANNEL_ID"],
+    channel_secret: ENV["LINE_CHANNEL_SECRET"],
+    channel_token: ENV["LINE_ACCESS_TOKEN"]
   }
-  
+
   # LINE integration settings
   config.line_integration.merge!({
     webhook_signature_validation: Rails.env.production?,
@@ -24,7 +24,7 @@ end
 if Rails.env.production?
   required_vars = %w[LINE_CHANNEL_ID LINE_CHANNEL_SECRET LINE_ACCESS_TOKEN]
   missing_vars = required_vars.select { |var| ENV[var].blank? }
-  
+
   if missing_vars.any?
     Rails.logger.warn "Missing LINE environment variables: #{missing_vars.join(', ')}"
     Rails.logger.warn "LINE integration will be disabled"
@@ -40,14 +40,14 @@ class LineBotClientFactory
       config.channel_token = channel_token
     end
   end
-  
+
   def self.default_client
-    return nil unless ENV['LINE_CHANNEL_ID'].present?
-    
+    return nil unless ENV["LINE_CHANNEL_ID"].present?
+
     create(
-      channel_id: ENV['LINE_CHANNEL_ID'],
-      channel_secret: ENV['LINE_CHANNEL_SECRET'],
-      channel_token: ENV['LINE_ACCESS_TOKEN']
+      channel_id: ENV["LINE_CHANNEL_ID"],
+      channel_secret: ENV["LINE_CHANNEL_SECRET"],
+      channel_token: ENV["LINE_ACCESS_TOKEN"]
     )
   end
 end

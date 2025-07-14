@@ -85,9 +85,9 @@ RSpec.describe TourismCollaboration, type: :model do
 
   describe '#details' do
     it 'parses partnership_details as JSON' do
-      details_hash = { 'budget_contribution' => 50000, 'resource_sharing' => ['venue', 'marketing'] }
+      details_hash = { 'budget_contribution' => 50000, 'resource_sharing' => [ 'venue', 'marketing' ] }
       tourism_collaboration.partnership_details = details_hash.to_json
-      
+
       expect(tourism_collaboration.details).to eq(details_hash)
     end
 
@@ -99,12 +99,12 @@ RSpec.describe TourismCollaboration, type: :model do
 
   describe '#campaigns' do
     it 'parses marketing_campaigns as JSON' do
-      campaigns_hash = { 
-        'social_media' => { 'budget' => 10000, 'platforms' => ['facebook', 'instagram'] },
-        'print_media' => { 'budget' => 5000, 'outlets' => ['local_newspaper'] }
+      campaigns_hash = {
+        'social_media' => { 'budget' => 10000, 'platforms' => [ 'facebook', 'instagram' ] },
+        'print_media' => { 'budget' => 5000, 'outlets' => [ 'local_newspaper' ] }
       }
       tourism_collaboration.marketing_campaigns = campaigns_hash.to_json
-      
+
       expect(tourism_collaboration.campaigns).to eq(campaigns_hash)
     end
 
@@ -116,13 +116,13 @@ RSpec.describe TourismCollaboration, type: :model do
 
   describe '#analytics' do
     it 'parses visitor_analytics as JSON' do
-      analytics_hash = { 
+      analytics_hash = {
         'total_visitors' => 5000,
         'demographics' => { 'local' => 60, 'regional' => 30, 'international' => 10 },
         'economic_impact' => 250000
       }
       tourism_collaboration.visitor_analytics = analytics_hash.to_json
-      
+
       expect(tourism_collaboration.analytics).to eq(analytics_hash)
     end
 
@@ -136,14 +136,14 @@ RSpec.describe TourismCollaboration, type: :model do
     it 'changes status to approved' do
       tourism_collaboration.status = 'proposed'
       tourism_collaboration.save!
-      
+
       expect { tourism_collaboration.approve! }.to change { tourism_collaboration.status }.from('proposed').to('approved')
     end
 
     it 'sets approved_at timestamp' do
       tourism_collaboration.approved_at = nil
       tourism_collaboration.save!
-      
+
       expect { tourism_collaboration.approve! }.to change { tourism_collaboration.approved_at }.from(nil)
     end
   end
@@ -152,14 +152,14 @@ RSpec.describe TourismCollaboration, type: :model do
     it 'changes status to active' do
       tourism_collaboration.status = 'approved'
       tourism_collaboration.save!
-      
+
       expect { tourism_collaboration.activate! }.to change { tourism_collaboration.status }.from('approved').to('active')
     end
 
     it 'sets activated_at timestamp' do
       tourism_collaboration.activated_at = nil
       tourism_collaboration.save!
-      
+
       expect { tourism_collaboration.activate! }.to change { tourism_collaboration.activated_at }.from(nil)
     end
   end
@@ -168,14 +168,14 @@ RSpec.describe TourismCollaboration, type: :model do
     it 'changes status to completed' do
       tourism_collaboration.status = 'active'
       tourism_collaboration.save!
-      
+
       expect { tourism_collaboration.complete! }.to change { tourism_collaboration.status }.from('active').to('completed')
     end
 
     it 'sets completed_at timestamp' do
       tourism_collaboration.completed_at = nil
       tourism_collaboration.save!
-      
+
       expect { tourism_collaboration.complete! }.to change { tourism_collaboration.completed_at }.from(nil)
     end
   end
@@ -184,14 +184,14 @@ RSpec.describe TourismCollaboration, type: :model do
     it 'changes status to cancelled' do
       tourism_collaboration.status = 'proposed'
       tourism_collaboration.save!
-      
+
       expect { tourism_collaboration.cancel! }.to change { tourism_collaboration.status }.from('proposed').to('cancelled')
     end
 
     it 'sets cancelled_at timestamp' do
       tourism_collaboration.cancelled_at = nil
       tourism_collaboration.save!
-      
+
       expect { tourism_collaboration.cancel! }.to change { tourism_collaboration.cancelled_at }.from(nil)
     end
   end
@@ -236,7 +236,7 @@ RSpec.describe TourismCollaboration, type: :model do
     it 'returns economic impact from analytics' do
       analytics = { 'economic_impact' => 150000 }
       tourism_collaboration.visitor_analytics = analytics.to_json
-      
+
       expect(tourism_collaboration.economic_impact).to eq(150000)
     end
 
@@ -250,7 +250,7 @@ RSpec.describe TourismCollaboration, type: :model do
     it 'returns total visitors from analytics' do
       analytics = { 'total_visitors' => 8500 }
       tourism_collaboration.visitor_analytics = analytics.to_json
-      
+
       expect(tourism_collaboration.total_visitors).to eq(8500)
     end
 
@@ -268,7 +268,7 @@ RSpec.describe TourismCollaboration, type: :model do
         'radio' => { 'budget' => 5000 }
       }
       tourism_collaboration.marketing_campaigns = campaigns.to_json
-      
+
       expect(tourism_collaboration.marketing_budget).to eq(28000)
     end
 
@@ -279,11 +279,11 @@ RSpec.describe TourismCollaboration, type: :model do
 
     it 'handles campaigns without budget' do
       campaigns = {
-        'social_media' => { 'platforms' => ['facebook'] },
+        'social_media' => { 'platforms' => [ 'facebook' ] },
         'print_media' => { 'budget' => 5000 }
       }
       tourism_collaboration.marketing_campaigns = campaigns.to_json
-      
+
       expect(tourism_collaboration.marketing_budget).to eq(5000)
     end
   end
@@ -293,14 +293,14 @@ RSpec.describe TourismCollaboration, type: :model do
       tourism_collaboration.visitor_analytics = { 'economic_impact' => 200000 }.to_json
       campaigns = { 'total' => { 'budget' => 50000 } }
       tourism_collaboration.marketing_campaigns = campaigns.to_json
-      
+
       expect(tourism_collaboration.roi_percentage).to eq(400.0)
     end
 
     it 'returns 0 if marketing budget is zero' do
       tourism_collaboration.visitor_analytics = { 'economic_impact' => 200000 }.to_json
       tourism_collaboration.marketing_campaigns = '{}'
-      
+
       expect(tourism_collaboration.roi_percentage).to eq(0.0)
     end
   end
@@ -308,10 +308,10 @@ RSpec.describe TourismCollaboration, type: :model do
   describe '#update_visitor_analytics!' do
     it 'updates visitor analytics with new data' do
       new_analytics = { 'total_visitors' => 6500, 'satisfaction_score' => 4.2 }
-      
+
       expect { tourism_collaboration.update_visitor_analytics!(new_analytics) }
         .to change { tourism_collaboration.visitor_analytics }
-      
+
       expect(tourism_collaboration.analytics).to include(new_analytics.stringify_keys)
     end
 
@@ -319,10 +319,10 @@ RSpec.describe TourismCollaboration, type: :model do
       existing_analytics = { 'economic_impact' => 150000 }
       tourism_collaboration.visitor_analytics = existing_analytics.to_json
       tourism_collaboration.save!
-      
+
       new_analytics = { 'total_visitors' => 5000 }
       tourism_collaboration.update_visitor_analytics!(new_analytics)
-      
+
       updated_analytics = tourism_collaboration.analytics
       expect(updated_analytics['economic_impact']).to eq(150000)
       expect(updated_analytics['total_visitors']).to eq(5000)
@@ -336,9 +336,9 @@ RSpec.describe TourismCollaboration, type: :model do
         'print_media' => { 'budget' => 5000, 'reach' => 20000 }
       }
       tourism_collaboration.marketing_campaigns = campaigns.to_json
-      
+
       performance = tourism_collaboration.campaign_performance
-      
+
       expect(performance['social_media']['cost_per_reach']).to eq(0.2)
       expect(performance['social_media']['engagement_rate']).to eq(5.0)
       expect(performance['print_media']['cost_per_reach']).to eq(0.25)
@@ -368,10 +368,10 @@ RSpec.describe TourismCollaboration, type: :model do
       festival = create(:festival)
       authority1 = create(:municipal_authority)
       authority2 = create(:municipal_authority)
-      
+
       collab1 = create(:tourism_collaboration, festival: festival, municipal_authority: authority1)
       collab2 = create(:tourism_collaboration, festival: festival, municipal_authority: authority2)
-      
+
       expect(collab1).to be_valid
       expect(collab2).to be_valid
     end

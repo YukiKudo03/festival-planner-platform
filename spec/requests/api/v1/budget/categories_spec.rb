@@ -35,5 +35,4 @@ RSpec.describe "Api::V1::Budget::Categories", type: :request do
       expect(response).to have_http_status(:success)
     end
   end
-
 end

@@ -10,7 +10,7 @@ FactoryBot.define do
     customer_email { user&.email || Faker::Internet.email }
     customer_name { user&.full_name || Faker::Name.name }
     processing_fee { (amount * 0.03).round(2) }
-    
+
     trait :with_stripe do
       payment_method { :stripe }
       external_transaction_id { "pi_#{Faker::Alphanumeric.alphanumeric(number: 24)}" }
@@ -21,7 +21,7 @@ FactoryBot.define do
         }
       end
     end
-    
+
     trait :with_paypal do
       payment_method { :paypal }
       external_transaction_id { Faker::Alphanumeric.alphanumeric(number: 17).upcase }
@@ -31,7 +31,7 @@ FactoryBot.define do
         }
       end
     end
-    
+
     trait :with_bank_transfer do
       payment_method { :bank_transfer }
       metadata do
@@ -46,7 +46,7 @@ FactoryBot.define do
         }
       end
     end
-    
+
     trait :with_cash do
       payment_method { :cash }
       metadata do
@@ -59,48 +59,48 @@ FactoryBot.define do
         }
       end
     end
-    
+
     trait :pending do
       status { :pending }
     end
-    
+
     trait :processing do
       status { :processing }
       processed_at { 5.minutes.ago }
     end
-    
+
     trait :completed do
       status { :completed }
       processed_at { 1.hour.ago }
       confirmed_at { 30.minutes.ago }
     end
-    
+
     trait :failed do
       status { :failed }
       processed_at { 30.minutes.ago }
       error_message { 'カードが拒否されました' }
     end
-    
+
     trait :cancelled do
       status { :cancelled }
       cancelled_at { 15.minutes.ago }
       cancellation_reason { 'ユーザーによりキャンセル' }
     end
-    
+
     trait :refunded do
       status { :refunded }
       processed_at { 2.hours.ago }
       confirmed_at { 1.hour.ago }
     end
-    
+
     trait :high_amount do
       amount { Faker::Number.between(from: 50000, to: 200000) }
     end
-    
+
     trait :low_amount do
       amount { Faker::Number.between(from: 1000, to: 5000) }
     end
-    
+
     trait :with_billing_address do
       billing_address do
         {

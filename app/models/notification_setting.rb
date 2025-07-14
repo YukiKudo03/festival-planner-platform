@@ -21,7 +21,7 @@ class NotificationSetting < ApplicationRecord
         email_enabled: true,
         web_enabled: true,
         line_enabled: false, # デフォルトはOFF（連携設定後に有効化）
-        frequency: 'immediate'
+        frequency: "immediate"
       }
     end
   end
@@ -41,19 +41,19 @@ class NotificationSetting < ApplicationRecord
   end
 
   def should_send_email?
-    email_enabled? && frequency != 'never'
+    email_enabled? && frequency != "never"
   end
 
   def should_send_web?
-    web_enabled? && frequency != 'never'
+    web_enabled? && frequency != "never"
   end
 
   def should_send_line?
-    line_enabled? && frequency != 'never'
+    line_enabled? && frequency != "never"
   end
 
   def should_send_immediately?
-    frequency == 'immediate'
+    frequency == "immediate"
   end
 
   # LINE連携に関する設定管理

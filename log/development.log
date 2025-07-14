@@ -491,3 +491,49 @@ FOREIGN KEY ("user_id")
   [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
   [1m[35m (0.4ms)[0m  [1m[34mSELECT pg_advisory_unlock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
   [1m[36mActiveRecord::SchemaMigration Load (0.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.3ms)[0m  [1m[34mSELECT pg_try_advisory_lock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (4.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (4.2ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateFileAccessLogs (20250714070100)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (26.8ms)[0m  [1m[35mCREATE TABLE "file_access_logs" ("id" bigserial primary key, "user_id" bigint NOT NULL, "attachment_id" integer NOT NULL, "action" character varying NOT NULL, "ip_address" character varying NOT NULL, "user_agent" text NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_05ea70f6fe"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_file_access_logs_on_user_id" ON "file_access_logs" ("user_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_file_access_logs_on_attachment_id" ON "file_access_logs" ("attachment_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_file_access_logs_on_user_id_and_created_at" ON "file_access_logs" ("user_id", "created_at") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_file_access_logs_on_action_and_created_at" ON "file_access_logs" ("action", "created_at") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_file_access_logs_on_created_at" ON "file_access_logs" ("created_at") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250714070100') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.8ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateFileMetadata (20250714070200)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (6.1ms)[0m  [1m[35mCREATE TABLE "file_metadata" ("id" bigserial primary key, "uploaded_by_id" bigint NOT NULL, "attachment_id" integer NOT NULL, "original_filename" character varying NOT NULL, "file_size" bigint NOT NULL, "content_type" character varying NOT NULL, "upload_ip" character varying NOT NULL, "upload_user_agent" text NOT NULL, "image_metadata" json, "processing_metadata" json, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_226d7c4c0a"
+FOREIGN KEY ("uploaded_by_id")
+  REFERENCES "users" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_file_metadata_on_uploaded_by_id" ON "file_metadata" ("uploaded_by_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_file_metadata_on_attachment_id" ON "file_metadata" ("attachment_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (2.9ms)[0m  [1m[35mCREATE INDEX "index_file_metadata_on_uploaded_by_id" ON "file_metadata" ("uploaded_by_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_advisory_unlock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.7ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_try_advisory_lock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.7ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.8ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='FestivalPlannerPlatform'*/[0m
+Migrating to CreateFileMetadata (20250714070200)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (6.5ms)[0m  [1m[35mCREATE TABLE "file_metadata" ("id" bigserial primary key, "uploaded_by_id" bigint NOT NULL, "attachment_id" integer NOT NULL, "original_filename" character varying NOT NULL, "file_size" bigint NOT NULL, "content_type" character varying NOT NULL, "upload_ip" character varying NOT NULL, "upload_user_agent" text NOT NULL, "image_metadata" json, "processing_metadata" json, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_226d7c4c0a"
+FOREIGN KEY ("uploaded_by_id")
+  REFERENCES "users" ("id")
+) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_file_metadata_on_uploaded_by_id" ON "file_metadata" ("uploaded_by_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_file_metadata_on_attachment_id" ON "file_metadata" ("attachment_id") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "index_file_metadata_on_content_type" ON "file_metadata" ("content_type") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_file_metadata_on_file_size" ON "file_metadata" ("file_size") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "index_file_metadata_on_created_at" ON "file_metadata" ("created_at") /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20250714070200') RETURNING "version" /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mCOMMIT /*application='FestivalPlannerPlatform'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_advisory_unlock(6411867498922812465) /*application='FestivalPlannerPlatform'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='FestivalPlannerPlatform'*/[0m

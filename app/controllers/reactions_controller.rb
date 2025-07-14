@@ -4,7 +4,7 @@ class ReactionsController < ApplicationController
 
   def create
     @reaction = @reactable.reactions.find_or_initialize_by(user: current_user)
-    
+
     if @reaction.persisted? && @reaction.reaction_type == reaction_params[:reaction_type]
       # Same reaction - remove it
       @reaction.destroy
@@ -16,7 +16,7 @@ class ReactionsController < ApplicationController
     end
 
     respond_to do |format|
-      format.json { 
+      format.json {
         render json: {
           success: true,
           reaction_summary: @reactable.reaction_summary,
@@ -36,7 +36,7 @@ class ReactionsController < ApplicationController
     @reaction&.destroy
 
     respond_to do |format|
-      format.json { 
+      format.json {
         render json: {
           success: true,
           reaction_summary: @reactable.reaction_summary,
@@ -54,18 +54,18 @@ class ReactionsController < ApplicationController
     reactable_id = params[:reactable_id]
 
     case reactable_type
-    when 'ForumThread'
+    when "ForumThread"
       @reactable = ForumThread.find(reactable_id)
-    when 'ForumPost'
+    when "ForumPost"
       @reactable = ForumPost.find(reactable_id)
-    when 'ChatMessage'
+    when "ChatMessage"
       @reactable = ChatMessage.find(reactable_id)
     else
-      render json: { error: 'Invalid reactable type' }, status: :unprocessable_entity
-      return
+      render json: { error: "Invalid reactable type" }, status: :unprocessable_entity
+      nil
     end
   rescue ActiveRecord::RecordNotFound
-    render json: { error: 'Reactable not found' }, status: :not_found
+    render json: { error: "Reactable not found" }, status: :not_found
   end
 
   def reaction_params

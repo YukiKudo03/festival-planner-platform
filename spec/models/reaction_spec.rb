@@ -17,7 +17,7 @@ RSpec.describe Reaction, type: :model do
         expect(Reaction.emoji_for('sad')).to eq('😢')
         expect(Reaction.emoji_for('angry')).to eq('😡')
       end
-      
+
       it 'returns default emoji for unknown types' do
         expect(Reaction.emoji_for('unknown')).to eq('👍')
       end

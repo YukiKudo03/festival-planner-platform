@@ -8,7 +8,7 @@ class Forum < ApplicationRecord
   validates :category, presence: true
 
   CATEGORIES = %w[general announcements questions discussions events vendor].freeze
-  
+
   validates :category, inclusion: { in: CATEGORIES }
 
   scope :public_forums, -> { where(private: false) }
@@ -35,7 +35,7 @@ class Forum < ApplicationRecord
     return false unless user
     return true if user.admin? || user.committee_member?
     return true if public?
-    
+
     # プライベートフォーラムの場合、関係者のみ
     private? && user.festivals.include?(festival)
   end

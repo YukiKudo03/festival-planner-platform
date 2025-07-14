@@ -1,7 +1,7 @@
 class Api::V1::Webhooks::BaseController < ApplicationController
   skip_before_action :verify_authenticity_token
   skip_before_action :authenticate_user!
-  
+
   before_action :verify_webhook_signature
   before_action :log_webhook_request
 
@@ -20,27 +20,27 @@ class Api::V1::Webhooks::BaseController < ApplicationController
     request.body.rewind if request.body.respond_to?(:rewind)
   end
 
-  def webhook_success(message = 'Webhook processed successfully', data = {})
+  def webhook_success(message = "Webhook processed successfully", data = {})
     render json: {
-      status: 'success',
+      status: "success",
       message: message,
       timestamp: Time.current.iso8601,
       data: data
     }, status: :ok
   end
 
-  def webhook_error(message = 'Webhook processing failed', status = :bad_request, details = {})
+  def webhook_error(message = "Webhook processing failed", status = :bad_request, details = {})
     render json: {
-      status: 'error',
+      status: "error",
       message: message,
       timestamp: Time.current.iso8601,
       details: details
     }, status: status
   end
 
-  def webhook_accepted(message = 'Webhook accepted for processing')
+  def webhook_accepted(message = "Webhook accepted for processing")
     render json: {
-      status: 'accepted',
+      status: "accepted",
       message: message,
       timestamp: Time.current.iso8601
     }, status: :accepted
@@ -52,7 +52,7 @@ class Api::V1::Webhooks::BaseController < ApplicationController
     return false unless signature_header && secret
 
     expected_signature = OpenSSL::HMAC.hexdigest(
-      OpenSSL::Digest.new('sha256'),
+      OpenSSL::Digest.new("sha256"),
       secret,
       payload
     )

@@ -4,24 +4,24 @@
 # Handles government authority integration and data management
 class Api::V1::MunicipalAuthoritiesController < Api::V1::BaseController
   before_action :authenticate_user!
-  before_action :set_municipal_authority, only: [:show, :update, :destroy, :sync, :test_connection, :contacts]
-  before_action :authorize_admin!, except: [:index, :show, :contacts]
+  before_action :set_municipal_authority, only: [ :show, :update, :destroy, :sync, :test_connection, :contacts ]
+  before_action :authorize_admin!, except: [ :index, :show, :contacts ]
 
   # GET /api/v1/municipal_authorities
   def index
     @authorities = MunicipalAuthority.includes(:municipal_contacts, :subsidy_programs)
-    
+
     # Apply filters
     @authorities = @authorities.by_prefecture(params[:prefecture]) if params[:prefecture].present?
     @authorities = @authorities.by_authority_type(params[:authority_type]) if params[:authority_type].present?
-    @authorities = @authorities.active if params[:active_only] == 'true'
+    @authorities = @authorities.active if params[:active_only] == "true"
     @authorities = @authorities.in_jurisdiction(params[:area]) if params[:area].present?
-    
+
     # Pagination
     page = params[:page] || 1
-    per_page = [params[:per_page]&.to_i || 20, 100].min
+    per_page = [ params[:per_page]&.to_i || 20, 100 ].min
     @authorities = @authorities.page(page).per(per_page)
-    
+
     render json: {
       success: true,
       data: {
@@ -48,14 +48,14 @@ class Api::V1::MunicipalAuthoritiesController < Api::V1::BaseController
   # POST /api/v1/municipal_authorities
   def create
     @authority = MunicipalAuthority.new(authority_params)
-    
+
     if @authority.save
       render json: {
         success: true,
         data: {
           authority: detailed_authority_data(@authority)
         },
-        message: 'Municipal authority created successfully'
+        message: "Municipal authority created successfully"
       }, status: :created
     else
       render json: {
@@ -73,7 +73,7 @@ class Api::V1::MunicipalAuthoritiesController < Api::V1::BaseController
         data: {
           authority: detailed_authority_data(@authority)
         },
-        message: 'Municipal authority updated successfully'
+        message: "Municipal authority updated successfully"
       }
     else
       render json: {
@@ -88,7 +88,7 @@ class Api::V1::MunicipalAuthoritiesController < Api::V1::BaseController
     if @authority.destroy
       render json: {
         success: true,
-        message: 'Municipal authority deleted successfully'
+        message: "Municipal authority deleted successfully"
       }
     else
       render json: {
@@ -101,12 +101,12 @@ class Api::V1::MunicipalAuthoritiesController < Api::V1::BaseController
   # POST /api/v1/municipal_authorities/:id/sync
   def sync
     service = MunicipalIntegrationService.new(@authority)
-    
+
     # Sync authority data
     authority_result = service.sync_authority_data
     contacts_result = service.sync_contact_information
     programs_result = service.sync_subsidy_programs
-    
+
     if authority_result[:success] && contacts_result[:success] && programs_result[:success]
       render json: {
         success: true,
@@ -116,7 +116,7 @@ class Api::V1::MunicipalAuthoritiesController < Api::V1::BaseController
           programs_sync: programs_result,
           last_sync: @authority.reload.last_api_sync_at
         },
-        message: 'Municipal authority data synchronized successfully'
+        message: "Municipal authority data synchronized successfully"
       }
     else
       render json: {
@@ -134,26 +134,26 @@ class Api::V1::MunicipalAuthoritiesController < Api::V1::BaseController
   def test_connection
     service = MunicipalIntegrationService.new(@authority)
     result = service.test_connection
-    
+
     if result[:success]
       render json: {
         success: true,
         data: {
-          connection_status: 'Connected',
+          connection_status: "Connected",
           api_response: result[:data],
           tested_at: Time.current
         },
-        message: 'Connection test successful'
+        message: "Connection test successful"
       }
     else
       render json: {
         success: false,
         data: {
-          connection_status: 'Failed',
+          connection_status: "Failed",
           error: result[:error],
           tested_at: Time.current
         },
-        message: 'Connection test failed'
+        message: "Connection test failed"
       }, status: :service_unavailable
     end
   end
@@ -161,10 +161,10 @@ class Api::V1::MunicipalAuthoritiesController < Api::V1::BaseController
   # GET /api/v1/municipal_authorities/:id/contacts
   def contacts
     contacts = @authority.municipal_contacts.active.includes(:municipal_authority)
-    
+
     # Filter by contact type if specified
     contacts = contacts.by_contact_type(params[:contact_type]) if params[:contact_type].present?
-    
+
     render json: {
       success: true,
       data: {
@@ -183,26 +183,26 @@ class Api::V1::MunicipalAuthoritiesController < Api::V1::BaseController
     query = params[:q]&.strip
     area = params[:area]&.strip
     permit_type = params[:permit_type]
-    
+
     authorities = MunicipalAuthority.active
-    
+
     if query.present?
       authorities = authorities.where(
-        'name ILIKE ? OR city ILIKE ? OR prefecture ILIKE ?',
+        "name ILIKE ? OR city ILIKE ? OR prefecture ILIKE ?",
         "%#{query}%", "%#{query}%", "%#{query}%"
       )
     end
-    
+
     if area.present?
       authorities = authorities.for_area(area)
     end
-    
+
     if permit_type.present?
       authorities = authorities.handling_permit_type(permit_type)
     end
-    
+
     authorities = authorities.limit(50) # Limit search results
-    
+
     render json: {
       success: true,
       data: {
@@ -218,19 +218,19 @@ class Api::V1::MunicipalAuthoritiesController < Api::V1::BaseController
   def for_festival
     festival = Festival.find(params[:festival_id])
     venue_address = festival.venue&.address || params[:venue_address]
-    
-    return render_error('Venue address is required', :bad_request) unless venue_address.present?
-    
+
+    return render_error("Venue address is required", :bad_request) unless venue_address.present?
+
     # Find authorities with jurisdiction
     authorities = MunicipalAuthority.for_area(venue_address).active
-    
+
     # Get required permits for each authority
     authorities_with_permits = authorities.map do |authority|
       required_permits = authority.required_permits_for(
-        festival.category || 'general',
+        festival.category || "general",
         festival.expected_attendance || 0
       )
-      
+
       {
         authority: authority_summary(authority),
         required_permits: required_permits,
@@ -240,7 +240,7 @@ class Api::V1::MunicipalAuthoritiesController < Api::V1::BaseController
         ).map { |program| subsidy_program_summary(program) }
       }
     end
-    
+
     render json: {
       success: true,
       data: {
@@ -277,7 +277,7 @@ class Api::V1::MunicipalAuthoritiesController < Api::V1::BaseController
         total_budget: SubsidyProgram.sum(:total_budget)
       }
     }
-    
+
     render json: {
       success: true,
       data: stats
@@ -289,7 +289,7 @@ class Api::V1::MunicipalAuthoritiesController < Api::V1::BaseController
   def set_municipal_authority
     @authority = MunicipalAuthority.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    render_not_found('Municipal authority not found')
+    render_not_found("Municipal authority not found")
   end
 
   def authority_params
@@ -351,7 +351,7 @@ class Api::V1::MunicipalAuthoritiesController < Api::V1::BaseController
 
   def authorize_admin!
     unless current_user.admin?
-      render_forbidden('Admin access required')
+      render_forbidden("Admin access required")
     end
   end
 end

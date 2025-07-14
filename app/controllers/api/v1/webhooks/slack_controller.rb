@@ -1,33 +1,33 @@
 class Api::V1::Webhooks::SlackController < Api::V1::Webhooks::BaseController
-  before_action :verify_slack_token, only: [:receive]
+  before_action :verify_slack_token, only: [ :receive ]
 
   # POST /api/v1/webhooks/slack
   def receive
     case params[:type]
-    when 'url_verification'
+    when "url_verification"
       render json: { challenge: params[:challenge] }
-    when 'event_callback'
+    when "event_callback"
       handle_event_callback
     else
-      webhook_error('Unknown webhook type')
+      webhook_error("Unknown webhook type")
     end
   end
 
   private
 
   def verify_slack_token
-    token = request.headers['HTTP_X_SLACK_REQUEST_TIMESTAMP']
-    signature = request.headers['HTTP_X_SLACK_SIGNATURE']
-    
+    token = request.headers["HTTP_X_SLACK_REQUEST_TIMESTAMP"]
+    signature = request.headers["HTTP_X_SLACK_SIGNATURE"]
+
     unless token && signature
-      webhook_error('Missing Slack verification headers', :unauthorized)
+      webhook_error("Missing Slack verification headers", :unauthorized)
       return
     end
 
     # Verify timestamp (within 5 minutes)
     timestamp = token.to_i
     if (Time.current.to_i - timestamp).abs > 300
-      webhook_error('Invalid timestamp', :unauthorized)
+      webhook_error("Invalid timestamp", :unauthorized)
       return
     end
 
@@ -35,34 +35,34 @@ class Api::V1::Webhooks::SlackController < Api::V1::Webhooks::BaseController
     payload = request.body.read
     request.body.rewind
 
-    signing_secret = ENV['SLACK_SIGNING_SECRET']
-    expected_signature = 'v0=' + OpenSSL::HMAC.hexdigest(
-      'SHA256',
+    signing_secret = ENV["SLACK_SIGNING_SECRET"]
+    expected_signature = "v0=" + OpenSSL::HMAC.hexdigest(
+      "SHA256",
       signing_secret,
       "v0:#{timestamp}:#{payload}"
     )
 
     unless signature == expected_signature
-      webhook_error('Invalid signature', :unauthorized)
-      return
+      webhook_error("Invalid signature", :unauthorized)
+      nil
     end
   end
 
   def handle_event_callback
     event = params[:event]
-    
+
     case event[:type]
-    when 'message'
+    when "message"
       handle_message_event(event)
-    when 'app_mention'
+    when "app_mention"
       handle_mention_event(event)
-    when 'reaction_added'
+    when "reaction_added"
       handle_reaction_event(event)
     else
       Rails.logger.info "Unhandled Slack event type: #{event[:type]}"
     end
 
-    webhook_success('Event processed')
+    webhook_success("Event processed")
   end
 
   def handle_message_event(event)
@@ -85,7 +85,7 @@ class Api::V1::Webhooks::SlackController < Api::V1::Webhooks::BaseController
       user_id: event[:user],
       message_text: event[:text],
       timestamp: event[:ts],
-      event_type: 'message',
+      event_type: "message",
       processed: false
     )
   end
@@ -95,23 +95,23 @@ class Api::V1::Webhooks::SlackController < Api::V1::Webhooks::BaseController
     return unless slack_integration
 
     # Bot was mentioned - process as command
-    text = event[:text].gsub(/<@[^>]+>/, '').strip
-    
-    if text.downcase.include?('help')
+    text = event[:text].gsub(/<@[^>]+>/, "").strip
+
+    if text.downcase.include?("help")
       send_help_message(slack_integration, event[:channel])
-    elsif text.downcase.include?('status') || text.downcase.include?('進捗')
+    elsif text.downcase.include?("status") || text.downcase.include?("進捗")
       send_status_update(slack_integration, event[:channel])
     else
       # Try to parse as task command
       process_task_command(slack_integration, event)
     end
 
-    webhook_success('Mention processed')
+    webhook_success("Mention processed")
   end
 
   def handle_reaction_event(event)
     # Handle reactions like ✅ for task completion
-    if event[:reaction] == 'white_check_mark' # ✅
+    if event[:reaction] == "white_check_mark" # ✅
       slack_integration = find_slack_integration(event[:team], event[:item][:channel])
       return unless slack_integration
 
@@ -124,7 +124,7 @@ class Api::V1::Webhooks::SlackController < Api::V1::Webhooks::BaseController
       if slack_message&.related_task
         task = slack_message.related_task
         task.update(
-          status: 'completed',
+          status: "completed",
           completed_at: Time.current,
           completed_by: slack_integration.user
         )
@@ -137,7 +137,7 @@ class Api::V1::Webhooks::SlackController < Api::V1::Webhooks::BaseController
       end
     end
 
-    webhook_success('Reaction processed')
+    webhook_success("Reaction processed")
   end
 
   def find_slack_integration(team_id, channel_id)
@@ -155,7 +155,7 @@ class Api::V1::Webhooks::SlackController < Api::V1::Webhooks::BaseController
   def process_task_command(slack_integration, event)
     # Parse task from message
     text = event[:text]
-    
+
     # Extract task details using similar logic to LINE parser
     task_info = parse_task_from_text(text)
     return unless task_info
@@ -182,7 +182,7 @@ class Api::V1::Webhooks::SlackController < Api::V1::Webhooks::BaseController
         user_id: event[:user],
         message_text: event[:text],
         timestamp: event[:ts],
-        event_type: 'task_creation',
+        event_type: "task_creation",
         related_task: task,
         processed: true
       )
@@ -208,7 +208,7 @@ class Api::V1::Webhooks::SlackController < Api::V1::Webhooks::BaseController
     if assignee_match
       # Find user by name or email
       assigned_user = User.where(
-        'name ILIKE ? OR email ILIKE ?',
+        "name ILIKE ? OR email ILIKE ?",
         "%#{assignee_match[1]}%",
         "%#{assignee_match[1]}%"
       ).first
@@ -225,7 +225,7 @@ class Api::V1::Webhooks::SlackController < Api::V1::Webhooks::BaseController
       assigned_user: assigned_user,
       due_date: due_date,
       priority: priority,
-      status: 'pending'
+      status: "pending"
     }
   end
 
@@ -246,10 +246,10 @@ class Api::V1::Webhooks::SlackController < Api::V1::Webhooks::BaseController
   end
 
   def extract_priority(text)
-    return 'urgent' if text.match?(/緊急|至急|urgent/i)
-    return 'high' if text.match?(/重要|high/i)
-    return 'low' if text.match?(/後で|低優先度|low/i)
-    'medium'
+    return "urgent" if text.match?(/緊急|至急|urgent/i)
+    return "high" if text.match?(/重要|high/i)
+    return "low" if text.match?(/後で|低優先度|low/i)
+    "medium"
   end
 
   def send_help_message(slack_integration, channel)

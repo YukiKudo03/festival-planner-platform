@@ -1,4 +1,4 @@
-require 'squareup'
+require "squareup"
 
 class SquarePaymentService
   def initialize(payment_integration)
@@ -11,7 +11,7 @@ class SquarePaymentService
       # Square amounts are in the smallest currency unit (e.g., cents for USD, yen for JPY)
       amount_money = {
         amount: amount,
-        currency: (options[:currency] || 'JPY').upcase
+        currency: (options[:currency] || "JPY").upcase
       }
 
       request_body = {
@@ -56,19 +56,19 @@ class SquarePaymentService
     begin
       amount_money = {
         amount: amount,
-        currency: (options[:currency] || 'JPY').upcase
+        currency: (options[:currency] || "JPY").upcase
       }
 
       request_body = {
-        source_id: options[:payment_method] || 'CASH', # Placeholder for now
+        source_id: options[:payment_method] || "CASH", # Placeholder for now
         amount_money: amount_money,
         idempotency_key: generate_idempotency_key,
         reference_id: options[:reference_id] || generate_reference_id,
         note: options[:description] || "Payment intent for #{@integration.festival&.name}",
         autocomplete: false, # This creates an authorized but not captured payment
         location_id: @integration.location_id,
-        delay_action: 'CANCEL', # Auto-cancel if not captured within timeframe
-        delay_duration: 'PT24H' # 24 hours
+        delay_action: "CANCEL", # Auto-cancel if not captured within timeframe
+        delay_duration: "PT24H" # 24 hours
       }
 
       # For payment intents, we'll use Terminal API for in-person payments
@@ -77,16 +77,16 @@ class SquarePaymentService
         success: true,
         payment_intent_id: generate_reference_id,
         client_secret: "sq_#{generate_idempotency_key}",
-        status: 'requires_payment_method',
+        status: "requires_payment_method",
         amount: amount,
-        currency: (options[:currency] || 'JPY').upcase,
+        currency: (options[:currency] || "JPY").upcase,
         application_id: @client.config.square_application_id
       }
     rescue => error
       {
         success: false,
         error: error.message,
-        error_type: 'square_error'
+        error_type: "square_error"
       }
     end
   end
@@ -95,12 +95,12 @@ class SquarePaymentService
     begin
       # First, get the original payment to determine refund amount
       payment_response = @payments_api.get_payment(payment_id: transaction_id)
-      
+
       unless payment_response.success?
         return {
           success: false,
-          error: 'Original payment not found',
-          error_code: 'PAYMENT_NOT_FOUND'
+          error: "Original payment not found",
+          error_code: "PAYMENT_NOT_FOUND"
         }
       end
 
@@ -116,7 +116,7 @@ class SquarePaymentService
         idempotency_key: generate_idempotency_key,
         amount_money: amount_money,
         payment_id: transaction_id,
-        reason: reason || 'Refund requested by customer',
+        reason: reason || "Refund requested by customer",
         location_id: @integration.location_id
       }
 
@@ -146,19 +146,19 @@ class SquarePaymentService
       # This would typically involve Card on File API for stored cards
       response = @customers_api.list_customers(
         limit: 100,
-        sort_field: 'CREATED_AT',
-        sort_order: 'DESC'
+        sort_field: "CREATED_AT",
+        sort_order: "DESC"
       )
 
       if response.success? && response.data.customers
         payment_methods = []
-        
+
         response.data.customers.each do |customer|
           if customer.cards && customer.cards.any?
             customer.cards.each do |card|
               payment_methods << {
                 id: card.id,
-                type: 'card',
+                type: "card",
                 brand: card.card_brand,
                 last4: card.last_4,
                 exp_month: card.exp_month,
@@ -169,7 +169,7 @@ class SquarePaymentService
             end
           end
         end
-        
+
         payment_methods
       else
         []
@@ -183,8 +183,8 @@ class SquarePaymentService
   def create_customer(options = {})
     begin
       request_body = {
-        given_name: options[:first_name] || options[:name]&.split(' ')&.first,
-        family_name: options[:last_name] || options[:name]&.split(' ')&.last,
+        given_name: options[:first_name] || options[:name]&.split(" ")&.first,
+        family_name: options[:last_name] || options[:name]&.split(" ")&.last,
         email_address: options[:email],
         phone_number: options[:phone],
         note: options[:note] || "Customer for #{@integration.festival&.name}",
@@ -224,9 +224,9 @@ class SquarePaymentService
         tax_percentage: options[:tax_percentage],
         price_override_money: options[:price_override] ? {
           amount: options[:price_override],
-          currency: options[:currency] || 'JPY'
+          currency: options[:currency] || "JPY"
         } : nil,
-        timezone: options[:timezone] || 'Asia/Tokyo'
+        timezone: options[:timezone] || "Asia/Tokyo"
       }
 
       response = @subscriptions_api.create_subscription(body: request_body)
@@ -308,11 +308,11 @@ class SquarePaymentService
     begin
       # Square webhook signature verification
       expected_signature = OpenSSL::HMAC.hexdigest(
-        OpenSSL::Digest.new('sha256'),
+        OpenSSL::Digest.new("sha256"),
         webhook_secret,
         "#{@webhook_notification_url}#{payload}"
       )
-      
+
       signature == expected_signature
     rescue => error
       Rails.logger.error "Square webhook signature verification failed: #{error.message}"
@@ -323,24 +323,24 @@ class SquarePaymentService
   def process_webhook(payload)
     begin
       event = JSON.parse(payload)
-      
-      case event['type']
-      when 'payment.updated'
-        handle_payment_updated(event['data']['object'])
-      when 'refund.updated'
-        handle_refund_updated(event['data']['object'])
-      when 'subscription.updated'
-        handle_subscription_updated(event['data']['object'])
-      when 'invoice.updated'
-        handle_invoice_updated(event['data']['object'])
-      when 'customer.updated'
-        handle_customer_updated(event['data']['object'])
+
+      case event["type"]
+      when "payment.updated"
+        handle_payment_updated(event["data"]["object"])
+      when "refund.updated"
+        handle_refund_updated(event["data"]["object"])
+      when "subscription.updated"
+        handle_subscription_updated(event["data"]["object"])
+      when "invoice.updated"
+        handle_invoice_updated(event["data"]["object"])
+      when "customer.updated"
+        handle_customer_updated(event["data"]["object"])
       else
         Rails.logger.info "Unhandled Square webhook event: #{event['type']}"
-        { success: true, message: 'Event received but not processed' }
+        { success: true, message: "Event received but not processed" }
       end
     rescue JSON::ParserError => error
-      { success: false, error: 'Invalid JSON payload' }
+      { success: false, error: "Invalid JSON payload" }
     rescue => error
       Rails.logger.error "Square webhook processing error: #{error.message}"
       { success: false, error: error.message }
@@ -350,11 +350,11 @@ class SquarePaymentService
   def test_connection
     begin
       response = @locations_api.list_locations
-      
+
       if response.success?
-        { success: true, message: 'Square connection successful' }
+        { success: true, message: "Square connection successful" }
       else
-        { success: false, message: 'Square API authentication failed' }
+        { success: false, message: "Square API authentication failed" }
       end
     rescue => error
       { success: false, message: error.message }
@@ -407,7 +407,7 @@ class SquarePaymentService
             timezone: location.timezone
           }
         end
-        
+
         { success: true, locations: locations }
       else
         handle_square_errors(response.errors)
@@ -422,8 +422,8 @@ class SquarePaymentService
   def configure_square
     @client = SquareConnect::ApiClient.new
     @client.config.access_token = @integration.api_key
-    @client.config.environment = @integration.environment || 'sandbox'
-    
+    @client.config.environment = @integration.environment || "sandbox"
+
     # Initialize API instances
     @payments_api = SquareConnect::PaymentsApi.new(@client)
     @refunds_api = SquareConnect::RefundsApi.new(@client)
@@ -443,23 +443,23 @@ class SquarePaymentService
 
   def calculate_app_fee(amount, options)
     return nil unless options[:app_fee_amount]
-    
+
     {
       amount: options[:app_fee_amount],
-      currency: options[:currency] || 'JPY'
+      currency: options[:currency] || "JPY"
     }
   end
 
   def build_billing_address(address_data)
     return nil unless address_data
-    
+
     {
       address_line_1: address_data[:line1],
       address_line_2: address_data[:line2],
       locality: address_data[:city],
       administrative_district_level_1: address_data[:state],
       postal_code: address_data[:postal_code],
-      country: address_data[:country] || 'JP',
+      country: address_data[:country] || "JP",
       first_name: address_data[:first_name],
       last_name: address_data[:last_name]
     }
@@ -467,14 +467,14 @@ class SquarePaymentService
 
   def build_shipping_address(address_data)
     return nil unless address_data
-    
+
     {
       address_line_1: address_data[:line1],
       address_line_2: address_data[:line2],
       locality: address_data[:city],
       administrative_district_level_1: address_data[:state],
       postal_code: address_data[:postal_code],
-      country: address_data[:country] || 'JP',
+      country: address_data[:country] || "JP",
       first_name: address_data[:first_name],
       last_name: address_data[:last_name]
     }
@@ -482,7 +482,7 @@ class SquarePaymentService
 
   def format_address(address)
     return nil unless address
-    
+
     parts = [
       address.address_line_1,
       address.address_line_2,
@@ -490,79 +490,79 @@ class SquarePaymentService
       address.administrative_district_level_1,
       address.postal_code
     ].compact
-    
-    parts.join(', ')
+
+    parts.join(", ")
   end
 
   def webhook_events
     [
-      'payment.updated',
-      'refund.updated',
-      'subscription.updated',
-      'invoice.updated',
-      'customer.updated'
+      "payment.updated",
+      "refund.updated",
+      "subscription.updated",
+      "invoice.updated",
+      "customer.updated"
     ]
   end
 
   def handle_payment_updated(payment)
     {
       success: true,
-      transaction_id: payment['id'],
-      status: payment['status'].downcase,
-      event_type: 'payment_updated',
-      amount: payment['amount_money']['amount'],
-      currency: payment['amount_money']['currency']
+      transaction_id: payment["id"],
+      status: payment["status"].downcase,
+      event_type: "payment_updated",
+      amount: payment["amount_money"]["amount"],
+      currency: payment["amount_money"]["currency"]
     }
   end
 
   def handle_refund_updated(refund)
     {
       success: true,
-      refund_id: refund['id'],
-      transaction_id: refund['payment_id'],
-      status: refund['status'].downcase,
-      event_type: 'refund_updated',
-      amount: refund['amount_money']['amount'],
-      currency: refund['amount_money']['currency']
+      refund_id: refund["id"],
+      transaction_id: refund["payment_id"],
+      status: refund["status"].downcase,
+      event_type: "refund_updated",
+      amount: refund["amount_money"]["amount"],
+      currency: refund["amount_money"]["currency"]
     }
   end
 
   def handle_subscription_updated(subscription)
     {
       success: true,
-      subscription_id: subscription['id'],
-      status: subscription['status'].downcase,
-      event_type: 'subscription_updated'
+      subscription_id: subscription["id"],
+      status: subscription["status"].downcase,
+      event_type: "subscription_updated"
     }
   end
 
   def handle_invoice_updated(invoice)
     {
       success: true,
-      invoice_id: invoice['id'],
-      subscription_id: invoice['subscription_id'],
-      status: invoice['status'].downcase,
-      event_type: 'invoice_updated'
+      invoice_id: invoice["id"],
+      subscription_id: invoice["subscription_id"],
+      status: invoice["status"].downcase,
+      event_type: "invoice_updated"
     }
   end
 
   def handle_customer_updated(customer)
     {
       success: true,
-      customer_id: customer['id'],
-      event_type: 'customer_updated'
+      customer_id: customer["id"],
+      event_type: "customer_updated"
     }
   end
 
   def handle_square_errors(errors)
-    error_messages = errors.map { |error| error.detail }.join('; ')
-    error_codes = errors.map { |error| error.code }.join(', ')
-    
+    error_messages = errors.map { |error| error.detail }.join("; ")
+    error_codes = errors.map { |error| error.code }.join(", ")
+
     {
       success: false,
       error: error_messages,
       error_code: error_codes,
-      error_type: 'square_api_error'
+      error_type: "square_api_error"
     }
   end
 
@@ -570,8 +570,8 @@ class SquarePaymentService
     Rails.logger.error "Unknown Square error: #{error.message}"
     {
       success: false,
-      error: 'An unexpected error occurred',
-      error_type: 'unknown_error'
+      error: "An unexpected error occurred",
+      error_type: "unknown_error"
     }
   end
 end

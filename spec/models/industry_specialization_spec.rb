@@ -76,9 +76,9 @@ RSpec.describe IndustrySpecialization, type: :model do
 
   describe '#config' do
     it 'parses specialization_config as JSON' do
-      config_hash = { 'booth_layout' => 'tech_standard', 'equipment_requirements' => ['wifi', 'power'] }
+      config_hash = { 'booth_layout' => 'tech_standard', 'equipment_requirements' => [ 'wifi', 'power' ] }
       industry_specialization.specialization_config = config_hash.to_json
-      
+
       expect(industry_specialization.config).to eq(config_hash)
     end
 
@@ -90,9 +90,9 @@ RSpec.describe IndustrySpecialization, type: :model do
 
   describe '#compliance' do
     it 'parses compliance_requirements as JSON' do
-      compliance_hash = { 'safety_standards' => ['ISO 9001'], 'certifications' => ['FDA'] }
+      compliance_hash = { 'safety_standards' => [ 'ISO 9001' ], 'certifications' => [ 'FDA' ] }
       industry_specialization.compliance_requirements = compliance_hash.to_json
-      
+
       expect(industry_specialization.compliance).to eq(compliance_hash)
     end
 
@@ -104,9 +104,9 @@ RSpec.describe IndustrySpecialization, type: :model do
 
   describe '#metrics' do
     it 'parses specialized_metrics as JSON' do
-      metrics_hash = { 'kpis' => ['conversion_rate', 'lead_generation'], 'targets' => { 'leads' => 100 } }
+      metrics_hash = { 'kpis' => [ 'conversion_rate', 'lead_generation' ], 'targets' => { 'leads' => 100 } }
       industry_specialization.specialized_metrics = metrics_hash.to_json
-      
+
       expect(industry_specialization.metrics).to eq(metrics_hash)
     end
 
@@ -120,14 +120,14 @@ RSpec.describe IndustrySpecialization, type: :model do
     it 'changes status to active' do
       industry_specialization.status = 'draft'
       industry_specialization.save!
-      
+
       expect { industry_specialization.activate! }.to change { industry_specialization.status }.from('draft').to('active')
     end
 
     it 'sets activated_at timestamp' do
       industry_specialization.activated_at = nil
       industry_specialization.save!
-      
+
       expect { industry_specialization.activate! }.to change { industry_specialization.activated_at }.from(nil)
     end
   end
@@ -136,14 +136,14 @@ RSpec.describe IndustrySpecialization, type: :model do
     it 'changes status to completed' do
       industry_specialization.status = 'active'
       industry_specialization.save!
-      
+
       expect { industry_specialization.complete! }.to change { industry_specialization.status }.from('active').to('completed')
     end
 
     it 'sets completed_at timestamp' do
       industry_specialization.completed_at = nil
       industry_specialization.save!
-      
+
       expect { industry_specialization.complete! }.to change { industry_specialization.completed_at }.from(nil)
     end
   end
@@ -179,7 +179,7 @@ RSpec.describe IndustrySpecialization, type: :model do
         'total_tasks' => 10
       }
       industry_specialization.specialized_metrics = metrics.to_json
-      
+
       expect(industry_specialization.progress_percentage).to eq(80.0)
     end
 
@@ -191,7 +191,7 @@ RSpec.describe IndustrySpecialization, type: :model do
     it 'returns 0 if total_tasks is zero' do
       metrics = { 'completed_tasks' => 0, 'total_tasks' => 0 }
       industry_specialization.specialized_metrics = metrics.to_json
-      
+
       expect(industry_specialization.progress_percentage).to eq(0.0)
     end
   end
@@ -206,7 +206,7 @@ RSpec.describe IndustrySpecialization, type: :model do
         ]
       }
       industry_specialization.compliance_requirements = compliance.to_json
-      
+
       expect(industry_specialization.compliance_score).to eq(66.7)
     end
 
@@ -219,10 +219,10 @@ RSpec.describe IndustrySpecialization, type: :model do
   describe '#update_metrics!' do
     it 'updates specialized metrics with new data' do
       new_metrics = { 'leads_generated' => 45, 'conversion_rate' => 12.5 }
-      
+
       expect { industry_specialization.update_metrics!(new_metrics) }
         .to change { industry_specialization.specialized_metrics }
-      
+
       expect(industry_specialization.metrics).to include(new_metrics.stringify_keys)
     end
 
@@ -230,10 +230,10 @@ RSpec.describe IndustrySpecialization, type: :model do
       existing_metrics = { 'total_leads' => 100 }
       industry_specialization.specialized_metrics = existing_metrics.to_json
       industry_specialization.save!
-      
+
       new_metrics = { 'conversion_rate' => 15.0 }
       industry_specialization.update_metrics!(new_metrics)
-      
+
       updated_metrics = industry_specialization.metrics
       expect(updated_metrics['total_leads']).to eq(100)
       expect(updated_metrics['conversion_rate']).to eq(15.0)
@@ -256,10 +256,10 @@ RSpec.describe IndustrySpecialization, type: :model do
   describe 'database constraints' do
     it 'enforces uniqueness of festival and industry_type combination' do
       existing = create(:industry_specialization, industry_type: 'technology')
-      duplicate = build(:industry_specialization, 
-                       festival: existing.festival, 
+      duplicate = build(:industry_specialization,
+                       festival: existing.festival,
                        industry_type: 'technology')
-      
+
       expect { duplicate.save! }.to raise_error(ActiveRecord::RecordInvalid)
     end
   end

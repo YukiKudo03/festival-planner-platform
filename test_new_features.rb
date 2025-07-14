@@ -42,7 +42,7 @@ specialization = festival.industry_specializations.create!(
   industry_type: "technology",
   specialization_level: "basic",
   certification_required: false,
-  compliance_standards: ["ISO 27001"],
+  compliance_standards: [ "ISO 27001" ],
   specialized_features: { "demo_stations" => true }
 )
 puts "✅ IndustrySpecialization作成成功: #{specialization.industry_name}"
@@ -57,8 +57,8 @@ collaboration = festival.tourism_collaborations.create!(
   end_date: Date.current + 40.days,
   budget_allocation: 500000,
   expected_visitors: 10000,
-  marketing_objectives: ["観光客増加"],
-  promotional_channels: ["SNS", "Web広告"]
+  marketing_objectives: [ "観光客増加" ],
+  promotional_channels: [ "SNS", "Web広告" ]
 )
 puts "✅ TourismCollaboration作成成功: #{collaboration.collaboration_type_name}"
 

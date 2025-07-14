@@ -21,7 +21,7 @@ class LineIntegration < ApplicationRecord
 
   scope :active_integrations, -> { where(is_active: true, status: :active) }
   scope :for_festival, ->(festival) { where(festival: festival) }
-  scope :recent_activity, -> { where('last_webhook_received_at > ?', 1.hour.ago) }
+  scope :recent_activity, -> { where("last_webhook_received_at > ?", 1.hour.ago) }
 
   before_create :set_default_settings
   after_create :initialize_webhook
@@ -35,7 +35,7 @@ class LineIntegration < ApplicationRecord
   end
 
   def active?
-    is_active? && status == 'active'
+    is_active? && status == "active"
   end
 
   def can_send_notifications?
@@ -48,7 +48,7 @@ class LineIntegration < ApplicationRecord
 
   def sync_groups!
     return false unless active?
-    
+
     LineIntegrationService.new(self).sync_groups
     update!(last_sync_at: Time.current)
   rescue => e
@@ -59,7 +59,7 @@ class LineIntegration < ApplicationRecord
 
   def test_connection
     return false unless line_access_token.present?
-    
+
     LineIntegrationService.new(self).test_connection
   rescue => e
     Rails.logger.error "LINE connection test failed for integration #{id}: #{e.message}"
@@ -68,7 +68,7 @@ class LineIntegration < ApplicationRecord
 
   def send_notification(message, group_id = nil)
     return false unless can_send_notifications?
-    
+
     LineIntegrationService.new(self).send_message(message, group_id)
   rescue => e
     Rails.logger.error "Failed to send LINE notification for integration #{id}: #{e.message}"
@@ -80,13 +80,13 @@ class LineIntegration < ApplicationRecord
   end
 
   def encryption_key
-    Rails.application.credentials.line_encryption_key || 'default_key'
+    Rails.application.credentials.line_encryption_key || "default_key"
   end
 
   def encrypted_access_token
     return nil unless line_access_token.present?
-    
-    cipher = OpenSSL::Cipher.new('AES-256-CBC')
+
+    cipher = OpenSSL::Cipher.new("AES-256-CBC")
     cipher.encrypt
     cipher.key = Digest::SHA256.digest(encryption_key)
     Base64.encode64(cipher.update(line_access_token) + cipher.final)
@@ -94,8 +94,8 @@ class LineIntegration < ApplicationRecord
 
   def decrypt_access_token(encrypted_token)
     return nil unless encrypted_token.present?
-    
-    cipher = OpenSSL::Cipher.new('AES-256-CBC')
+
+    cipher = OpenSSL::Cipher.new("AES-256-CBC")
     cipher.decrypt
     cipher.key = Digest::SHA256.digest(encryption_key)
     cipher.update(Base64.decode64(encrypted_token)) + cipher.final
@@ -116,12 +116,12 @@ class LineIntegration < ApplicationRecord
       message_parsing_enabled: true,
       debug_mode: Rails.env.development?,
       webhook_signature_verification: true,
-      allowed_message_types: ['text', 'sticker'],
-      task_keywords: ['タスク', 'やること', 'TODO', '作業', '仕事'],
+      allowed_message_types: [ "text", "sticker" ],
+      task_keywords: [ "タスク", "やること", "TODO", "作業", "仕事" ],
       priority_keywords: {
-        'high' => ['緊急', '急ぎ', '重要', '至急'],
-        'medium' => ['普通', '通常'],
-        'low' => ['後で', 'あとで', '低優先度']
+        "high" => [ "緊急", "急ぎ", "重要", "至急" ],
+        "medium" => [ "普通", "通常" ],
+        "low" => [ "後で", "あとで", "低優先度" ]
       }
     }
   end
@@ -136,8 +136,8 @@ class LineIntegration < ApplicationRecord
       festival_updates: true,
       system_notifications: false,
       notification_times: {
-        start: '09:00',
-        end: '18:00'
+        start: "09:00",
+        end: "18:00"
       },
       quiet_hours_enabled: true,
       mention_only: false

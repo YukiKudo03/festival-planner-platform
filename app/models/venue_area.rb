@@ -15,23 +15,23 @@ class VenueArea < ApplicationRecord
   validates :area_type, inclusion: { in: AREA_TYPES }
 
   scope :by_type, ->(type) { where(area_type: type) }
-  scope :vendor_areas, -> { where(area_type: 'vendor_area') }
+  scope :vendor_areas, -> { where(area_type: "vendor_area") }
   scope :ordered_by_position, -> { order(:x_position, :y_position) }
 
   def area_type_text
     case area_type
-    when 'vendor_area' then 'ベンダーエリア'
-    when 'food_court' then 'フードコート'
-    when 'stage' then 'ステージ'
-    when 'seating' then '観客席'
-    when 'performance_area' then 'パフォーマンスエリア'
-    when 'entrance' then '入場口'
-    when 'parking' then '駐車場'
-    when 'restroom' then 'トイレ'
-    when 'first_aid' then '救護所'
-    when 'storage' then '倉庫'
-    when 'staff_area' then 'スタッフエリア'
-    when 'vip_area' then 'VIPエリア'
+    when "vendor_area" then "ベンダーエリア"
+    when "food_court" then "フードコート"
+    when "stage" then "ステージ"
+    when "seating" then "観客席"
+    when "performance_area" then "パフォーマンスエリア"
+    when "entrance" then "入場口"
+    when "parking" then "駐車場"
+    when "restroom" then "トイレ"
+    when "first_aid" then "救護所"
+    when "storage" then "倉庫"
+    when "staff_area" then "スタッフエリア"
+    when "vip_area" then "VIPエリア"
     else area_type.humanize
     end
   end
@@ -41,17 +41,17 @@ class VenueArea < ApplicationRecord
   end
 
   def occupied_booths_count
-    booths.where.not(status: ['available', 'reserved']).count
+    booths.where.not(status: [ "available", "reserved" ]).count
   end
 
   def available_booths_count
-    booths.where(status: 'available').count
+    booths.where(status: "available").count
   end
 
   def occupancy_rate
     total = booths.count
     return 0 if total.zero?
-    
+
     occupied = occupied_booths_count
     (occupied.to_f / total * 100).round(2)
   end
@@ -65,7 +65,7 @@ class VenueArea < ApplicationRecord
 
   def overlaps_with?(other_area)
     return false if other_area == self
-    
+
     # Simple bounding box check
     !(x_position + width < other_area.x_position ||
       other_area.x_position + other_area.width < x_position ||
@@ -76,10 +76,10 @@ class VenueArea < ApplicationRecord
   def distance_to(other_area)
     center = center_point
     other_center = other_area.center_point
-    
+
     dx = other_center[:x] - center[:x]
     dy = other_center[:y] - center[:y]
-    
+
     Math.sqrt(dx**2 + dy**2).round(2)
   end
 

@@ -6,7 +6,7 @@ RSpec.describe User, type: :model do
     it { should validate_presence_of(:last_name) }
     it { should validate_presence_of(:email) }
     it { should validate_uniqueness_of(:email).case_insensitive }
-    
+
     it 'validates phone format' do
       user = build(:user, phone: 'invalid-phone')
       expect(user).not_to be_valid
@@ -65,7 +65,7 @@ RSpec.describe User, type: :model do
       it 'returns count of unread notifications' do
         create_list(:notification, 3, recipient: user, read_at: nil)
         create(:notification, recipient: user, read_at: 1.hour.ago)
-        
+
         expect(user.unread_notifications_count).to eq(3)
       end
     end

@@ -35,5 +35,4 @@ RSpec.describe "Admin::BudgetReports", type: :request do
       expect(response).to have_http_status(:success)
     end
   end
-
 end

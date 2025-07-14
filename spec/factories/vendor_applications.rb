@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :vendor_application do
     business_name { Faker::Company.name }
-    business_type { ['Food Service', 'Handicrafts', 'Entertainment', 'Retail'].sample }
+    business_type { [ 'Food Service', 'Handicrafts', 'Entertainment', 'Retail' ].sample }
     description { Faker::Lorem.paragraph }
     requirements { Faker::Lorem.sentence }
     status { :draft }

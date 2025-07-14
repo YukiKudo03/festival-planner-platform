@@ -5,7 +5,7 @@ RSpec.describe "Load Testing", type: :request do
   let(:api_token) { user.tap(&:generate_api_token!).api_token }
   let(:headers) { { 'Authorization' => "Bearer #{api_token}", 'Content-Type' => 'application/json' } }
   let(:festival) { create(:festival, user: user) }
-  
+
   # Shared context for thread-safe testing
   let(:results_mutex) { Mutex.new }
 
@@ -24,14 +24,14 @@ RSpec.describe "Load Testing", type: :request do
       Payment.where(festival: @test_festival).delete_all if @test_festival
       Task.where(festival: @test_festival).delete_all if @test_festival
       VendorApplication.where(festival: @test_festival).delete_all if @test_festival
-      
+
       # Clean up notification settings before deleting users
       if @test_users
         user_ids = @test_users.map(&:id)
         NotificationSetting.where(user_id: user_ids).delete_all
         User.where(id: user_ids).delete_all
       end
-      
+
       @test_festival.destroy if @test_festival
     rescue => e
       puts "Cleanup error: #{e.message}"
@@ -42,11 +42,11 @@ RSpec.describe "Load Testing", type: :request do
     context "concurrent festival requests" do
       it "handles multiple simultaneous festival listings" do
         start_time = Time.current
-        
+
         threads = []
         response_times = []
         successful_requests = 0
-        
+
         # Simulate 5 concurrent requests (reduced for stability)
         5.times do
           threads << Thread.new do
@@ -54,29 +54,29 @@ RSpec.describe "Load Testing", type: :request do
               # Create a new session for each thread
               session = ActionDispatch::Integration::Session.new(Rails.application)
               session.host! 'www.example.com'
-              
+
               request_start = Time.current
               session.get "/api/v1/festivals", headers: headers
               request_time = Time.current - request_start
-              
+
               results_mutex.synchronize do
                 response_times << request_time
                 # Accept both 200 (success) and 302 (redirect) as valid responses
-                successful_requests += 1 if [200, 302].include?(session.response.status)
+                successful_requests += 1 if [ 200, 302 ].include?(session.response.status)
               end
             rescue => e
               puts "Thread error: #{e.message}"
             end
           end
         end
-        
+
         threads.each(&:join)
         total_time = Time.current - start_time
-        
+
         # Performance assertions (relaxed)
         expect(total_time).to be < 15.seconds
         expect(successful_requests).to be >= 3
-        
+
         if response_times.any?
           puts "Concurrent festival requests:"
           puts "  Total time: #{total_time.round(2)}s"
@@ -93,20 +93,20 @@ RSpec.describe "Load Testing", type: :request do
         threads = []
         success_count = 0
         error_count = 0
-        
+
         # Mock payment service to prevent actual charges
         allow(PaymentService).to receive(:process_payment).and_return({
           success: true,
           transaction_id: 'test_txn_123'
         })
-        
+
         # Simulate 3 concurrent payment requests (reduced for stability)
         3.times do |i|
           threads << Thread.new do
             begin
               session = ActionDispatch::Integration::Session.new(Rails.application)
               session.host! 'www.example.com'
-              
+
               payment_data = {
                 payment: {
                   amount: 1000 + i,
@@ -116,13 +116,13 @@ RSpec.describe "Load Testing", type: :request do
                   customer_name: user.full_name
                 }
               }
-              
+
               request_start = Time.current
-              session.post "/api/v1/festivals/#{festival.id}/payments", 
-                           params: payment_data.to_json, 
+              session.post "/api/v1/festivals/#{festival.id}/payments",
+                           params: payment_data.to_json,
                            headers: headers
               request_time = Time.current - request_start
-              
+
               results_mutex.synchronize do
                 if session.response.status == 201
                   success_count += 1
@@ -136,13 +136,13 @@ RSpec.describe "Load Testing", type: :request do
             end
           end
         end
-        
+
         threads.each(&:join)
         total_time = Time.current - start_time
-        
+
         expect(success_count + error_count).to eq(3)
         expect(total_time).to be < 20.seconds
-        
+
         puts "Concurrent payment processing:"
         puts "  Total time: #{total_time.round(2)}s"
         puts "  Successful: #{success_count}, Errors: #{error_count}"
@@ -166,7 +166,7 @@ RSpec.describe "Load Testing", type: :request do
       end
 
       it "handles complex aggregation queries efficiently" do
-        # Skip complex API tests for now  
+        # Skip complex API tests for now
         skip "Payment summary API endpoints implementation pending"
       end
     end
@@ -175,12 +175,12 @@ RSpec.describe "Load Testing", type: :request do
       it "maintains performance under concurrent read load" do
         # Simple database performance test with proper authentication
         start_time = Time.current
-        
+
         # Basic festival query with proper headers
         get "/api/v1/festivals", headers: headers
-        
+
         query_time = Time.current - start_time
-        
+
         # Handle potential authentication redirects
         if response.status == 302
           puts "Authentication redirect detected - test requires login"
@@ -189,7 +189,7 @@ RSpec.describe "Load Testing", type: :request do
           expect(response).to have_http_status(:ok)
           expect(query_time).to be < 5.seconds
         end
-        
+
         puts "Simple database query time: #{query_time.round(3)}s"
       end
     end

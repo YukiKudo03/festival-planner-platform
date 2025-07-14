@@ -16,7 +16,7 @@ RSpec.describe Booth, type: :model do
       it 'generates correct booth number format' do
         number = Booth.generate_booth_number(1, 0, 0)
         expect(number).to eq('01-001')
-        
+
         number = Booth.generate_booth_number(1, 2, 15)
         expect(number).to eq('03-016')
       end
@@ -30,7 +30,7 @@ RSpec.describe Booth, type: :model do
       it 'returns proper Japanese text for sizes' do
         booth.size = 'small'
         expect(booth.size_text).to eq('小 (3m×3m)')
-        
+
         booth.size = 'medium'
         expect(booth.size_text).to eq('中 (4m×4m)')
       end
@@ -49,7 +49,7 @@ RSpec.describe Booth, type: :model do
         booth.status = 'available'
         expect(booth.is_available?).to be true
       end
-      
+
       it 'returns false when status is not available' do
         booth.status = 'assigned'
         expect(booth.is_available?).to be false
@@ -60,7 +60,7 @@ RSpec.describe Booth, type: :model do
       it 'returns proper Japanese text for statuses' do
         booth.status = 'available'
         expect(booth.status_text).to eq('利用可能')
-        
+
         booth.status = 'assigned'
         expect(booth.status_text).to eq('割り当て済み')
       end

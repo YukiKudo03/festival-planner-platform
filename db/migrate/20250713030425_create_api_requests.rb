@@ -12,13 +12,13 @@ class CreateApiRequests < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :api_requests, :endpoint
     add_index :api_requests, :method
     add_index :api_requests, :ip_address
     add_index :api_requests, :response_status
     add_index :api_requests, :created_at
-    add_index :api_requests, [:api_key_id, :created_at]
-    add_index :api_requests, [:response_status, :created_at]
+    add_index :api_requests, [ :api_key_id, :created_at ]
+    add_index :api_requests, [ :response_status, :created_at ]
   end
 end

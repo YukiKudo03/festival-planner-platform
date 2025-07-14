@@ -18,9 +18,9 @@ class CreateLineMessages < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :line_messages, :line_message_id, unique: true
-    add_index :line_messages, [:line_group_id, :line_timestamp]
+    add_index :line_messages, [ :line_group_id, :line_timestamp ]
     add_index :line_messages, :is_processed
     add_index :line_messages, :intent_type
     add_index :line_messages, :sender_line_user_id

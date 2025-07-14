@@ -9,13 +9,13 @@ class StripePaymentService
     begin
       payment_intent = @stripe_client::PaymentIntent.create({
         amount: amount,
-        currency: options[:currency] || 'jpy',
+        currency: options[:currency] || "jpy",
         payment_method: options[:payment_method],
         customer: options[:customer_id],
         metadata: build_metadata(options),
         description: options[:description] || "Payment for #{@integration.festival&.name}",
         receipt_email: options[:receipt_email],
-        setup_future_usage: options[:save_payment_method] ? 'on_session' : nil
+        setup_future_usage: options[:save_payment_method] ? "on_session" : nil
       })
 
       {
@@ -46,7 +46,7 @@ class StripePaymentService
     begin
       payment_intent = @stripe_client::PaymentIntent.create({
         amount: amount,
-        currency: options[:currency] || 'jpy',
+        currency: options[:currency] || "jpy",
         customer: options[:customer_id],
         metadata: build_metadata(options),
         description: options[:description] || "Payment intent for #{@integration.festival&.name}",
@@ -76,7 +76,7 @@ class StripePaymentService
     begin
       refund_params = {
         payment_intent: transaction_id,
-        reason: reason || 'requested_by_customer'
+        reason: reason || "requested_by_customer"
       }
       refund_params[:amount] = amount if amount.present?
 
@@ -102,7 +102,7 @@ class StripePaymentService
     begin
       payment_methods = @stripe_client::PaymentMethod.list({
         customer: @integration.stripe_customer_id,
-        type: 'card'
+        type: "card"
       })
 
       payment_methods.data.map do |pm|
@@ -150,12 +150,12 @@ class StripePaymentService
     begin
       subscription = @stripe_client::Subscription.create({
         customer: customer_id,
-        items: [{ price: price_id }],
+        items: [ { price: price_id } ],
         metadata: build_metadata(options),
         trial_period_days: options[:trial_days],
-        payment_behavior: 'default_incomplete',
-        payment_settings: { save_default_payment_method: 'on_subscription' },
-        expand: ['latest_invoice.payment_intent']
+        payment_behavior: "default_incomplete",
+        payment_settings: { save_default_payment_method: "on_subscription" },
+        expand: [ "latest_invoice.payment_intent" ]
       })
 
       {
@@ -236,30 +236,30 @@ class StripePaymentService
   def process_webhook(payload)
     begin
       event = JSON.parse(payload)
-      
-      case event['type']
-      when 'payment_intent.succeeded'
-        handle_payment_succeeded(event['data']['object'])
-      when 'payment_intent.payment_failed'
-        handle_payment_failed(event['data']['object'])
-      when 'payment_intent.canceled'
-        handle_payment_canceled(event['data']['object'])
-      when 'invoice.payment_succeeded'
-        handle_invoice_payment_succeeded(event['data']['object'])
-      when 'invoice.payment_failed'
-        handle_invoice_payment_failed(event['data']['object'])
-      when 'customer.subscription.created'
-        handle_subscription_created(event['data']['object'])
-      when 'customer.subscription.updated'
-        handle_subscription_updated(event['data']['object'])
-      when 'customer.subscription.deleted'
-        handle_subscription_deleted(event['data']['object'])
+
+      case event["type"]
+      when "payment_intent.succeeded"
+        handle_payment_succeeded(event["data"]["object"])
+      when "payment_intent.payment_failed"
+        handle_payment_failed(event["data"]["object"])
+      when "payment_intent.canceled"
+        handle_payment_canceled(event["data"]["object"])
+      when "invoice.payment_succeeded"
+        handle_invoice_payment_succeeded(event["data"]["object"])
+      when "invoice.payment_failed"
+        handle_invoice_payment_failed(event["data"]["object"])
+      when "customer.subscription.created"
+        handle_subscription_created(event["data"]["object"])
+      when "customer.subscription.updated"
+        handle_subscription_updated(event["data"]["object"])
+      when "customer.subscription.deleted"
+        handle_subscription_deleted(event["data"]["object"])
       else
         Rails.logger.info "Unhandled Stripe webhook event: #{event['type']}"
-        { success: true, message: 'Event received but not processed' }
+        { success: true, message: "Event received but not processed" }
       end
     rescue JSON::ParserError => error
-      { success: false, error: 'Invalid JSON payload' }
+      { success: false, error: "Invalid JSON payload" }
     rescue => error
       Rails.logger.error "Stripe webhook processing error: #{error.message}"
       { success: false, error: error.message }
@@ -269,11 +269,11 @@ class StripePaymentService
   def test_connection
     begin
       @stripe_client::Account.retrieve
-      { success: true, message: 'Stripe connection successful' }
+      { success: true, message: "Stripe connection successful" }
     rescue Stripe::AuthenticationError => error
-      { success: false, message: 'Invalid API key' }
+      { success: false, message: "Invalid API key" }
     rescue Stripe::APIConnectionError => error
-      { success: false, message: 'Network connection failed' }
+      { success: false, message: "Network connection failed" }
     rescue Stripe::StripeError => error
       { success: false, message: error.message }
     end
@@ -282,7 +282,7 @@ class StripePaymentService
   def get_transaction_details(transaction_id)
     begin
       payment_intent = @stripe_client::PaymentIntent.retrieve(transaction_id)
-      
+
       {
         success: true,
         transaction_id: payment_intent.id,
@@ -309,7 +309,7 @@ class StripePaymentService
 
   def configure_stripe
     @stripe_client.api_key = @integration.api_key
-    @stripe_client.api_version = '2023-10-16'
+    @stripe_client.api_version = "2023-10-16"
   end
 
   def build_metadata(options)
@@ -317,10 +317,10 @@ class StripePaymentService
       integration_id: @integration.id.to_s,
       user_id: @integration.user_id.to_s
     }
-    
+
     metadata[:festival_id] = @integration.festival_id.to_s if @integration.festival_id
     metadata.merge!(options[:metadata] || {})
-    
+
     # Stripe metadata values must be strings and max 500 chars each
     metadata.transform_values { |v| v.to_s.slice(0, 500) }
   end
@@ -333,110 +333,110 @@ class StripePaymentService
 
   def webhook_events
     [
-      'payment_intent.succeeded',
-      'payment_intent.payment_failed',
-      'payment_intent.canceled',
-      'invoice.payment_succeeded',
-      'invoice.payment_failed',
-      'customer.subscription.created',
-      'customer.subscription.updated',
-      'customer.subscription.deleted',
-      'payment_method.attached',
-      'setup_intent.succeeded'
+      "payment_intent.succeeded",
+      "payment_intent.payment_failed",
+      "payment_intent.canceled",
+      "invoice.payment_succeeded",
+      "invoice.payment_failed",
+      "customer.subscription.created",
+      "customer.subscription.updated",
+      "customer.subscription.deleted",
+      "payment_method.attached",
+      "setup_intent.succeeded"
     ]
   end
 
   def handle_payment_succeeded(payment_intent)
     Rails.logger.info "Stripe payment succeeded: #{payment_intent['id']}"
-    
+
     {
       success: true,
-      transaction_id: payment_intent['id'],
-      status: 'succeeded',
-      event_type: 'payment_succeeded',
-      amount: payment_intent['amount'],
-      currency: payment_intent['currency']
+      transaction_id: payment_intent["id"],
+      status: "succeeded",
+      event_type: "payment_succeeded",
+      amount: payment_intent["amount"],
+      currency: payment_intent["currency"]
     }
   end
 
   def handle_payment_failed(payment_intent)
     Rails.logger.warn "Stripe payment failed: #{payment_intent['id']}"
-    
+
     {
       success: true,
-      transaction_id: payment_intent['id'],
-      status: 'failed',
-      event_type: 'payment_failed',
-      error: payment_intent['last_payment_error']&.dig('message'),
-      amount: payment_intent['amount'],
-      currency: payment_intent['currency']
+      transaction_id: payment_intent["id"],
+      status: "failed",
+      event_type: "payment_failed",
+      error: payment_intent["last_payment_error"]&.dig("message"),
+      amount: payment_intent["amount"],
+      currency: payment_intent["currency"]
     }
   end
 
   def handle_payment_canceled(payment_intent)
     Rails.logger.info "Stripe payment canceled: #{payment_intent['id']}"
-    
+
     {
       success: true,
-      transaction_id: payment_intent['id'],
-      status: 'canceled',
-      event_type: 'payment_canceled',
-      amount: payment_intent['amount'],
-      currency: payment_intent['currency']
+      transaction_id: payment_intent["id"],
+      status: "canceled",
+      event_type: "payment_canceled",
+      amount: payment_intent["amount"],
+      currency: payment_intent["currency"]
     }
   end
 
   def handle_invoice_payment_succeeded(invoice)
     {
       success: true,
-      transaction_id: invoice['payment_intent'],
-      status: 'succeeded',
-      event_type: 'subscription_payment_succeeded',
-      subscription_id: invoice['subscription'],
-      amount: invoice['amount_paid'],
-      currency: invoice['currency']
+      transaction_id: invoice["payment_intent"],
+      status: "succeeded",
+      event_type: "subscription_payment_succeeded",
+      subscription_id: invoice["subscription"],
+      amount: invoice["amount_paid"],
+      currency: invoice["currency"]
     }
   end
 
   def handle_invoice_payment_failed(invoice)
     {
       success: true,
-      transaction_id: invoice['payment_intent'],
-      status: 'failed',
-      event_type: 'subscription_payment_failed',
-      subscription_id: invoice['subscription'],
-      amount: invoice['amount_due'],
-      currency: invoice['currency']
+      transaction_id: invoice["payment_intent"],
+      status: "failed",
+      event_type: "subscription_payment_failed",
+      subscription_id: invoice["subscription"],
+      amount: invoice["amount_due"],
+      currency: invoice["currency"]
     }
   end
 
   def handle_subscription_created(subscription)
     {
       success: true,
-      subscription_id: subscription['id'],
-      status: subscription['status'],
-      event_type: 'subscription_created',
-      customer_id: subscription['customer']
+      subscription_id: subscription["id"],
+      status: subscription["status"],
+      event_type: "subscription_created",
+      customer_id: subscription["customer"]
     }
   end
 
   def handle_subscription_updated(subscription)
     {
       success: true,
-      subscription_id: subscription['id'],
-      status: subscription['status'],
-      event_type: 'subscription_updated',
-      customer_id: subscription['customer']
+      subscription_id: subscription["id"],
+      status: subscription["status"],
+      event_type: "subscription_updated",
+      customer_id: subscription["customer"]
     }
   end
 
   def handle_subscription_deleted(subscription)
     {
       success: true,
-      subscription_id: subscription['id'],
-      status: 'canceled',
-      event_type: 'subscription_canceled',
-      customer_id: subscription['customer']
+      subscription_id: subscription["id"],
+      status: "canceled",
+      event_type: "subscription_canceled",
+      customer_id: subscription["customer"]
     }
   end
 
@@ -445,7 +445,7 @@ class StripePaymentService
       success: false,
       error: error.message,
       error_code: error.code,
-      error_type: 'card_error',
+      error_type: "card_error",
       decline_code: error.decline_code
     }
   end
@@ -455,24 +455,24 @@ class StripePaymentService
       success: false,
       error: error.message,
       error_code: error.code,
-      error_type: 'invalid_request'
+      error_type: "invalid_request"
     }
   end
 
   def handle_authentication_error(error)
     {
       success: false,
-      error: 'Authentication failed - check API key',
+      error: "Authentication failed - check API key",
       error_code: error.code,
-      error_type: 'authentication_error'
+      error_type: "authentication_error"
     }
   end
 
   def handle_connection_error(error)
     {
       success: false,
-      error: 'Network connection failed',
-      error_type: 'connection_error'
+      error: "Network connection failed",
+      error_type: "connection_error"
     }
   end
 
@@ -481,7 +481,7 @@ class StripePaymentService
       success: false,
       error: error.message,
       error_code: error.code,
-      error_type: 'stripe_error'
+      error_type: "stripe_error"
     }
   end
 
@@ -489,8 +489,8 @@ class StripePaymentService
     Rails.logger.error "Unknown Stripe error: #{error.message}"
     {
       success: false,
-      error: 'An unexpected error occurred',
-      error_type: 'unknown_error'
+      error: "An unexpected error occurred",
+      error_type: "unknown_error"
     }
   end
 end

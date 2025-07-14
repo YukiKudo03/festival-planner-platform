@@ -13,7 +13,7 @@ class NotificationChannel < ApplicationCable::Channel
 
   def mark_as_read(data)
     if current_user
-      notification = current_user.received_notifications.find_by(id: data['notification_id'])
+      notification = current_user.received_notifications.find_by(id: data["notification_id"])
       notification&.mark_as_read!
     end
   end

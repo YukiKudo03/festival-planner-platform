@@ -1,8 +1,8 @@
 class Admin::VenuesController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_admin!
-  before_action :set_venue, only: [:show, :edit, :update, :destroy, :layout_editor]
-  before_action :set_festival, only: [:index, :new, :create]
+  before_action :set_venue, only: [ :show, :edit, :update, :destroy, :layout_editor ]
+  before_action :set_festival, only: [ :index, :new, :create ]
 
   def index
     @venues = @festival.venues.includes(:venue_areas, :booths)
@@ -22,9 +22,9 @@ class Admin::VenuesController < ApplicationController
 
   def create
     @venue = @festival.venues.build(venue_params)
-    
+
     if @venue.save
-      redirect_to admin_festival_venue_path(@festival, @venue), notice: '会場が正常に作成されました。'
+      redirect_to admin_festival_venue_path(@festival, @venue), notice: "会場が正常に作成されました。"
     else
       render :new, status: :unprocessable_entity
     end
@@ -35,7 +35,7 @@ class Admin::VenuesController < ApplicationController
 
   def update
     if @venue.update(venue_params)
-      redirect_to admin_festival_venue_path(@festival, @venue), notice: '会場が正常に更新されました。'
+      redirect_to admin_festival_venue_path(@festival, @venue), notice: "会場が正常に更新されました。"
     else
       render :edit, status: :unprocessable_entity
     end
@@ -43,7 +43,7 @@ class Admin::VenuesController < ApplicationController
 
   def destroy
     @venue.destroy
-    redirect_to admin_festival_venues_path(@festival), notice: '会場が正常に削除されました。'
+    redirect_to admin_festival_venues_path(@festival), notice: "会場が正常に削除されました。"
   end
 
   def layout_editor

@@ -51,43 +51,43 @@ FactoryBot.define do
     trait :cancelled do
       status { :cancelled }
     end
-    
+
     trait :public_festival do
       public { true }
     end
-    
+
     trait :private_festival do
       public { false }
     end
-    
+
     trait :with_capacity do
       capacity { 1000 }
     end
-    
+
     trait :with_venue do
       after(:create) do |festival|
         create(:venue, festival: festival)
       end
     end
-    
+
     trait :with_budget_categories do
       after(:create) do |festival|
         create_list(:budget_category, 3, festival: festival)
       end
     end
-    
+
     trait :with_tasks do
       after(:create) do |festival|
         create_list(:task, 5, festival: festival)
       end
     end
-    
+
     trait :with_vendor_applications do
       after(:create) do |festival|
         create_list(:vendor_application, 3, festival: festival)
       end
     end
-    
+
     trait :with_payments do
       after(:create) do |festival|
         create_list(:payment, 2, festival: festival)

@@ -1,5 +1,5 @@
 class NotificationMailer < ApplicationMailer
-  default from: 'noreply@festival-planner.com'
+  default from: "noreply@festival-planner.com"
 
   def send_notification(notification)
     @notification = notification

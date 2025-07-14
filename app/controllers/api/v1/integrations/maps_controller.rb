@@ -1,15 +1,15 @@
 class Api::V1::Integrations::MapsController < Api::V1::BaseController
-  before_action :set_location_integration, only: [:show, :update, :destroy, :geocode, :reverse_geocode,
+  before_action :set_location_integration, only: [ :show, :update, :destroy, :geocode, :reverse_geocode,
                                                    :directions, :nearby_places, :place_details, :static_map,
-                                                   :traffic_info, :travel_time_matrix, :test_connection]
+                                                   :traffic_info, :travel_time_matrix, :test_connection ]
 
   # GET /api/v1/integrations/maps
   def index
     integrations = current_user.location_integrations.includes(:festival)
     integrations = integrations.where(festival_id: params[:festival_id]) if params[:festival_id]
     integrations = integrations.where(provider: params[:provider]) if params[:provider]
-    integrations = integrations.where(active: true) if params[:active] == 'true'
-    
+    integrations = integrations.where(active: true) if params[:active] == "true"
+
     render json: {
       integrations: integrations.map { |integration| serialize_integration(integration) }
     }
@@ -25,25 +25,25 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
   # POST /api/v1/integrations/maps
   def create
     @integration = current_user.location_integrations.build(integration_params)
-    
+
     if @integration.save
       # Test the connection
       test_result = test_location_connection(@integration)
-      
+
       if test_result[:success]
         @integration.update(status: :connected)
-        
+
         render json: {
           integration: serialize_integration_detailed(@integration),
-          message: 'Location integration created successfully',
+          message: "Location integration created successfully",
           connection_test: test_result
         }, status: :created
       else
         @integration.update(status: :error, last_error: test_result[:message])
-        
+
         render json: {
           integration: serialize_integration_detailed(@integration),
-          message: 'Location integration created but connection failed',
+          message: "Location integration created but connection failed",
           connection_test: test_result
         }, status: :created
       end
@@ -60,7 +60,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
     if @integration.update(integration_params)
       render json: {
         integration: serialize_integration_detailed(@integration),
-        message: 'Location integration updated successfully'
+        message: "Location integration updated successfully"
       }
     else
       render json: {
@@ -74,7 +74,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
   def destroy
     @integration.destroy
     render json: {
-      message: 'Location integration deleted successfully'
+      message: "Location integration deleted successfully"
     }
   end
 
@@ -82,13 +82,13 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
   def geocode
     unless @integration.supports_geocoding?
       return render json: {
-        error: 'Geocoding is not supported for this provider'
+        error: "Geocoding is not supported for this provider"
       }, status: :unprocessable_entity
     end
 
     unless params[:address].present?
       return render json: {
-        error: 'Address parameter is required'
+        error: "Address parameter is required"
       }, status: :bad_request
     end
 
@@ -96,7 +96,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
 
     if result[:success]
       # Log the geocoding event
-      log_location_event('geocoding', {
+      log_location_event("geocoding", {
         address: params[:address],
         latitude: result[:latitude],
         longitude: result[:longitude]
@@ -108,7 +108,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
       }
     else
       render json: {
-        error: 'Geocoding failed',
+        error: "Geocoding failed",
         details: result[:error]
       }, status: :unprocessable_entity
     end
@@ -118,13 +118,13 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
   def reverse_geocode
     unless @integration.supports_geocoding?
       return render json: {
-        error: 'Reverse geocoding is not supported for this provider'
+        error: "Reverse geocoding is not supported for this provider"
       }, status: :unprocessable_entity
     end
 
     unless params[:latitude].present? && params[:longitude].present?
       return render json: {
-        error: 'Latitude and longitude parameters are required'
+        error: "Latitude and longitude parameters are required"
       }, status: :bad_request
     end
 
@@ -132,7 +132,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
 
     if result[:success]
       # Log the reverse geocoding event
-      log_location_event('reverse_geocoding', {
+      log_location_event("reverse_geocoding", {
         latitude: params[:latitude],
         longitude: params[:longitude],
         address: result[:address]
@@ -144,7 +144,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
       }
     else
       render json: {
-        error: 'Reverse geocoding failed',
+        error: "Reverse geocoding failed",
         details: result[:error]
       }, status: :unprocessable_entity
     end
@@ -154,13 +154,13 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
   def directions
     unless @integration.supports_directions?
       return render json: {
-        error: 'Directions are not supported for this provider'
+        error: "Directions are not supported for this provider"
       }, status: :unprocessable_entity
     end
 
     unless params[:origin].present? && params[:destination].present?
       return render json: {
-        error: 'Origin and destination parameters are required'
+        error: "Origin and destination parameters are required"
       }, status: :bad_request
     end
 
@@ -177,7 +177,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
 
     if result[:success]
       # Log the directions event
-      log_location_event('directions', {
+      log_location_event("directions", {
         origin: params[:origin],
         destination: params[:destination],
         mode: options[:mode],
@@ -191,7 +191,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
       }
     else
       render json: {
-        error: 'Directions request failed',
+        error: "Directions request failed",
         details: result[:error]
       }, status: :unprocessable_entity
     end
@@ -201,7 +201,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
   def nearby_places
     unless params[:latitude].present? && params[:longitude].present?
       return render json: {
-        error: 'Latitude and longitude parameters are required'
+        error: "Latitude and longitude parameters are required"
       }, status: :bad_request
     end
 
@@ -210,7 +210,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
       type: params[:type],
       min_price: params[:min_price]&.to_i,
       max_price: params[:max_price]&.to_i,
-      open_now: params[:open_now] == 'true',
+      open_now: params[:open_now] == "true",
       page_token: params[:page_token]
     }.compact
 
@@ -223,7 +223,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
 
     if result[:success]
       # Log the places search event
-      log_location_event('places_search', {
+      log_location_event("places_search", {
         latitude: params[:latitude],
         longitude: params[:longitude],
         query: params[:query],
@@ -237,7 +237,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
       }
     else
       render json: {
-        error: 'Nearby places search failed',
+        error: "Nearby places search failed",
         details: result[:error]
       }, status: :unprocessable_entity
     end
@@ -247,7 +247,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
   def place_details
     unless params[:place_id].present?
       return render json: {
-        error: 'Place ID parameter is required'
+        error: "Place ID parameter is required"
       }, status: :bad_request
     end
 
@@ -255,7 +255,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
 
     if result[:success]
       # Log the place details event
-      log_location_event('place_details', {
+      log_location_event("place_details", {
         place_id: params[:place_id],
         place_name: result[:place][:name]
       })
@@ -266,7 +266,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
       }
     else
       render json: {
-        error: 'Place details request failed',
+        error: "Place details request failed",
         details: result[:error]
       }, status: :unprocessable_entity
     end
@@ -276,7 +276,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
   def static_map
     unless params[:latitude].present? && params[:longitude].present?
       return render json: {
-        error: 'Latitude and longitude parameters are required'
+        error: "Latitude and longitude parameters are required"
       }, status: :bad_request
     end
 
@@ -297,7 +297,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
 
     if result[:success]
       # Log the static map event
-      log_location_event('static_map', {
+      log_location_event("static_map", {
         latitude: params[:latitude],
         longitude: params[:longitude],
         zoom: options[:zoom],
@@ -311,7 +311,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
       }
     else
       render json: {
-        error: 'Static map creation failed',
+        error: "Static map creation failed",
         details: result[:error]
       }, status: :unprocessable_entity
     end
@@ -321,13 +321,13 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
   def traffic_info
     unless @integration.supports_real_time_traffic?
       return render json: {
-        error: 'Traffic information is not supported for this provider'
+        error: "Traffic information is not supported for this provider"
       }, status: :unprocessable_entity
     end
 
     unless params[:latitude].present? && params[:longitude].present?
       return render json: {
-        error: 'Latitude and longitude parameters are required'
+        error: "Latitude and longitude parameters are required"
       }, status: :bad_request
     end
 
@@ -345,7 +345,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
       }
     else
       render json: {
-        error: 'Traffic information request failed',
+        error: "Traffic information request failed",
         details: result[:error]
       }, status: :unprocessable_entity
     end
@@ -355,7 +355,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
   def travel_time_matrix
     unless params[:origins].present? && params[:destinations].present?
       return render json: {
-        error: 'Origins and destinations parameters are required'
+        error: "Origins and destinations parameters are required"
       }, status: :bad_request
     end
 
@@ -373,7 +373,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
 
     if result[:success]
       # Log the travel time matrix event
-      log_location_event('travel_time_matrix', {
+      log_location_event("travel_time_matrix", {
         origins_count: origins.length,
         destinations_count: destinations.length,
         mode: options[:mode]
@@ -385,7 +385,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
       }
     else
       render json: {
-        error: 'Travel time matrix calculation failed',
+        error: "Travel time matrix calculation failed",
         details: result[:error]
       }, status: :unprocessable_entity
     end
@@ -395,7 +395,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
   def festival_map
     unless @integration.festival
       return render json: {
-        error: 'No festival associated with this integration'
+        error: "No festival associated with this integration"
       }, status: :unprocessable_entity
     end
 
@@ -415,7 +415,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
       }
     else
       render json: {
-        error: 'Festival map creation failed',
+        error: "Festival map creation failed",
         details: result[:error]
       }, status: :unprocessable_entity
     end
@@ -424,13 +424,13 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
   # POST /api/v1/integrations/maps/:id/test_connection
   def test_connection
     result = test_location_connection(@integration)
-    
+
     if result[:success]
       @integration.update(status: :connected, last_error: nil)
     else
       @integration.update(status: :error, last_error: result[:message])
     end
-    
+
     render json: {
       connection_test: result,
       integration: serialize_integration(@integration)
@@ -441,9 +441,9 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
   def analytics
     start_date = params[:start_date] ? Date.parse(params[:start_date]) : 30.days.ago
     end_date = params[:end_date] ? Date.parse(params[:end_date]) : Time.current
-    
+
     analytics = @integration.usage_analytics(start_date, end_date)
-    
+
     render json: {
       analytics: analytics,
       period: {
@@ -459,40 +459,40 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
     render json: {
       providers: [
         {
-          id: 'google_maps',
-          name: 'Google Maps',
-          description: 'Comprehensive mapping and location services',
-          features: ['geocoding', 'directions', 'places', 'static_maps', 'street_view', 'traffic'],
-          supported_countries: ['worldwide'],
-          pricing_model: 'pay_per_use',
-          setup_requirements: ['api_key']
+          id: "google_maps",
+          name: "Google Maps",
+          description: "Comprehensive mapping and location services",
+          features: [ "geocoding", "directions", "places", "static_maps", "street_view", "traffic" ],
+          supported_countries: [ "worldwide" ],
+          pricing_model: "pay_per_use",
+          setup_requirements: [ "api_key" ]
         },
         {
-          id: 'apple_maps',
-          name: 'Apple Maps',
-          description: 'Apple\'s mapping and location services',
-          features: ['geocoding', 'directions', 'traffic'],
-          supported_countries: ['worldwide'],
-          pricing_model: 'free_tier_available',
-          setup_requirements: ['api_key', 'team_id']
+          id: "apple_maps",
+          name: "Apple Maps",
+          description: "Apple's mapping and location services",
+          features: [ "geocoding", "directions", "traffic" ],
+          supported_countries: [ "worldwide" ],
+          pricing_model: "free_tier_available",
+          setup_requirements: [ "api_key", "team_id" ]
         },
         {
-          id: 'mapbox',
-          name: 'Mapbox',
-          description: 'Customizable maps and location services',
-          features: ['geocoding', 'directions', 'static_maps', 'custom_styling'],
-          supported_countries: ['worldwide'],
-          pricing_model: 'pay_per_use',
-          setup_requirements: ['access_token']
+          id: "mapbox",
+          name: "Mapbox",
+          description: "Customizable maps and location services",
+          features: [ "geocoding", "directions", "static_maps", "custom_styling" ],
+          supported_countries: [ "worldwide" ],
+          pricing_model: "pay_per_use",
+          setup_requirements: [ "access_token" ]
         },
         {
-          id: 'openstreetmap',
-          name: 'OpenStreetMap',
-          description: 'Open source mapping platform',
-          features: ['geocoding', 'static_maps'],
-          supported_countries: ['worldwide'],
-          pricing_model: 'free',
-          setup_requirements: ['none']
+          id: "openstreetmap",
+          name: "OpenStreetMap",
+          description: "Open source mapping platform",
+          features: [ "geocoding", "static_maps" ],
+          supported_countries: [ "worldwide" ],
+          pricing_model: "free",
+          setup_requirements: [ "none" ]
         }
       ]
     }
@@ -503,7 +503,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
   def set_location_integration
     @integration = current_user.location_integrations.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    render json: { error: 'Location integration not found' }, status: :not_found
+    render json: { error: "Location integration not found" }, status: :not_found
   end
 
   def integration_params
@@ -589,7 +589,7 @@ class Api::V1::Integrations::MapsController < Api::V1::BaseController
 
   def parse_locations_param(locations_param)
     if locations_param.is_a?(String)
-      locations_param.split('|')
+      locations_param.split("|")
     elsif locations_param.is_a?(Array)
       locations_param
     else

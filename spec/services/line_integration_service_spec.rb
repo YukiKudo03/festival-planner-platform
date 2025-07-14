@@ -140,7 +140,7 @@ RSpec.describe LineIntegrationService do
           group_id,
           { type: 'text', text: message_text }
         )
-        
+
         result = service.send_message(message_text, group_id)
         expect(result).to be true
       end
@@ -159,7 +159,7 @@ RSpec.describe LineIntegrationService do
         expect(mock_client).to receive(:push_message).with('G111', anything)
         expect(mock_client).to receive(:push_message).with('G222', anything)
         expect(mock_client).not_to receive(:push_message).with(inactive_group.line_group_id, anything)
-        
+
         result = service.send_message(message_text)
         expect(result).to be true
       end

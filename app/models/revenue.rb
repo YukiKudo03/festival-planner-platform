@@ -1,6 +1,6 @@
 class Revenue < ApplicationRecord
   include ActionView::Helpers::NumberHelper
-  
+
   belongs_to :festival
   belongs_to :budget_category
   belongs_to :user
@@ -30,45 +30,45 @@ class Revenue < ApplicationRecord
 
   def revenue_type_text
     case revenue_type
-    when 'ticket_sales' then 'チケット売上'
-    when 'sponsorship' then 'スポンサーシップ'
-    when 'vendor_fees' then 'ベンダー出店料'
-    when 'donation' then '寄付'
-    when 'grant' then '助成金'
-    when 'merchandise' then 'グッズ売上'
-    when 'other' then 'その他'
+    when "ticket_sales" then "チケット売上"
+    when "sponsorship" then "スポンサーシップ"
+    when "vendor_fees" then "ベンダー出店料"
+    when "donation" then "寄付"
+    when "grant" then "助成金"
+    when "merchandise" then "グッズ売上"
+    when "other" then "その他"
     else revenue_type.humanize
     end
   end
 
   def status_text
     case status
-    when 'pending' then '保留中'
-    when 'confirmed' then '確定'
-    when 'received' then '受領済み'
+    when "pending" then "保留中"
+    when "confirmed" then "確定"
+    when "received" then "受領済み"
     else status.humanize
     end
   end
 
   def status_color
     case status
-    when 'pending' then 'warning'
-    when 'confirmed' then 'info'
-    when 'received' then 'success'
-    else 'secondary'
+    when "pending" then "warning"
+    when "confirmed" then "info"
+    when "received" then "success"
+    else "secondary"
     end
   end
 
   def can_be_modified_by?(current_user)
     return false unless current_user
     return true if current_user.admin? || current_user.committee_member?
-    return true if user == current_user && status == 'pending'
+    return true if user == current_user && status == "pending"
     false
   end
 
   def can_be_confirmed_by?(current_user)
     return false unless current_user
-    return false unless status == 'pending'
+    return false unless status == "pending"
     current_user.admin? || current_user.committee_member? || festival.user == current_user
   end
 
@@ -79,39 +79,39 @@ class Revenue < ApplicationRecord
 
   def confirm!(confirmer, notes = nil)
     return false unless can_be_confirmed_by?(confirmer)
-    
+
     transaction do
-      update!(status: 'confirmed')
-      
+      update!(status: "confirmed")
+
       NotificationService.create_notification(
         recipient: user,
         sender: confirmer,
         notifiable: self,
-        notification_type: 'revenue_confirmed',
-        title: '収入が確定されました',
+        notification_type: "revenue_confirmed",
+        title: "収入が確定されました",
         message: "#{budget_category.name}: ¥#{number_with_delimiter(amount.to_i)}"
       )
-      
+
       true
     end
   end
 
   def mark_received!(receiver, notes = nil)
     return false unless can_be_received_by?(receiver)
-    return false unless status == 'confirmed'
-    
+    return false unless status == "confirmed"
+
     transaction do
-      update!(status: 'received')
-      
+      update!(status: "received")
+
       NotificationService.create_notification(
         recipient: user,
         sender: receiver,
         notifiable: self,
-        notification_type: 'revenue_received',
-        title: '収入を受領しました',
+        notification_type: "revenue_received",
+        title: "収入を受領しました",
         message: "#{budget_category.name}: ¥#{number_with_delimiter(amount.to_i)}"
       )
-      
+
       true
     end
   end
@@ -138,7 +138,7 @@ class Revenue < ApplicationRecord
       recipient: user,
       sender: festival.user,
       notifiable: self,
-      notification_type: 'revenue_status_changed',
+      notification_type: "revenue_status_changed",
       title: "収入ステータス変更: #{revenue_type_text}",
       message: "ステータス: #{status_text}"
     )

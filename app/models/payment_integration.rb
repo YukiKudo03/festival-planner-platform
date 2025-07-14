@@ -2,18 +2,18 @@ class PaymentIntegration < ApplicationRecord
   belongs_to :user
   belongs_to :festival, optional: true
   has_many :payment_transactions, dependent: :destroy
-  
+
   validates :provider, presence: true, inclusion: { in: %w[stripe square paypal bank_transfer] }
   validates :name, presence: true
   validates :account_id, presence: true
-  
+
   encrypts :api_key
   encrypts :api_secret
   encrypts :webhook_secret
-  
+
   scope :active, -> { where(active: true) }
   scope :by_provider, ->(provider) { where(provider: provider) }
-  
+
   enum status: {
     connected: 0,
     disconnected: 1,
@@ -21,7 +21,7 @@ class PaymentIntegration < ApplicationRecord
     pending_verification: 3,
     suspended: 4
   }
-  
+
   enum transaction_fee_type: {
     percentage: 0,
     fixed: 1,
@@ -32,19 +32,19 @@ class PaymentIntegration < ApplicationRecord
   after_update :update_payment_methods, if: :saved_change_to_active?
 
   def stripe?
-    provider == 'stripe'
+    provider == "stripe"
   end
 
   def square?
-    provider == 'square'
+    provider == "square"
   end
 
   def paypal?
-    provider == 'paypal'
+    provider == "paypal"
   end
 
   def bank_transfer?
-    provider == 'bank_transfer'
+    provider == "bank_transfer"
   end
 
   def payment_enabled?
@@ -65,34 +65,34 @@ class PaymentIntegration < ApplicationRecord
 
   def payment_service
     @payment_service ||= case provider
-                        when 'stripe'
+    when "stripe"
                           StripePaymentService.new(self)
-                        when 'square'
+    when "square"
                           SquarePaymentService.new(self)
-                        when 'paypal'
+    when "paypal"
                           PaypalPaymentService.new(self)
-                        when 'bank_transfer'
+    when "bank_transfer"
                           BankTransferService.new(self)
-                        end
+    end
   end
 
   def process_payment!(amount, options = {})
-    return { success: false, error: 'Payment integration not enabled' } unless payment_enabled?
+    return { success: false, error: "Payment integration not enabled" } unless payment_enabled?
 
     begin
       result = payment_service.create_payment(amount, options)
-      
+
       # Create transaction record
       transaction = payment_transactions.create!(
         transaction_id: result[:transaction_id],
         amount: amount,
-        currency: options[:currency] || 'JPY',
+        currency: options[:currency] || "JPY",
         status: result[:status],
         payment_method: options[:payment_method],
         customer_info: options[:customer_info],
         metadata: options[:metadata] || {}
       )
-      
+
       result.merge(payment_transaction_id: transaction.id)
     rescue => error
       Rails.logger.error "Payment processing failed for integration #{id}: #{error.message}"
@@ -102,21 +102,21 @@ class PaymentIntegration < ApplicationRecord
   end
 
   def create_refund!(transaction_id, amount = nil, reason = nil)
-    return { success: false, error: 'Refunds not supported' } unless supports_refunds?
+    return { success: false, error: "Refunds not supported" } unless supports_refunds?
 
     transaction = payment_transactions.find_by(transaction_id: transaction_id)
-    return { success: false, error: 'Transaction not found' } unless transaction
+    return { success: false, error: "Transaction not found" } unless transaction
 
     begin
       result = payment_service.create_refund(transaction_id, amount, reason)
-      
+
       # Update transaction status
       transaction.update!(
-        status: 'refunded',
+        status: "refunded",
         refund_amount: amount || transaction.amount,
         refund_reason: reason
       )
-      
+
       result
     rescue => error
       Rails.logger.error "Refund failed for transaction #{transaction_id}: #{error.message}"
@@ -134,11 +134,11 @@ class PaymentIntegration < ApplicationRecord
     return 0 if transaction_fee_rate.zero?
 
     case transaction_fee_type
-    when 'percentage'
+    when "percentage"
       (amount * transaction_fee_rate / 100).round
-    when 'fixed'
+    when "fixed"
       transaction_fee_rate
-    when 'percentage_plus_fixed'
+    when "percentage_plus_fixed"
       ((amount * transaction_fee_rate / 100) + (transaction_fee_fixed || 0)).round
     else
       0
@@ -150,7 +150,7 @@ class PaymentIntegration < ApplicationRecord
   end
 
   def create_payment_intent(amount, options = {})
-    return { success: false, error: 'Payment integration not enabled' } unless payment_enabled?
+    return { success: false, error: "Payment integration not enabled" } unless payment_enabled?
 
     payment_service.create_payment_intent(amount, options)
   rescue => error
@@ -169,7 +169,7 @@ class PaymentIntegration < ApplicationRecord
 
   def analytics_summary(start_date = 30.days.ago, end_date = Time.current)
     transactions = payment_transactions.where(created_at: start_date..end_date)
-    
+
     {
       total_transactions: transactions.count,
       successful_transactions: transactions.where(status: %w[completed succeeded]).count,
@@ -185,11 +185,11 @@ class PaymentIntegration < ApplicationRecord
 
   def webhook_url
     case provider
-    when 'stripe'
+    when "stripe"
       Rails.application.routes.url_helpers.api_v1_webhooks_stripe_url
-    when 'square'
-      Rails.application.routes.url_helpers.api_v1_webhooks_square_url  
-    when 'paypal'
+    when "square"
+      Rails.application.routes.url_helpers.api_v1_webhooks_square_url
+    when "paypal"
       Rails.application.routes.url_helpers.api_v1_webhooks_paypal_url
     else
       nil
@@ -201,7 +201,7 @@ class PaymentIntegration < ApplicationRecord
 
     begin
       result = payment_service.setup_webhook(webhook_url)
-      
+
       if result[:success]
         update!(
           webhook_id: result[:webhook_id],
@@ -219,35 +219,35 @@ class PaymentIntegration < ApplicationRecord
   end
 
   def process_webhook(payload, signature = nil)
-    return { success: false, error: 'Webhooks not supported' } unless supports_webhooks?
+    return { success: false, error: "Webhooks not supported" } unless supports_webhooks?
 
     begin
       # Verify webhook signature
       if webhook_secret.present? && signature.present?
         unless payment_service.verify_webhook_signature(payload, signature, webhook_secret)
-          return { success: false, error: 'Invalid webhook signature' }
+          return { success: false, error: "Invalid webhook signature" }
         end
       end
 
       # Process webhook event
       result = payment_service.process_webhook(payload)
-      
+
       # Update transaction status if applicable
       if result[:transaction_id].present?
         transaction = payment_transactions.find_by(transaction_id: result[:transaction_id])
         if transaction && result[:status].present?
           transaction.update!(status: result[:status])
-          
+
           # Trigger notifications for status changes
           case result[:status]
-          when 'completed', 'succeeded'
+          when "completed", "succeeded"
             notify_payment_success(transaction)
-          when 'failed', 'canceled'
+          when "failed", "canceled"
             notify_payment_failure(transaction)
           end
         end
       end
-      
+
       result
     rescue => error
       Rails.logger.error "Webhook processing failed: #{error.message}"
@@ -262,12 +262,12 @@ class PaymentIntegration < ApplicationRecord
     self.status ||= :connected
     self.transaction_fee_type ||= :percentage
     self.transaction_fee_rate ||= 0.0
-    self.currency ||= 'JPY'
+    self.currency ||= "JPY"
   end
 
   def update_payment_methods
     return unless active?
-    
+
     PaymentMethodUpdateJob.perform_later(id)
   end
 
@@ -275,8 +275,8 @@ class PaymentIntegration < ApplicationRecord
     # Send notification to user about successful payment
     NotificationService.create_notification(
       user: user,
-      type: 'payment_confirmed',
-      title: 'Payment Confirmed',
+      type: "payment_confirmed",
+      title: "Payment Confirmed",
       message: "Payment of ¥#{transaction.amount.to_i.to_s(:delimited)} has been confirmed",
       related_object: transaction
     )
@@ -295,14 +295,14 @@ class PaymentIntegration < ApplicationRecord
     # Send notification about failed payment
     NotificationService.create_notification(
       user: user,
-      type: 'payment_failed',
-      title: 'Payment Failed',
+      type: "payment_failed",
+      title: "Payment Failed",
       message: "Payment of ¥#{transaction.amount.to_i.to_s(:delimited)} has failed",
       related_object: transaction
     )
 
     # Trigger webhook delivery
-    WebhookDeliveryService.deliver('payment_failed', {
+    WebhookDeliveryService.deliver("payment_failed", {
       id: transaction.id,
       amount: transaction.amount,
       currency: transaction.currency,

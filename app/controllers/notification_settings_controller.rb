@@ -1,7 +1,7 @@
 class NotificationSettingsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_notification_settings, only: [:index, :edit]
-  before_action :set_notification_setting, only: [:update]
+  before_action :set_notification_settings, only: [ :index, :edit ]
+  before_action :set_notification_setting, only: [ :update ]
 
   def index
     @notification_settings = current_user.notification_settings.includes(:user)
@@ -14,7 +14,7 @@ class NotificationSettingsController < ApplicationController
 
   def update
     if @notification_setting.update(notification_setting_params)
-      redirect_to notification_settings_path, notice: '通知設定を更新しました。'
+      redirect_to notification_settings_path, notice: "通知設定を更新しました。"
     else
       render :edit, status: :unprocessable_entity
     end
@@ -28,7 +28,7 @@ class NotificationSettingsController < ApplicationController
       current_user.notification_settings.find_or_create_by(notification_type: type) do |setting|
         setting.email_enabled = true
         setting.web_enabled = true
-        setting.frequency = 'immediate'
+        setting.frequency = "immediate"
       end
     end
   end

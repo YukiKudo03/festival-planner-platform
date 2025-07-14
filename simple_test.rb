@@ -12,7 +12,7 @@ begin
     email: "test@tourism.gov.jp",
     code: "TB001"
   )
-  
+
   if tourism_board.valid?
     tourism_board.save!
     puts "✅ MunicipalAuthority作成成功: #{tourism_board.name}"
@@ -51,7 +51,7 @@ begin
   routes = Rails.application.routes.routes.map(&:path)
   industry_routes = routes.any? { |route| route.spec.to_s.include?('industry_specializations') }
   tourism_routes = routes.any? { |route| route.spec.to_s.include?('tourism_collaborations') }
-  
+
   puts "  - IndustrySpecialization ルート: #{industry_routes ? '設定済み' : '未設定'}"
   puts "  - TourismCollaboration ルート: #{tourism_routes ? '設定済み' : '未設定'}"
   puts "✅ ルート確認完了"

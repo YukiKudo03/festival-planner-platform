@@ -30,7 +30,7 @@ RSpec.describe MunicipalAuthority, type: :model do
     it 'validates unique name within jurisdiction' do
       existing = create(:municipal_authority, name: 'City Council', jurisdiction: 'Toronto')
       duplicate = build(:municipal_authority, name: 'City Council', jurisdiction: 'Toronto')
-      
+
       expect(duplicate).not_to be_valid
       expect(duplicate.errors[:name]).to be_present
     end
@@ -38,14 +38,14 @@ RSpec.describe MunicipalAuthority, type: :model do
     it 'allows same name in different jurisdictions' do
       existing = create(:municipal_authority, name: 'City Council', jurisdiction: 'Toronto')
       different_jurisdiction = build(:municipal_authority, name: 'City Council', jurisdiction: 'Vancouver')
-      
+
       expect(different_jurisdiction).to be_valid
     end
 
     it 'validates contact_phone format when present' do
       municipal_authority.contact_phone = '123-456-7890'
       expect(municipal_authority).to be_valid
-      
+
       municipal_authority.contact_phone = 'invalid-phone'
       expect(municipal_authority).not_to be_valid
     end
@@ -53,7 +53,7 @@ RSpec.describe MunicipalAuthority, type: :model do
     it 'validates typical_processing_time is positive when present' do
       municipal_authority.typical_processing_time = 5
       expect(municipal_authority).to be_valid
-      
+
       municipal_authority.typical_processing_time = -1
       expect(municipal_authority).not_to be_valid
     end
@@ -99,9 +99,9 @@ RSpec.describe MunicipalAuthority, type: :model do
       municipal_authority.contact_email = 'info@city.gov'
       municipal_authority.contact_phone = '416-555-0123'
       municipal_authority.website_url = 'https://city.gov'
-      
+
       contact_info = municipal_authority.contact_info
-      
+
       expect(contact_info[:email]).to eq('info@city.gov')
       expect(contact_info[:phone]).to eq('416-555-0123')
       expect(contact_info[:website]).to eq('https://city.gov')
@@ -110,9 +110,9 @@ RSpec.describe MunicipalAuthority, type: :model do
     it 'handles missing optional contact information' do
       municipal_authority.contact_phone = nil
       municipal_authority.website_url = nil
-      
+
       contact_info = municipal_authority.contact_info
-      
+
       expect(contact_info[:phone]).to be_nil
       expect(contact_info[:website]).to be_nil
       expect(contact_info[:email]).to be_present
@@ -168,7 +168,7 @@ RSpec.describe MunicipalAuthority, type: :model do
     it 'returns appropriate services based on authority type' do
       municipal_authority.authority_type = 'city_council'
       services = municipal_authority.services_offered
-      
+
       expect(services).to include('Event Permits')
       expect(services).to include('Noise Permits')
       expect(services).to include('Street Closures')
@@ -177,7 +177,7 @@ RSpec.describe MunicipalAuthority, type: :model do
     it 'returns tourism services for tourism boards' do
       municipal_authority.authority_type = 'tourism_board'
       services = municipal_authority.services_offered
-      
+
       expect(services).to include('Marketing Support')
       expect(services).to include('Visitor Analytics')
       expect(services).to include('Promotional Materials')
@@ -193,7 +193,7 @@ RSpec.describe MunicipalAuthority, type: :model do
     it 'sets is_active to false' do
       municipal_authority.is_active = true
       municipal_authority.save!
-      
+
       expect { municipal_authority.deactivate! }.to change { municipal_authority.is_active }.from(true).to(false)
     end
   end
@@ -202,7 +202,7 @@ RSpec.describe MunicipalAuthority, type: :model do
     it 'sets is_active to true' do
       municipal_authority.is_active = false
       municipal_authority.save!
-      
+
       expect { municipal_authority.activate! }.to change { municipal_authority.is_active }.from(false).to(true)
     end
   end
@@ -211,7 +211,7 @@ RSpec.describe MunicipalAuthority, type: :model do
     it 'returns number of tourism collaborations' do
       municipal_authority.save!
       create_list(:tourism_collaboration, 3, municipal_authority: municipal_authority)
-      
+
       expect(municipal_authority.collaboration_count).to eq(3)
     end
 
@@ -225,7 +225,7 @@ RSpec.describe MunicipalAuthority, type: :model do
       municipal_authority.save!
       active_collab = create(:tourism_collaboration, municipal_authority: municipal_authority, status: 'active')
       _draft_collab = create(:tourism_collaboration, municipal_authority: municipal_authority, status: 'draft')
-      
+
       expect(municipal_authority.active_collaborations).to contain_exactly(active_collab)
     end
   end
@@ -236,7 +236,7 @@ RSpec.describe MunicipalAuthority, type: :model do
       # In real implementation, this would use actual historical data
       # For testing, we'll mock the calculation
       allow(municipal_authority).to receive(:average_processing_time).and_return(10.5)
-      
+
       expect(municipal_authority.average_processing_time).to eq(10.5)
     end
   end
@@ -245,10 +245,10 @@ RSpec.describe MunicipalAuthority, type: :model do
     it 'returns appropriate authority level' do
       municipal_authority.authority_type = 'city_council'
       expect(municipal_authority.authority_level).to eq('municipal')
-      
+
       municipal_authority.authority_type = 'provincial_government'
       expect(municipal_authority.authority_level).to eq('provincial')
-      
+
       municipal_authority.authority_type = 'federal_agency'
       expect(municipal_authority.authority_level).to eq('federal')
     end
@@ -263,7 +263,7 @@ RSpec.describe MunicipalAuthority, type: :model do
     it 'returns coverage area description' do
       municipal_authority.jurisdiction = 'Toronto'
       municipal_authority.authority_type = 'city_council'
-      
+
       coverage = municipal_authority.jurisdiction_coverage
       expect(coverage).to include('Toronto')
       expect(coverage).to include('municipal')
@@ -292,14 +292,14 @@ RSpec.describe MunicipalAuthority, type: :model do
     it 'sets default processing time before validation' do
       municipal_authority.typical_processing_time = nil
       municipal_authority.valid?
-      
+
       expect(municipal_authority.typical_processing_time).to eq(7)
     end
 
     it 'does not override existing processing time' do
       municipal_authority.typical_processing_time = 14
       municipal_authority.valid?
-      
+
       expect(municipal_authority.typical_processing_time).to eq(14)
     end
   end
@@ -308,10 +308,10 @@ RSpec.describe MunicipalAuthority, type: :model do
     describe '.authority_types_for_select' do
       it 'returns formatted options for select elements' do
         options = MunicipalAuthority.authority_types_for_select
-        
+
         expect(options).to be_an(Array)
-        expect(options).to include(['City Council', 'city_council'])
-        expect(options).to include(['Tourism Board', 'tourism_board'])
+        expect(options).to include([ 'City Council', 'city_council' ])
+        expect(options).to include([ 'Tourism Board', 'tourism_board' ])
       end
     end
 
@@ -319,7 +319,7 @@ RSpec.describe MunicipalAuthority, type: :model do
       it 'finds authorities that offer specific services' do
         city_council = create(:municipal_authority, authority_type: 'city_council')
         tourism_board = create(:municipal_authority, authority_type: 'tourism_board')
-        
+
         permit_authorities = MunicipalAuthority.find_by_service('permits')
         expect(permit_authorities).to include(city_council)
         expect(permit_authorities).not_to include(tourism_board)

@@ -8,16 +8,16 @@ class ChatRoomMember < ApplicationRecord
   ROLES = %w[member admin moderator].freeze
   validates :role, inclusion: { in: ROLES }
 
-  scope :admins, -> { where(role: 'admin') }
-  scope :moderators, -> { where(role: 'moderator') }
-  scope :active, -> { where('last_read_at > ?', 15.minutes.ago) }
+  scope :admins, -> { where(role: "admin") }
+  scope :moderators, -> { where(role: "moderator") }
+  scope :active, -> { where("last_read_at > ?", 15.minutes.ago) }
 
   def admin?
-    role == 'admin'
+    role == "admin"
   end
 
   def moderator?
-    role == 'moderator'
+    role == "moderator"
   end
 
   def can_moderate?
@@ -30,7 +30,7 @@ class ChatRoomMember < ApplicationRecord
 
   def unread_count
     return 0 unless last_read_at
-    chat_room.chat_messages.where('created_at > ?', last_read_at).count
+    chat_room.chat_messages.where("created_at > ?", last_read_at).count
   end
 
   def active?
@@ -38,8 +38,8 @@ class ChatRoomMember < ApplicationRecord
   end
 
   def online_status
-    return 'online' if active?
-    return 'away' if last_read_at && last_read_at > 1.hour.ago
-    'offline'
+    return "online" if active?
+    return "away" if last_read_at && last_read_at > 1.hour.ago
+    "offline"
   end
 end

@@ -19,7 +19,7 @@ Rails.application.configure do
   config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.year.to_i}" }
 
   # Enable serving of images, stylesheets, and JavaScripts from CDN
-  config.asset_host = ENV['CDN_HOST'] if ENV['CDN_HOST'].present?
+  config.asset_host = ENV["CDN_HOST"] if ENV["CDN_HOST"].present?
 
   # Store uploaded files on Amazon S3 for production
   config.active_storage.service = :amazon
@@ -48,8 +48,8 @@ Rails.application.configure do
 
   # Use Redis for caching in production for better performance
   config.cache_store = :redis_cache_store, {
-    url: ENV['REDIS_URL'] || 'redis://localhost:6379/0',
-    namespace: 'festival_platform_prod',
+    url: ENV["REDIS_URL"] || "redis://localhost:6379/0",
+    namespace: "festival_platform_prod",
     expires_in: 1.hour,
     compress: true,
     compression_threshold: 1.kilobyte
@@ -67,19 +67,19 @@ Rails.application.configure do
   config.action_mailer.perform_caching = false
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.delivery_method = :smtp
-  config.action_mailer.default_url_options = { 
-    host: ENV['APP_HOST'] || 'localhost:3000',
-    protocol: 'https'
+  config.action_mailer.default_url_options = {
+    host: ENV["APP_HOST"] || "localhost:3000",
+    protocol: "https"
   }
 
   # SMTP configuration using environment variables
   config.action_mailer.smtp_settings = {
-    address:              ENV['SMTP_SERVER'] || 'smtp.gmail.com',
-    port:                 ENV['SMTP_PORT'] || 587,
-    domain:               ENV['SMTP_DOMAIN'] || 'gmail.com',
-    user_name:            ENV['SMTP_USERNAME'],
-    password:             ENV['SMTP_PASSWORD'],
-    authentication:       'plain',
+    address:              ENV["SMTP_SERVER"] || "smtp.gmail.com",
+    port:                 ENV["SMTP_PORT"] || 587,
+    domain:               ENV["SMTP_DOMAIN"] || "gmail.com",
+    user_name:            ENV["SMTP_USERNAME"],
+    password:             ENV["SMTP_PASSWORD"],
+    authentication:       "plain",
     enable_starttls_auto: true
   }
 
@@ -129,22 +129,22 @@ Rails.application.configure do
     policy.script_src  :self, :https, "'unsafe-inline'"
     policy.style_src   :self, :https, "'unsafe-inline'"
     policy.connect_src :self, :https, "wss:"
-    
+
     # For Chart.js and analytics
     policy.script_src :self, :https, "'unsafe-eval'", "'unsafe-inline'"
-    
+
     # For payment processing
     policy.frame_src :self, "https://checkout.stripe.com", "https://www.paypal.com"
-    
+
     # Report violations if configured
-    if ENV['CSP_REPORT_URI'].present?
-      policy.report_uri ENV['CSP_REPORT_URI']
+    if ENV["CSP_REPORT_URI"].present?
+      policy.report_uri ENV["CSP_REPORT_URI"]
     end
   end
 
   # Session configuration with enhanced security
-  config.session_store :cookie_store, 
-    key: '_festival_planner_session',
+  config.session_store :cookie_store,
+    key: "_festival_planner_session",
     secure: true,
     httponly: true,
     same_site: :strict
@@ -153,7 +153,7 @@ Rails.application.configure do
   config.middleware.use Rack::Attack
 
   # Time zone configuration
-  config.time_zone = 'Asia/Tokyo'
+  config.time_zone = "Asia/Tokyo"
 
   # API rate limiting configuration
   config.api_rate_limit = {
@@ -172,7 +172,7 @@ Rails.application.config.after_initialize do
       PerformanceOptimizationService.optimize_assets
       PerformanceOptimizationService.monitor_performance
       PerformanceOptimizationService.warm_cache
-      
+
       Rails.logger.info "Production optimizations initialized successfully"
     rescue => e
       Rails.logger.error "Failed to initialize production optimizations: #{e.message}"

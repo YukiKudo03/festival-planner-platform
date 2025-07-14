@@ -32,7 +32,7 @@ class WebhookDeliveryService
     webhooks.each do |webhook|
       result = deliver_to_webhook(webhook)
       delivery_results << result
-      
+
       # Log delivery attempt
       log_delivery_attempt(webhook, result)
     end
@@ -59,31 +59,31 @@ class WebhookDeliveryService
     # This would query a WebhookEndpoint model
     # For now, return configured webhooks from options or environment
     webhooks = []
-    
+
     # Add configured external webhooks
-    if ENV['SLACK_WEBHOOK_URL'].present?
+    if ENV["SLACK_WEBHOOK_URL"].present?
       webhooks << {
-        type: 'slack',
-        url: ENV['SLACK_WEBHOOK_URL'],
+        type: "slack",
+        url: ENV["SLACK_WEBHOOK_URL"],
         events: WEBHOOK_EVENTS,
         active: true
       }
     end
 
-    if ENV['DISCORD_WEBHOOK_URL'].present?
+    if ENV["DISCORD_WEBHOOK_URL"].present?
       webhooks << {
-        type: 'discord', 
-        url: ENV['DISCORD_WEBHOOK_URL'],
+        type: "discord",
+        url: ENV["DISCORD_WEBHOOK_URL"],
         events: WEBHOOK_EVENTS,
         active: true
       }
     end
 
     # Add Microsoft Teams webhook if configured
-    if ENV['TEAMS_WEBHOOK_URL'].present?
+    if ENV["TEAMS_WEBHOOK_URL"].present?
       webhooks << {
-        type: 'teams',
-        url: ENV['TEAMS_WEBHOOK_URL'], 
+        type: "teams",
+        url: ENV["TEAMS_WEBHOOK_URL"],
         events: WEBHOOK_EVENTS,
         active: true
       }
@@ -99,10 +99,10 @@ class WebhookDeliveryService
     begin
       # Prepare webhook payload
       webhook_payload = prepare_webhook_payload(webhook)
-      
+
       # Make HTTP request
       response = send_webhook_request(webhook, webhook_payload)
-      
+
       # Calculate response time
       response_time = ((Time.current - start_time) * 1000).round
 
@@ -118,7 +118,7 @@ class WebhookDeliveryService
       }
     rescue => error
       response_time = ((Time.current - start_time) * 1000).round
-      
+
       {
         webhook_id: webhook[:id] || webhook[:type],
         webhook_type: webhook[:type],
@@ -142,11 +142,11 @@ class WebhookDeliveryService
 
     # Customize payload based on webhook type
     case webhook[:type]
-    when 'slack'
+    when "slack"
       prepare_slack_payload(base_payload)
-    when 'discord'
+    when "discord"
       prepare_discord_payload(base_payload)
-    when 'teams'
+    when "teams"
       prepare_teams_payload(base_payload)
     else
       base_payload
@@ -206,7 +206,7 @@ class WebhookDeliveryService
       sections: [
         {
           activityTitle: "#{@event.humanize}",
-          activitySubtitle: @payload[:title] || @payload[:name] || 'Festival Planner',
+          activitySubtitle: @payload[:title] || @payload[:name] || "Festival Planner",
           activityImage: "https://festival-planner.com/icon.png",
           text: format_event_message(@event, @payload),
           facts: payload_fields(@payload).map do |field|
@@ -223,23 +223,23 @@ class WebhookDeliveryService
 
   def send_webhook_request(webhook, payload)
     headers = {
-      'Content-Type' => 'application/json',
-      'User-Agent' => 'Festival-Planner-Platform/1.0'
+      "Content-Type" => "application/json",
+      "User-Agent" => "Festival-Planner-Platform/1.0"
     }
 
     # Add authentication headers if configured
     if webhook[:secret].present?
       signature = generate_signature(payload.to_json, webhook[:secret])
-      headers['X-Hub-Signature-256'] = "sha256=#{signature}"
+      headers["X-Hub-Signature-256"] = "sha256=#{signature}"
     end
 
     # Add custom headers for specific webhook types
     case webhook[:type]
-    when 'slack'
+    when "slack"
       # Slack-specific headers
-    when 'discord'
+    when "discord"
       # Discord-specific headers
-    when 'teams'
+    when "teams"
       # Teams-specific headers
     end
 
@@ -253,19 +253,19 @@ class WebhookDeliveryService
 
   def format_event_message(event, payload)
     case event
-    when 'task_created'
+    when "task_created"
       "🆕 新しいタスクが作成されました: #{payload[:title]}"
-    when 'task_completed'
+    when "task_completed"
       "✅ タスクが完了しました: #{payload[:title]}"
-    when 'task_assigned'
+    when "task_assigned"
       "👤 タスクが割り当てられました: #{payload[:title]} → #{payload[:assignee]}"
-    when 'festival_created'
+    when "festival_created"
       "🎉 新しいフェスティバルが作成されました: #{payload[:name]}"
-    when 'payment_confirmed'
+    when "payment_confirmed"
       "💰 支払いが確認されました: #{payload[:amount]}円"
-    when 'payment_failed'
+    when "payment_failed"
       "❌ 支払いが失敗しました: #{payload[:amount]}円"
-    when 'user_joined'
+    when "user_joined"
       "👋 新しいメンバーが参加しました: #{payload[:name]}"
     else
       "📢 #{event.humanize}: #{payload[:title] || payload[:name] || 'Update'}"
@@ -274,28 +274,28 @@ class WebhookDeliveryService
 
   def event_color(event)
     case event
-    when 'task_completed', 'payment_confirmed'
-      'good'
-    when 'task_created', 'festival_created', 'user_joined'
-      '#36a64f'
-    when 'payment_failed'
-      'danger'
-    when 'task_assigned'
-      'warning'
+    when "task_completed", "payment_confirmed"
+      "good"
+    when "task_created", "festival_created", "user_joined"
+      "#36a64f"
+    when "payment_failed"
+      "danger"
+    when "task_assigned"
+      "warning"
     else
-      '#439FE0'
+      "#439FE0"
     end
   end
 
   def event_color_hex(event)
     case event
-    when 'task_completed', 'payment_confirmed'
+    when "task_completed", "payment_confirmed"
       0x36a64f
-    when 'task_created', 'festival_created', 'user_joined'
+    when "task_created", "festival_created", "user_joined"
       0x36a64f
-    when 'payment_failed'
+    when "payment_failed"
       0xff0000
-    when 'task_assigned'
+    when "task_assigned"
       0xffaa00
     else
       0x439fe0
@@ -323,7 +323,7 @@ class WebhookDeliveryService
     summary_parts << "ID: #{payload[:id]}" if payload[:id]
     summary_parts << "ステータス: #{payload[:status]}" if payload[:status]
     summary_parts << "期限: #{payload[:due_date]}" if payload[:due_date]
-    
+
     summary_parts.join(" | ")
   end
 
@@ -331,28 +331,28 @@ class WebhookDeliveryService
     actions = []
 
     case event
-    when 'task_created', 'task_assigned'
+    when "task_created", "task_assigned"
       if payload[:task_url]
         actions << {
           "@type" => "OpenUri",
           name: "タスクを表示",
-          targets: [{ os: "default", uri: payload[:task_url] }]
+          targets: [ { os: "default", uri: payload[:task_url] } ]
         }
       end
-    when 'festival_created'
+    when "festival_created"
       if payload[:festival_url]
         actions << {
-          "@type" => "OpenUri", 
+          "@type" => "OpenUri",
           name: "フェスティバルを表示",
-          targets: [{ os: "default", uri: payload[:festival_url] }]
+          targets: [ { os: "default", uri: payload[:festival_url] } ]
         }
       end
-    when 'payment_confirmed', 'payment_failed'
+    when "payment_confirmed", "payment_failed"
       if payload[:payment_url]
         actions << {
           "@type" => "OpenUri",
-          name: "支払い詳細を表示", 
-          targets: [{ os: "default", uri: payload[:payment_url] }]
+          name: "支払い詳細を表示",
+          targets: [ { os: "default", uri: payload[:payment_url] } ]
         }
       end
     end
@@ -361,7 +361,7 @@ class WebhookDeliveryService
   end
 
   def generate_signature(payload, secret)
-    OpenSSL::HMAC.hexdigest('SHA256', secret, payload)
+    OpenSSL::HMAC.hexdigest("SHA256", secret, payload)
   end
 
   def log_delivery_attempt(webhook, result)
@@ -394,13 +394,13 @@ class WebhookDeliveryService
       description: task.description,
       status: task.status,
       priority: task.priority,
-      due_date: task.due_date&.strftime('%Y年%m月%d日'),
+      due_date: task.due_date&.strftime("%Y年%m月%d日"),
       assignee: task.assigned_user&.name,
       festival_name: task.festival.name,
       task_url: Rails.application.routes.url_helpers.task_url(task)
     }
-    
-    deliver('task_created', payload)
+
+    deliver("task_created", payload)
   end
 
   def self.task_completed(task)
@@ -409,12 +409,12 @@ class WebhookDeliveryService
       title: task.title,
       status: task.status,
       completed_by: task.completed_by&.name,
-      completed_at: task.completed_at&.strftime('%Y年%m月%d日 %H:%M'),
+      completed_at: task.completed_at&.strftime("%Y年%m月%d日 %H:%M"),
       festival_name: task.festival.name,
       task_url: Rails.application.routes.url_helpers.task_url(task)
     }
-    
-    deliver('task_completed', payload)
+
+    deliver("task_completed", payload)
   end
 
   def self.task_assigned(task, previous_assignee = nil)
@@ -423,13 +423,13 @@ class WebhookDeliveryService
       title: task.title,
       assignee: task.assigned_user&.name,
       previous_assignee: previous_assignee&.name,
-      due_date: task.due_date&.strftime('%Y年%m月%d日'),
+      due_date: task.due_date&.strftime("%Y年%m月%d日"),
       priority: task.priority,
       festival_name: task.festival.name,
       task_url: Rails.application.routes.url_helpers.task_url(task)
     }
-    
-    deliver('task_assigned', payload)
+
+    deliver("task_assigned", payload)
   end
 
   def self.festival_created(festival)
@@ -437,13 +437,13 @@ class WebhookDeliveryService
       id: festival.id,
       name: festival.name,
       description: festival.description,
-      start_date: festival.start_date&.strftime('%Y年%m月%d日'),
-      end_date: festival.end_date&.strftime('%Y年%m月%d日'),
+      start_date: festival.start_date&.strftime("%Y年%m月%d日"),
+      end_date: festival.end_date&.strftime("%Y年%m月%d日"),
       location: festival.location,
       festival_url: Rails.application.routes.url_helpers.festival_url(festival)
     }
-    
-    deliver('festival_created', payload)
+
+    deliver("festival_created", payload)
   end
 
   def self.payment_confirmed(payment)
@@ -455,8 +455,8 @@ class WebhookDeliveryService
       festival_name: payment.festival&.name,
       payment_url: Rails.application.routes.url_helpers.payment_url(payment)
     }
-    
-    deliver('payment_confirmed', payload)
+
+    deliver("payment_confirmed", payload)
   end
 
   def self.user_joined(user, festival)
@@ -467,7 +467,7 @@ class WebhookDeliveryService
       festival_name: festival.name,
       festival_url: Rails.application.routes.url_helpers.festival_url(festival)
     }
-    
-    deliver('user_joined', payload)
+
+    deliver("user_joined", payload)
   end
 end

@@ -32,13 +32,13 @@ RSpec.describe LineTaskParsingJob, type: :job do
 
       it 'processes message through parser service' do
         expect(parser_service).to receive(:process_message)
-        
+
         described_class.perform_now(line_message)
       end
 
       it 'updates message with parsing results' do
         described_class.perform_now(line_message)
-        
+
         line_message.reload
         expect(line_message.is_processed).to be true
         expect(line_message.intent_type).to eq('task_creation')
@@ -49,7 +49,7 @@ RSpec.describe LineTaskParsingJob, type: :job do
       it 'logs successful processing' do
         allow(Rails.logger).to receive(:info)
         expect(Rails.logger).to receive(:info).with(/Successfully parsed LINE message/)
-        
+
         described_class.perform_now(line_message)
       end
 
@@ -64,7 +64,7 @@ RSpec.describe LineTaskParsingJob, type: :job do
             'task_created',
             hash_including(task_id: task.id)
           )
-          
+
           described_class.perform_now(line_message)
         end
       end
@@ -81,7 +81,7 @@ RSpec.describe LineTaskParsingJob, type: :job do
 
         it 'does not queue notification job' do
           expect(LineNotificationJob).not_to receive(:perform_later)
-          
+
           described_class.perform_now(line_message)
         end
       end
@@ -102,13 +102,13 @@ RSpec.describe LineTaskParsingJob, type: :job do
 
       it 'logs warning without raising error' do
         expect(Rails.logger).to receive(:warn).with(/Failed to parse LINE message/)
-        
+
         described_class.perform_now(line_message)
       end
 
       it 'updates message with error information' do
         described_class.perform_now(line_message)
-        
+
         line_message.reload
         expect(line_message.is_processed).to be true
         expect(line_message.processing_errors).not_to be_empty
@@ -131,7 +131,7 @@ RSpec.describe LineTaskParsingJob, type: :job do
       it 'skips processing' do
         expect(LineTaskParserService).not_to receive(:new)
         expect(Rails.logger).to receive(:info).with(/LINE message already processed/)
-        
+
         described_class.perform_now(line_message)
       end
     end
@@ -144,7 +144,7 @@ RSpec.describe LineTaskParsingJob, type: :job do
 
       it 'skips task creation' do
         expect(Rails.logger).to receive(:info).with(/Message cannot create tasks/)
-        
+
         described_class.perform_now(line_message)
       end
 
@@ -156,9 +156,9 @@ RSpec.describe LineTaskParsingJob, type: :job do
           parsed_content: {},
           task: nil
         )
-        
+
         described_class.perform_now(line_message)
-        
+
         line_message.reload
         expect(line_message.is_processed).to be true
         expect(line_message.intent_type).to eq('general_message')
@@ -173,7 +173,7 @@ RSpec.describe LineTaskParsingJob, type: :job do
 
       it 'logs error and re-raises exception' do
         expect(Rails.logger).to receive(:error).with(/Error processing LINE message/)
-        
+
         expect {
           described_class.perform_now(line_message)
         }.to raise_error(StandardError, 'Unexpected error')
@@ -185,7 +185,7 @@ RSpec.describe LineTaskParsingJob, type: :job do
         rescue StandardError
           # Expected to raise
         end
-        
+
         line_message.reload
         expect(line_message.processing_errors).not_to be_empty
         expect(line_message.processing_errors.last['message']).to include('Unexpected error')
@@ -204,9 +204,9 @@ RSpec.describe LineTaskParsingJob, type: :job do
             parsed_content: { 'task_title' => '新しい作業' },
             task: create(:task, festival: festival)
           )
-          
+
           described_class.perform_now(line_message)
-          
+
           line_message.reload
           expect(line_message.intent_type).to eq('task_creation')
         end
@@ -223,9 +223,9 @@ RSpec.describe LineTaskParsingJob, type: :job do
             parsed_content: { 'completed_task' => '作業' },
             task: create(:task, festival: festival, status: 'completed')
           )
-          
+
           described_class.perform_now(line_message)
-          
+
           line_message.reload
           expect(line_message.intent_type).to eq('task_completion')
         end
@@ -242,9 +242,9 @@ RSpec.describe LineTaskParsingJob, type: :job do
             parsed_content: { 'inquiry_type' => 'general_status' },
             task: nil
           )
-          
+
           described_class.perform_now(line_message)
-          
+
           line_message.reload
           expect(line_message.intent_type).to eq('status_inquiry')
         end
@@ -265,7 +265,7 @@ RSpec.describe LineTaskParsingJob, type: :job do
 
         it 'processes high confidence messages' do
           described_class.perform_now(line_message)
-          
+
           line_message.reload
           expect(line_message.confidence_score).to eq(0.9)
         end
@@ -284,7 +284,7 @@ RSpec.describe LineTaskParsingJob, type: :job do
 
         it 'still processes low confidence messages' do
           described_class.perform_now(line_message)
-          
+
           line_message.reload
           expect(line_message.confidence_score).to eq(0.2)
           expect(line_message.intent_type).to eq('general_message')
@@ -324,7 +324,7 @@ RSpec.describe LineTaskParsingJob, type: :job do
 
     it 'logs processing time' do
       expect(Rails.logger).to receive(:info).with(/Successfully parsed LINE message.*in \d+ms/)
-      
+
       described_class.perform_now(line_message)
     end
 
@@ -382,7 +382,7 @@ RSpec.describe LineTaskParsingJob, type: :job do
             assigned_to: assignee.id
           )
         )
-        
+
         described_class.perform_now(line_message)
       end
     end
@@ -409,7 +409,7 @@ RSpec.describe LineTaskParsingJob, type: :job do
             due_date: Date.tomorrow
           )
         )
-        
+
         described_class.perform_now(line_message)
       end
     end
@@ -446,7 +446,7 @@ RSpec.describe LineTaskParsingJob, type: :job do
         expect {
           described_class.perform_now(line_message)
         }.not_to raise_error
-        
+
         line_message.reload
         expect(line_message.processing_errors).not_to be_empty
       end

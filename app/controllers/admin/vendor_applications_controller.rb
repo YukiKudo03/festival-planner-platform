@@ -1,20 +1,20 @@
 class Admin::VendorApplicationsController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_admin!
-  before_action :set_vendor_application, only: [:show, :review, :approve, :reject, :request_changes, :conditionally_approve, :start_review]
+  before_action :set_vendor_application, only: [ :show, :review, :approve, :reject, :request_changes, :conditionally_approve, :start_review ]
 
   def index
     @applications = VendorApplication.includes(:festival, :user, :application_reviews)
                                     .order(created_at: :desc)
-    
+
     # フィルタリング
     @applications = @applications.where(status: params[:status]) if params[:status].present?
     @applications = @applications.where(priority: params[:priority]) if params[:priority].present?
     @applications = @applications.joins(:festival).where(festivals: { id: params[:festival_id] }) if params[:festival_id].present?
-    
+
     # ページネーション（必要に応じて）
     @applications = @applications.limit(100)
-    
+
     # 統計情報
     @stats = {
       total: VendorApplication.count,
@@ -22,9 +22,9 @@ class Admin::VendorApplicationsController < ApplicationController
       under_review: VendorApplication.under_review.count,
       approved: VendorApplication.approved.count,
       rejected: VendorApplication.rejected.count,
-      overdue: VendorApplication.joins(:festival).where('vendor_applications.review_deadline < ? AND vendor_applications.status IN (?)', Time.current, [:submitted, :under_review]).count
+      overdue: VendorApplication.joins(:festival).where("vendor_applications.review_deadline < ? AND vendor_applications.status IN (?)", Time.current, [ :submitted, :under_review ]).count
     }
-    
+
     @festivals = Festival.order(:name)
   end
 
@@ -54,8 +54,8 @@ class Admin::VendorApplicationsController < ApplicationController
 
   def overdue
     @applications = VendorApplication.joins(:festival)
-                                    .where('vendor_applications.review_deadline < ? AND vendor_applications.status IN (?)', 
-                                           Time.current, [:submitted, :under_review])
+                                    .where("vendor_applications.review_deadline < ? AND vendor_applications.status IN (?)",
+                                           Time.current, [ :submitted, :under_review ])
                                     .includes(:festival, :user, :application_reviews)
                                     .order(:review_deadline)
     render :index
@@ -63,57 +63,57 @@ class Admin::VendorApplicationsController < ApplicationController
 
   def start_review
     if @application.start_review!(current_user)
-      redirect_to admin_vendor_application_path(@application), notice: '審査を開始しました。'
+      redirect_to admin_vendor_application_path(@application), notice: "審査を開始しました。"
     else
-      redirect_to admin_vendor_application_path(@application), alert: '審査を開始できませんでした。'
+      redirect_to admin_vendor_application_path(@application), alert: "審査を開始できませんでした。"
     end
   end
 
   def approve
     comment = params[:comment]
-    
+
     if @application.approve!(current_user, comment)
-      redirect_to admin_vendor_application_path(@application), notice: '申請を承認しました。'
+      redirect_to admin_vendor_application_path(@application), notice: "申請を承認しました。"
     else
-      redirect_to admin_vendor_application_path(@application), alert: '承認できませんでした。'
+      redirect_to admin_vendor_application_path(@application), alert: "承認できませんでした。"
     end
   end
 
   def reject
     comment = params[:comment]
-    
+
     if comment.present? && @application.reject!(current_user, comment)
-      redirect_to admin_vendor_application_path(@application), notice: '申請を却下しました。'
+      redirect_to admin_vendor_application_path(@application), notice: "申請を却下しました。"
     else
-      redirect_to admin_vendor_application_path(@application), alert: '却下できませんでした。却下理由を入力してください。'
+      redirect_to admin_vendor_application_path(@application), alert: "却下できませんでした。却下理由を入力してください。"
     end
   end
 
   def request_changes
     comment = params[:comment]
-    
+
     if comment.present? && @application.request_changes!(current_user, comment)
-      redirect_to admin_vendor_application_path(@application), notice: '修正要求を送信しました。'
+      redirect_to admin_vendor_application_path(@application), notice: "修正要求を送信しました。"
     else
-      redirect_to admin_vendor_application_path(@application), alert: '修正要求を送信できませんでした。理由を入力してください。'
+      redirect_to admin_vendor_application_path(@application), alert: "修正要求を送信できませんでした。理由を入力してください。"
     end
   end
 
   def conditionally_approve
     conditions = params[:conditions]
     comment = params[:comment]
-    
+
     if conditions.present? && @application.conditionally_approve!(current_user, conditions, comment)
-      redirect_to admin_vendor_application_path(@application), notice: '条件付きで承認しました。'
+      redirect_to admin_vendor_application_path(@application), notice: "条件付きで承認しました。"
     else
-      redirect_to admin_vendor_application_path(@application), alert: '条件付き承認できませんでした。条件を入力してください。'
+      redirect_to admin_vendor_application_path(@application), alert: "条件付き承認できませんでした。条件を入力してください。"
     end
   end
 
   def bulk_approve
     application_ids = params[:application_ids] || []
-    comment = params[:comment] || '一括承認'
-    
+    comment = params[:comment] || "一括承認"
+
     success_count = 0
     application_ids.each do |id|
       application = VendorApplication.find_by(id: id)
@@ -121,19 +121,19 @@ class Admin::VendorApplicationsController < ApplicationController
         success_count += 1
       end
     end
-    
+
     redirect_to admin_vendor_applications_path, notice: "#{success_count}件の申請を承認しました。"
   end
 
   def bulk_reject
     application_ids = params[:application_ids] || []
     comment = params[:comment]
-    
+
     if comment.blank?
-      redirect_to admin_vendor_applications_path, alert: '却下理由を入力してください。'
+      redirect_to admin_vendor_applications_path, alert: "却下理由を入力してください。"
       return
     end
-    
+
     success_count = 0
     application_ids.each do |id|
       application = VendorApplication.find_by(id: id)
@@ -141,56 +141,56 @@ class Admin::VendorApplicationsController < ApplicationController
         success_count += 1
       end
     end
-    
+
     redirect_to admin_vendor_applications_path, notice: "#{success_count}件の申請を却下しました。"
   end
 
   def reports
     @date_range = (params[:start_date]&.to_date || 1.month.ago)..(params[:end_date]&.to_date || Date.current)
-    
+
     # 期間内の申請統計
     applications_in_range = VendorApplication.where(created_at: @date_range)
-    
+
     @report_data = {
       total_applications: applications_in_range.count,
       approved_applications: applications_in_range.approved.count,
       rejected_applications: applications_in_range.rejected.count,
-      pending_applications: applications_in_range.where(status: [:draft, :submitted, :under_review]).count,
-      
+      pending_applications: applications_in_range.where(status: [ :draft, :submitted, :under_review ]).count,
+
       # 承認率
-      approval_rate: applications_in_range.count > 0 ? 
+      approval_rate: applications_in_range.count > 0 ?
         (applications_in_range.approved.count.to_f / applications_in_range.count * 100).round(1) : 0,
-      
+
       # 平均審査時間
       avg_review_time: calculate_average_review_time(applications_in_range),
-      
+
       # ステータス別集計
       status_breakdown: applications_in_range.group(:status).count,
-      
+
       # 月別申請数
       monthly_applications: applications_in_range.group_by_month(:created_at).count,
-      
+
       # 業種別申請数
       business_type_breakdown: applications_in_range.group(:business_type).count,
-      
+
       # 祭り別申請数
-      festival_breakdown: applications_in_range.joins(:festival).group('festivals.name').count
+      festival_breakdown: applications_in_range.joins(:festival).group("festivals.name").count
     }
   end
 
   def export_csv
     @applications = VendorApplication.includes(:festival, :user, :application_reviews)
                                     .order(created_at: :desc)
-    
+
     # フィルタリング適用
     @applications = @applications.where(status: params[:status]) if params[:status].present?
     @applications = @applications.where(priority: params[:priority]) if params[:priority].present?
     @applications = @applications.joins(:festival).where(festivals: { id: params[:festival_id] }) if params[:festival_id].present?
-    
+
     respond_to do |format|
       format.csv do
-        headers['Content-Disposition'] = "attachment; filename=\"vendor_applications_#{Date.current}.csv\""
-        headers['Content-Type'] = 'text/csv'
+        headers["Content-Disposition"] = "attachment; filename=\"vendor_applications_#{Date.current}.csv\""
+        headers["Content-Type"] = "text/csv"
       end
     end
   end
@@ -200,11 +200,11 @@ class Admin::VendorApplicationsController < ApplicationController
   def calculate_average_review_time(applications)
     reviewed_applications = applications.where.not(reviewed_at: nil)
     return 0 if reviewed_applications.empty?
-    
+
     total_time = reviewed_applications.sum do |app|
       (app.reviewed_at - app.created_at) / 1.day
     end
-    
+
     (total_time / reviewed_applications.count).round(1)
   end
 
@@ -214,7 +214,7 @@ class Admin::VendorApplicationsController < ApplicationController
 
   def ensure_admin!
     unless current_user&.admin? || current_user&.committee_member? || current_user&.system_admin?
-      redirect_to root_path, alert: 'アクセス権限がありません。'
+      redirect_to root_path, alert: "アクセス権限がありません。"
     end
   end
 end

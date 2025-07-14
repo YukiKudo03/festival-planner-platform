@@ -9,11 +9,11 @@ class ApplicationComment < ApplicationRecord
   scope :internal_comments, -> { where(internal: true) }
 
   def author_name
-    user&.display_name || 'Unknown'
+    user&.display_name || "Unknown"
   end
 
   def visibility_text
-    internal? ? '内部コメント' : '公開コメント'
+    internal? ? "内部コメント" : "公開コメント"
   end
 
   def can_be_seen_by?(viewer)

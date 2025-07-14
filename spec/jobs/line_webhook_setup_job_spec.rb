@@ -23,13 +23,13 @@ RSpec.describe LineWebhookSetupJob, type: :job do
 
       it 'registers webhook through service' do
         expect(line_service).to receive(:register_webhook).with(webhook_url)
-        
+
         described_class.perform_now(line_integration)
       end
 
       it 'updates integration with webhook URL' do
         described_class.perform_now(line_integration)
-        
+
         line_integration.reload
         expect(line_integration.webhook_url).to eq(webhook_url)
       end
@@ -37,13 +37,13 @@ RSpec.describe LineWebhookSetupJob, type: :job do
       it 'logs successful setup' do
         allow(Rails.logger).to receive(:info)
         expect(Rails.logger).to receive(:info).with(/Webhook setup completed/)
-        
+
         described_class.perform_now(line_integration)
       end
 
       it 'marks integration as active' do
         described_class.perform_now(line_integration)
-        
+
         line_integration.reload
         expect(line_integration.status).to eq('active')
         expect(line_integration.is_active).to be true
@@ -62,13 +62,13 @@ RSpec.describe LineWebhookSetupJob, type: :job do
 
       it 'logs error message' do
         expect(Rails.logger).to receive(:error).with(/Webhook setup failed/)
-        
+
         described_class.perform_now(line_integration)
       end
 
       it 'marks integration as error status' do
         described_class.perform_now(line_integration)
-        
+
         line_integration.reload
         expect(line_integration.status).to eq('error')
         expect(line_integration.last_error_message).to eq('LINE API error')
@@ -78,7 +78,7 @@ RSpec.describe LineWebhookSetupJob, type: :job do
       it 'does not update webhook URL' do
         original_webhook_url = line_integration.webhook_url
         described_class.perform_now(line_integration)
-        
+
         line_integration.reload
         expect(line_integration.webhook_url).to eq(original_webhook_url)
       end
@@ -99,7 +99,7 @@ RSpec.describe LineWebhookSetupJob, type: :job do
       it 'skips setup if webhook already configured' do
         expect(LineIntegrationService).not_to receive(:new)
         expect(Rails.logger).to receive(:info).with(/Webhook already configured/)
-        
+
         described_class.perform_now(line_integration)
       end
     end
@@ -113,7 +113,7 @@ RSpec.describe LineWebhookSetupJob, type: :job do
       it 'skips setup for inactive integration' do
         expect(LineIntegrationService).not_to receive(:new)
         expect(Rails.logger).to receive(:warn).with(/Integration is inactive/)
-        
+
         described_class.perform_now(line_integration)
       end
     end
@@ -127,7 +127,7 @@ RSpec.describe LineWebhookSetupJob, type: :job do
 
       it 'handles URL generation error' do
         expect(Rails.logger).to receive(:error).with(/Failed to generate webhook URL/)
-        
+
         expect {
           described_class.perform_now(line_integration)
         }.to raise_error(/Failed to generate webhook URL/)
@@ -145,7 +145,7 @@ RSpec.describe LineWebhookSetupJob, type: :job do
 
       it 'handles LINE API exceptions' do
         expect(Rails.logger).to receive(:error).with(/LINE API error during webhook setup/)
-        
+
         expect {
           described_class.perform_now(line_integration)
         }.to raise_error(Line::Bot::API::HTTPError)
@@ -157,7 +157,7 @@ RSpec.describe LineWebhookSetupJob, type: :job do
         rescue Line::Bot::API::HTTPError
           # Expected to raise
         end
-        
+
         line_integration.reload
         expect(line_integration.status).to eq('error')
         expect(line_integration.last_error_message).to include('API unavailable')
@@ -176,7 +176,7 @@ RSpec.describe LineWebhookSetupJob, type: :job do
 
       it 'uses custom webhook URL when configured' do
         expect(line_service).to receive(:register_webhook).with(custom_webhook_url)
-        
+
         described_class.perform_now(line_integration)
       end
     end
@@ -192,7 +192,7 @@ RSpec.describe LineWebhookSetupJob, type: :job do
 
       it 'verifies webhook after setup' do
         expect(line_service).to receive(:test_connection)
-        
+
         described_class.perform_now(line_integration)
       end
 
@@ -204,7 +204,7 @@ RSpec.describe LineWebhookSetupJob, type: :job do
 
         it 'logs warning but does not fail setup' do
           expect(Rails.logger).to receive(:warn).with(/Webhook verification failed/)
-          
+
           expect {
             described_class.perform_now(line_integration)
           }.not_to raise_error
@@ -316,7 +316,7 @@ RSpec.describe LineWebhookSetupJob, type: :job do
         expect {
           described_class.perform_now(line_integration)
         }.to raise_error(Line::Bot::API::HTTPError)
-        
+
         line_integration.reload
         expect(line_integration.status).to eq('error')
       end
@@ -337,9 +337,9 @@ RSpec.describe LineWebhookSetupJob, type: :job do
     it 'follows complete setup workflow' do
       expect(line_service).to receive(:register_webhook).ordered
       expect(line_service).to receive(:test_connection).ordered
-      
+
       described_class.perform_now(line_integration)
-      
+
       line_integration.reload
       expect(line_integration.webhook_url).to eq(webhook_url)
       expect(line_integration.status).to eq('active')
@@ -350,7 +350,7 @@ RSpec.describe LineWebhookSetupJob, type: :job do
       it 'is idempotent' do
         described_class.perform_now(line_integration)
         initial_webhook_url = line_integration.reload.webhook_url
-        
+
         described_class.perform_now(line_integration)
         expect(line_integration.reload.webhook_url).to eq(initial_webhook_url)
       end

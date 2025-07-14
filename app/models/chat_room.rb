@@ -21,15 +21,15 @@ class ChatRoom < ApplicationRecord
   end
 
   def direct_message?
-    room_type == 'direct'
+    room_type == "direct"
   end
 
   def group_chat?
-    room_type == 'group'
+    room_type == "group"
   end
 
   def announcement_channel?
-    room_type == 'announcement'
+    room_type == "announcement"
   end
 
   def latest_message
@@ -41,7 +41,7 @@ class ChatRoom < ApplicationRecord
   end
 
   def active_members_count
-    chat_room_members.where('last_read_at > ?', 15.minutes.ago).count
+    chat_room_members.where("last_read_at > ?", 15.minutes.ago).count
   end
 
   def unread_count_for(user)
@@ -49,7 +49,7 @@ class ChatRoom < ApplicationRecord
     return 0 unless member
 
     if member.last_read_at
-      chat_messages.where('created_at > ?', member.last_read_at).count
+      chat_messages.where("created_at > ?", member.last_read_at).count
     else
       chat_messages.count
     end
@@ -59,7 +59,7 @@ class ChatRoom < ApplicationRecord
     return false unless user
     return true if user.admin? || user.committee_member?
     return true if public?
-    
+
     # プライベートルームの場合、メンバーかどうかをチェック
     members.include?(user)
   end
@@ -70,7 +70,7 @@ class ChatRoom < ApplicationRecord
     true
   end
 
-  def add_member(user, role: 'member')
+  def add_member(user, role: "member")
     chat_room_members.find_or_create_by(user: user) do |member|
       member.role = role
       member.joined_at = Time.current
@@ -86,7 +86,7 @@ class ChatRoom < ApplicationRecord
   end
 
   def admin_members
-    chat_room_members.where(role: 'admin').includes(:user)
+    chat_room_members.where(role: "admin").includes(:user)
   end
 
   # ダイレクトメッセージルーム用のヘルパー
@@ -97,7 +97,7 @@ class ChatRoom < ApplicationRecord
 
   def display_name_for(current_user)
     if direct_message?
-      other_user(current_user)&.display_name || 'Unknown User'
+      other_user(current_user)&.display_name || "Unknown User"
     else
       name
     end

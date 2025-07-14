@@ -18,14 +18,14 @@ class Venue < ApplicationRecord
 
   def facility_type_text
     case facility_type
-    when 'indoor' then '屋内'
-    when 'outdoor' then '屋外'
-    when 'mixed' then '屋内外複合'
-    when 'pavilion' then 'パビリオン'
-    when 'arena' then 'アリーナ'
-    when 'stadium' then 'スタジアム'
-    when 'park' then '公園'
-    when 'convention_center' then 'コンベンションセンター'
+    when "indoor" then "屋内"
+    when "outdoor" then "屋外"
+    when "mixed" then "屋内外複合"
+    when "pavilion" then "パビリオン"
+    when "arena" then "アリーナ"
+    when "stadium" then "スタジアム"
+    when "park" then "公園"
+    when "convention_center" then "コンベンションセンター"
     else facility_type.humanize
     end
   end
@@ -35,17 +35,17 @@ class Venue < ApplicationRecord
   end
 
   def occupied_booths_count
-    booths.where.not(status: ['available', 'reserved']).count
+    booths.where.not(status: [ "available", "reserved" ]).count
   end
 
   def available_booths_count
-    booths.where(status: ['available']).count
+    booths.where(status: [ "available" ]).count
   end
 
   def occupancy_rate
     total = booths.count
     return 0 if total.zero?
-    
+
     occupied = occupied_booths_count
     (occupied.to_f / total * 100).round(2)
   end
@@ -56,25 +56,25 @@ class Venue < ApplicationRecord
 
   def coordinates
     return nil unless has_coordinates?
-    [latitude, longitude]
+    [ latitude, longitude ]
   end
 
   def distance_from(other_venue)
     return nil unless has_coordinates? && other_venue.has_coordinates?
-    
+
     # Haversine formula for distance calculation
     rad_per_deg = Math::PI / 180
     rkm = 6371  # Earth radius in kilometers
-    
+
     dlat_rad = (other_venue.latitude - latitude) * rad_per_deg
     dlon_rad = (other_venue.longitude - longitude) * rad_per_deg
-    
+
     lat1_rad = latitude * rad_per_deg
     lat2_rad = other_venue.latitude * rad_per_deg
-    
+
     a = Math.sin(dlat_rad/2)**2 + Math.cos(lat1_rad) * Math.cos(lat2_rad) * Math.sin(dlon_rad/2)**2
     c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-    
+
     (rkm * c).round(2)
   end
 
@@ -86,13 +86,13 @@ class Venue < ApplicationRecord
 
   def layout_bounds
     return { min_x: 0, min_y: 0, max_x: 0, max_y: 0 } if layout_elements.empty?
-    
+
     elements = layout_elements.visible
     {
-      min_x: elements.minimum('x_position') || 0,
-      min_y: elements.minimum('y_position') || 0,
-      max_x: elements.maximum('x_position + width') || 0,
-      max_y: elements.maximum('y_position + height') || 0
+      min_x: elements.minimum("x_position") || 0,
+      min_y: elements.minimum("y_position") || 0,
+      max_x: elements.maximum("x_position + width") || 0,
+      max_y: elements.maximum("y_position + height") || 0
     }
   end
 
@@ -104,8 +104,8 @@ class Venue < ApplicationRecord
   def generate_booth_numbers
     venue_areas.includes(:booths).each_with_index do |area, area_index|
       area.booths.each_with_index do |booth, booth_index|
-        area_prefix = (area_index + 1).to_s.rjust(2, '0')
-        booth_number = (booth_index + 1).to_s.rjust(3, '0')
+        area_prefix = (area_index + 1).to_s.rjust(2, "0")
+        booth_number = (booth_index + 1).to_s.rjust(3, "0")
         booth.update(booth_number: "#{area_prefix}-#{booth_number}")
       end
     end

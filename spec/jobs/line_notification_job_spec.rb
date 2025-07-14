@@ -29,7 +29,7 @@ RSpec.describe LineNotificationJob, type: :job do
           match(/📝 新しいタスクが作成されました/),
           nil
         )
-        
+
         described_class.perform_now(line_integration, 'task_created', notification_data)
       end
 
@@ -38,7 +38,7 @@ RSpec.describe LineNotificationJob, type: :job do
           match(/Test Task/),
           nil
         )
-        
+
         described_class.perform_now(line_integration, 'task_created', notification_data)
       end
 
@@ -47,7 +47,7 @@ RSpec.describe LineNotificationJob, type: :job do
           match(/👤 担当者: #{user.display_name}/),
           nil
         )
-        
+
         described_class.perform_now(line_integration, 'task_created', notification_data)
       end
 
@@ -56,7 +56,7 @@ RSpec.describe LineNotificationJob, type: :job do
           match(/📅 期限: #{Date.tomorrow.strftime('%Y年%m月%d日')}/),
           nil
         )
-        
+
         described_class.perform_now(line_integration, 'task_created', notification_data)
       end
     end
@@ -75,7 +75,7 @@ RSpec.describe LineNotificationJob, type: :job do
           match(/✅ タスクが完了されました/),
           nil
         )
-        
+
         described_class.perform_now(line_integration, 'task_completed', notification_data)
       end
 
@@ -84,7 +84,7 @@ RSpec.describe LineNotificationJob, type: :job do
           match(/🎉/),
           nil
         )
-        
+
         described_class.perform_now(line_integration, 'task_completed', notification_data)
       end
     end
@@ -104,7 +104,7 @@ RSpec.describe LineNotificationJob, type: :job do
           match(/📋 タスクが割り当てられました/),
           nil
         )
-        
+
         described_class.perform_now(line_integration, 'task_assigned', notification_data)
       end
 
@@ -113,7 +113,7 @@ RSpec.describe LineNotificationJob, type: :job do
           match(/👤 担当者: #{assignee.display_name}/),
           nil
         )
-        
+
         described_class.perform_now(line_integration, 'task_assigned', notification_data)
       end
     end
@@ -133,7 +133,7 @@ RSpec.describe LineNotificationJob, type: :job do
           match(/⏰ 期限リマインダー/),
           nil
         )
-        
+
         described_class.perform_now(line_integration, 'deadline_reminder', notification_data)
       end
 
@@ -142,7 +142,7 @@ RSpec.describe LineNotificationJob, type: :job do
           match(/⚠️.*明日が期限/),
           nil
         )
-        
+
         described_class.perform_now(line_integration, 'deadline_reminder', notification_data)
       end
     end
@@ -161,7 +161,7 @@ RSpec.describe LineNotificationJob, type: :job do
           match(/🎭 #{festival.name} からのお知らせ/),
           nil
         )
-        
+
         described_class.perform_now(line_integration, 'festival_update', notification_data)
       end
 
@@ -170,7 +170,7 @@ RSpec.describe LineNotificationJob, type: :job do
           match(/会場が変更されました/),
           nil
         )
-        
+
         described_class.perform_now(line_integration, 'festival_update', notification_data)
       end
     end
@@ -189,7 +189,7 @@ RSpec.describe LineNotificationJob, type: :job do
           anything,
           target_group_id
         )
-        
+
         described_class.perform_now(line_integration, 'task_created', notification_data)
       end
     end
@@ -203,7 +203,7 @@ RSpec.describe LineNotificationJob, type: :job do
       it 'skips sending notification' do
         expect(LineIntegrationService).not_to receive(:new)
         expect(Rails.logger).to receive(:info).with(/Integration is inactive/)
-        
+
         described_class.perform_now(line_integration, 'task_created', { task_id: task.id })
       end
     end
@@ -222,13 +222,13 @@ RSpec.describe LineNotificationJob, type: :job do
       it 'skips disabled notification types' do
         expect(LineIntegrationService).not_to receive(:new)
         expect(Rails.logger).to receive(:info).with(/Notification type 'task_created' is disabled/)
-        
+
         described_class.perform_now(line_integration, 'task_created', { task_id: task.id })
       end
 
       it 'allows enabled notification types' do
         expect(line_service).to receive(:send_message)
-        
+
         described_class.perform_now(line_integration, 'task_completed', { task_id: task.id })
       end
     end
@@ -255,7 +255,7 @@ RSpec.describe LineNotificationJob, type: :job do
         it 'skips notification during quiet hours' do
           expect(LineIntegrationService).not_to receive(:new)
           expect(Rails.logger).to receive(:info).with(/Skipping notification due to quiet hours/)
-          
+
           described_class.perform_now(line_integration, 'task_created', { task_id: task.id })
         end
       end
@@ -267,7 +267,7 @@ RSpec.describe LineNotificationJob, type: :job do
 
         it 'sends notification during active hours' do
           expect(line_service).to receive(:send_message)
-          
+
           described_class.perform_now(line_integration, 'task_created', { task_id: task.id })
         end
       end
@@ -279,9 +279,9 @@ RSpec.describe LineNotificationJob, type: :job do
 
         it 'sends urgent notifications even during quiet hours' do
           expect(line_service).to receive(:send_message)
-          
-          described_class.perform_now(line_integration, 'deadline_reminder', { 
-            task_id: task.id, 
+
+          described_class.perform_now(line_integration, 'deadline_reminder', {
+            task_id: task.id,
             urgent: true,
             days_until_due: 0
           })
@@ -297,7 +297,7 @@ RSpec.describe LineNotificationJob, type: :job do
 
       it 'logs error and raises exception for retry' do
         expect(Rails.logger).to receive(:error).with(/Failed to send LINE notification/)
-        
+
         expect {
           described_class.perform_now(line_integration, 'task_created', { task_id: task.id })
         }.to raise_error(/Failed to send notification/)
@@ -312,7 +312,7 @@ RSpec.describe LineNotificationJob, type: :job do
 
       it 'logs error and re-raises for retry' do
         expect(Rails.logger).to receive(:error).with(/LINE API error/)
-        
+
         expect {
           described_class.perform_now(line_integration, 'task_created', { task_id: task.id })
         }.to raise_error(Line::Bot::API::HTTPError)
@@ -326,13 +326,13 @@ RSpec.describe LineNotificationJob, type: :job do
 
       it 'logs warning for unknown notification type' do
         expect(Rails.logger).to receive(:warn).with(/Unknown notification type/)
-        
+
         described_class.perform_now(line_integration, 'unknown_type', { task_id: task.id })
       end
 
       it 'does not send notification for unknown type' do
         expect(LineIntegrationService).not_to receive(:new)
-        
+
         described_class.perform_now(line_integration, 'unknown_type', { task_id: task.id })
       end
     end
@@ -345,7 +345,7 @@ RSpec.describe LineNotificationJob, type: :job do
 
         it 'logs error for missing task' do
           expect(Rails.logger).to receive(:error).with(/Task not found/)
-          
+
           expect {
             described_class.perform_now(line_integration, 'task_created', { task_id: 99999 })
           }.to raise_error(/Task not found/)
@@ -359,11 +359,11 @@ RSpec.describe LineNotificationJob, type: :job do
 
         it 'logs error for missing user' do
           expect(Rails.logger).to receive(:error).with(/User not found/)
-          
+
           expect {
-            described_class.perform_now(line_integration, 'task_assigned', { 
-              task_id: task.id, 
-              assigned_to: 99999 
+            described_class.perform_now(line_integration, 'task_assigned', {
+              task_id: task.id,
+              assigned_to: 99999
             })
           }.to raise_error(/User not found/)
         end
@@ -416,7 +416,7 @@ RSpec.describe LineNotificationJob, type: :job do
         expect(line_service).to receive(:send_message) do |message, group_id|
           expect(message.length).to be < 1000 # LINE message limit
         end
-        
+
         described_class.perform_now(line_integration, 'task_created', { task_id: long_task.id })
       end
     end
@@ -429,7 +429,7 @@ RSpec.describe LineNotificationJob, type: :job do
           match(/Task with 📝 emojis & symbols/),
           nil
         )
-        
+
         described_class.perform_now(line_integration, 'task_created', { task_id: special_task.id })
       end
     end
@@ -483,7 +483,7 @@ RSpec.describe LineNotificationJob, type: :job do
 
     it 'logs processing time' do
       expect(Rails.logger).to receive(:info).with(/LINE notification sent.*in \d+ms/)
-      
+
       described_class.perform_now(line_integration, 'task_created', { task_id: task.id })
     end
 

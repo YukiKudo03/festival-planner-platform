@@ -2,7 +2,7 @@ class Admin::LayoutElementsController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_admin!
   before_action :set_venue
-  before_action :set_layout_element, only: [:show, :edit, :update, :destroy, :update_position]
+  before_action :set_layout_element, only: [ :show, :edit, :update, :destroy, :update_position ]
 
   def index
     @layout_elements = @venue.layout_elements.visible.ordered_by_layer
@@ -25,10 +25,10 @@ class Admin::LayoutElementsController < ApplicationController
 
   def create
     @layout_element = @venue.layout_elements.build(layout_element_params)
-    
+
     respond_to do |format|
       if @layout_element.save
-        format.html { redirect_to admin_venue_layout_editor_path(@venue), notice: 'レイアウト要素が正常に作成されました。' }
+        format.html { redirect_to admin_venue_layout_editor_path(@venue), notice: "レイアウト要素が正常に作成されました。" }
         format.json { render json: @layout_element, status: :created }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -43,7 +43,7 @@ class Admin::LayoutElementsController < ApplicationController
   def update
     respond_to do |format|
       if @layout_element.update(layout_element_params)
-        format.html { redirect_to admin_venue_layout_editor_path(@venue), notice: 'レイアウト要素が正常に更新されました。' }
+        format.html { redirect_to admin_venue_layout_editor_path(@venue), notice: "レイアウト要素が正常に更新されました。" }
         format.json { render json: @layout_element }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -55,25 +55,25 @@ class Admin::LayoutElementsController < ApplicationController
   def destroy
     @layout_element.destroy
     respond_to do |format|
-      format.html { redirect_to admin_venue_layout_editor_path(@venue), notice: 'レイアウト要素が正常に削除されました。' }
+      format.html { redirect_to admin_venue_layout_editor_path(@venue), notice: "レイアウト要素が正常に削除されました。" }
       format.json { head :no_content }
     end
   end
 
   def update_position
     position_params = params.require(:layout_element).permit(:x_position, :y_position, :width, :height, :rotation)
-    
+
     respond_to do |format|
       if @layout_element.update(position_params)
         # Check for overlaps after position update
         layout_service = LayoutManagementService.new(@venue)
         overlaps = layout_service.detect_overlaps
-        
-        format.json { 
-          render json: { 
+
+        format.json {
+          render json: {
             layout_element: @layout_element,
-            overlaps: overlaps.select { |overlap| 
-              overlap[:element1][:id] == @layout_element.id || overlap[:element2][:id] == @layout_element.id 
+            overlaps: overlaps.select { |overlap|
+              overlap[:element1][:id] == @layout_element.id || overlap[:element2][:id] == @layout_element.id
             }
           }
         }
@@ -85,17 +85,17 @@ class Admin::LayoutElementsController < ApplicationController
 
   def bulk_update
     updates = params.require(:layout_elements).values
-    
+
     ActiveRecord::Base.transaction do
       updates.each do |update_params|
         element = @venue.layout_elements.find(update_params[:id])
         element.update!(update_params.except(:id))
       end
     end
-    
+
     layout_service = LayoutManagementService.new(@venue)
     overlaps = layout_service.detect_overlaps
-    
+
     respond_to do |format|
       format.json { render json: { success: true, overlaps: overlaps } }
     end
@@ -116,8 +116,8 @@ class Admin::LayoutElementsController < ApplicationController
   end
 
   def layout_element_params
-    params.require(:layout_element).permit(:element_type, :name, :description, :x_position, :y_position, 
-                                           :width, :height, :rotation, :color, :layer, :locked, :visible, 
+    params.require(:layout_element).permit(:element_type, :name, :description, :x_position, :y_position,
+                                           :width, :height, :rotation, :color, :layer, :locked, :visible,
                                            properties: {})
   end
 

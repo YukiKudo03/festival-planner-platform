@@ -15,9 +15,9 @@ class CreateVenueAreas < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :venue_areas, :venue_id unless index_exists?(:venue_areas, :venue_id)
     add_index :venue_areas, :area_type
-    add_index :venue_areas, [:x_position, :y_position]
+    add_index :venue_areas, [ :x_position, :y_position ]
   end
 end

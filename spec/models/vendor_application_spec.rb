@@ -59,7 +59,7 @@ RSpec.describe VendorApplication, type: :model do
       it 'validates user can only apply once per festival' do
         create(:vendor_application, user: user, festival: festival)
         duplicate_application = build(:vendor_application, user: user, festival: festival)
-        
+
         expect(duplicate_application).not_to be_valid
         expect(duplicate_application.errors[:user_id]).to include('can only apply once per festival')
       end
@@ -104,7 +104,7 @@ RSpec.describe VendorApplication, type: :model do
       it 'returns true for submitted or requires_changes status' do
         submitted_app = build(:vendor_application, status: :submitted)
         changes_app = build(:vendor_application, status: :requires_changes)
-        
+
         expect(submitted_app.can_be_reviewed?).to be true
         expect(changes_app.can_be_reviewed?).to be true
       end
@@ -247,7 +247,7 @@ RSpec.describe VendorApplication, type: :model do
       it 'returns Japanese status text' do
         app = build(:vendor_application, status: :draft)
         expect(app.status_text).to eq('下書き')
-        
+
         app.status = :approved
         expect(app.status_text).to eq('承認')
       end
@@ -257,7 +257,7 @@ RSpec.describe VendorApplication, type: :model do
       it 'returns appropriate Bootstrap color class' do
         app = build(:vendor_application, status: :approved)
         expect(app.status_color).to eq('success')
-        
+
         app.status = :rejected
         expect(app.status_color).to eq('danger')
       end
@@ -267,7 +267,7 @@ RSpec.describe VendorApplication, type: :model do
       it 'returns Japanese priority text' do
         app = build(:vendor_application, priority: :high)
         expect(app.priority_text).to eq('高')
-        
+
         app.priority = :low
         expect(app.priority_text).to eq('低')
       end

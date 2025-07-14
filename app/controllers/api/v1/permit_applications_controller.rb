@@ -4,34 +4,34 @@
 # Handles government permit application workflow and document management
 class Api::V1::PermitApplicationsController < Api::V1::BaseController
   before_action :authenticate_user!
-  before_action :set_permit_application, except: [:index, :create, :statistics]
-  before_action :set_festival, only: [:index, :create]
-  before_action :authorize_access!, except: [:index, :create, :statistics]
+  before_action :set_permit_application, except: [ :index, :create, :statistics ]
+  before_action :set_festival, only: [ :index, :create ]
+  before_action :authorize_access!, except: [ :index, :create, :statistics ]
 
   # GET /api/v1/festivals/:festival_id/permit_applications
   # GET /api/v1/permit_applications
   def index
     @applications = if params[:festival_id]
                      @festival.permit_applications
-                   else
+    else
                      PermitApplication.all
-                   end
-    
+    end
+
     # Apply filters
     @applications = @applications.by_permit_type(params[:permit_type]) if params[:permit_type].present?
     @applications = @applications.where(status: params[:status]) if params[:status].present?
     @applications = @applications.by_authority(MunicipalAuthority.find(params[:authority_id])) if params[:authority_id].present?
-    @applications = @applications.pending if params[:pending_only] == 'true'
-    @applications = @applications.overdue if params[:overdue_only] == 'true'
-    
+    @applications = @applications.pending if params[:pending_only] == "true"
+    @applications = @applications.overdue if params[:overdue_only] == "true"
+
     # Include associations
     @applications = @applications.includes(:festival, :municipal_authority, :submitted_by, :permit_documents)
-    
+
     # Pagination
     page = params[:page] || 1
-    per_page = [params[:per_page]&.to_i || 20, 100].min
+    per_page = [ params[:per_page]&.to_i || 20, 100 ].min
     @applications = @applications.page(page).per(per_page)
-    
+
     render json: {
       success: true,
       data: {
@@ -59,14 +59,14 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
   def create
     @application = @festival.permit_applications.build(application_params)
     @application.submitted_by = current_user
-    
+
     if @application.save
       render json: {
         success: true,
         data: {
           permit_application: detailed_application_data(@application)
         },
-        message: 'Permit application created successfully'
+        message: "Permit application created successfully"
       }, status: :created
     else
       render json: {
@@ -84,7 +84,7 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
         data: {
           permit_application: detailed_application_data(@application)
         },
-        message: 'Permit application updated successfully'
+        message: "Permit application updated successfully"
       }
     else
       render json: {
@@ -99,7 +99,7 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
     if @application.destroy
       render json: {
         success: true,
-        message: 'Permit application deleted successfully'
+        message: "Permit application deleted successfully"
       }
     else
       render json: {
@@ -116,18 +116,18 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
       if @application.municipal_authority.api_integration_available?
         integration_service = MunicipalIntegrationService.new(@application.municipal_authority)
         integration_result = integration_service.submit_permit_application(@application)
-        
+
         unless integration_result[:success]
           Rails.logger.warn "Municipal integration failed: #{integration_result[:error]}"
         end
       end
-      
+
       render json: {
         success: true,
         data: {
           permit_application: detailed_application_data(@application.reload)
         },
-        message: 'Permit application submitted successfully'
+        message: "Permit application submitted successfully"
       }
     else
       render json: {
@@ -140,16 +140,16 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
   # POST /api/v1/permit_applications/:id/approve
   def approve
     authorize_reviewer!
-    
+
     notes = params[:notes]
-    
+
     if @application.approve!(current_user, notes: notes)
       render json: {
         success: true,
         data: {
           permit_application: detailed_application_data(@application.reload)
         },
-        message: 'Permit application approved successfully'
+        message: "Permit application approved successfully"
       }
     else
       render json: {
@@ -162,16 +162,16 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
   # POST /api/v1/permit_applications/:id/reject
   def reject
     authorize_reviewer!
-    
+
     notes = params.require(:notes)
-    
+
     if @application.reject!(current_user, notes: notes)
       render json: {
         success: true,
         data: {
           permit_application: detailed_application_data(@application.reload)
         },
-        message: 'Permit application rejected'
+        message: "Permit application rejected"
       }
     else
       render json: {
@@ -184,16 +184,16 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
   # POST /api/v1/permit_applications/:id/request_additional_info
   def request_additional_info
     authorize_reviewer!
-    
+
     requested_info = params.require(:requested_info)
-    
+
     if @application.request_additional_info!(current_user, requested_info: requested_info)
       render json: {
         success: true,
         data: {
           permit_application: detailed_application_data(@application.reload)
         },
-        message: 'Additional information requested'
+        message: "Additional information requested"
       }
     else
       render json: {
@@ -206,14 +206,14 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
   # POST /api/v1/permit_applications/:id/provide_additional_info
   def provide_additional_info
     info_provided = params.require(:info_provided)
-    
+
     if @application.provide_additional_info!(info_provided)
       render json: {
         success: true,
         data: {
           permit_application: detailed_application_data(@application.reload)
         },
-        message: 'Additional information provided'
+        message: "Additional information provided"
       }
     else
       render json: {
@@ -226,14 +226,14 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
   # POST /api/v1/permit_applications/:id/cancel
   def cancel
     reason = params[:reason]
-    
+
     if @application.cancel!(reason: reason)
       render json: {
         success: true,
         data: {
           permit_application: detailed_application_data(@application.reload)
         },
-        message: 'Permit application cancelled'
+        message: "Permit application cancelled"
       }
     else
       render json: {
@@ -246,14 +246,14 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
   # POST /api/v1/permit_applications/:id/pay_fee
   def pay_fee
     payment_reference = params[:payment_reference]
-    
+
     if @application.record_fee_payment!(payment_reference: payment_reference)
       render json: {
         success: true,
         data: {
           permit_application: detailed_application_data(@application.reload)
         },
-        message: 'Permit fee payment recorded'
+        message: "Permit fee payment recorded"
       }
     else
       render json: {
@@ -266,7 +266,7 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
   # GET /api/v1/permit_applications/:id/documents
   def documents
     documents = @application.permit_documents.includes(:uploaded_by)
-    
+
     render json: {
       success: true,
       data: {
@@ -282,34 +282,34 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
   def upload_document
     file = params[:file]
     document_type = params[:document_type]
-    
-    return render_error('File is required', :bad_request) unless file.present?
-    return render_error('Document type is required', :bad_request) unless document_type.present?
-    
+
+    return render_error("File is required", :bad_request) unless file.present?
+    return render_error("Document type is required", :bad_request) unless document_type.present?
+
     document = @application.permit_documents.build(
       document_type: document_type,
       uploaded_by: current_user
     )
-    
+
     document.file.attach(file)
-    
+
     if document.save
       # Upload to municipal system if available
       if @application.municipal_authority.api_integration_available?
         integration_service = MunicipalIntegrationService.new(@application.municipal_authority)
         integration_result = integration_service.upload_permit_document(@application, document)
-        
+
         unless integration_result[:success]
           Rails.logger.warn "Document upload integration failed: #{integration_result[:error]}"
         end
       end
-      
+
       render json: {
         success: true,
         data: {
           document: document_summary(document)
         },
-        message: 'Document uploaded successfully'
+        message: "Document uploaded successfully"
       }, status: :created
     else
       render json: {
@@ -325,12 +325,12 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
     if @application.municipal_authority.api_integration_available? && @application.external_reference_id.present?
       integration_service = MunicipalIntegrationService.new(@application.municipal_authority)
       integration_result = integration_service.check_permit_status(@application)
-      
+
       unless integration_result[:success]
         Rails.logger.warn "Status check integration failed: #{integration_result[:error]}"
       end
     end
-    
+
     render json: {
       success: true,
       data: {
@@ -351,21 +351,21 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
   # GET /api/v1/permit_applications/statistics
   def statistics
     authorize_admin_or_reviewer!
-    
+
     period = params[:period]&.to_i&.days || 30.days
-    
+
     stats = {
       overview: PermitApplication.statistics(period: period),
       by_permit_type: PermitApplication.where(created_at: period.ago..Time.current)
                                       .group(:permit_type).count,
       by_authority: PermitApplication.joins(:municipal_authority)
                                     .where(created_at: period.ago..Time.current)
-                                    .group('municipal_authorities.name').count,
+                                    .group("municipal_authorities.name").count,
       processing_times: PermitApplication.average_processing_time_by_type,
       overdue_applications: PermitApplication.overdue.count,
       expiring_soon: PermitApplication.expiring_soon.count
     }
-    
+
     render json: {
       success: true,
       data: stats
@@ -377,13 +377,13 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
   def set_permit_application
     @application = PermitApplication.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    render_not_found('Permit application not found')
+    render_not_found("Permit application not found")
   end
 
   def set_festival
     @festival = Festival.find(params[:festival_id]) if params[:festival_id]
   rescue ActiveRecord::RecordNotFound
-    render_not_found('Festival not found')
+    render_not_found("Festival not found")
   end
 
   def application_params
@@ -396,22 +396,22 @@ class Api::V1::PermitApplicationsController < Api::V1::BaseController
   end
 
   def authorize_access!
-    unless current_user.admin? || current_user.festival_organizer? || 
+    unless current_user.admin? || current_user.festival_organizer? ||
            @application.submitted_by == current_user ||
            @application.reviewed_by == current_user
-      render_forbidden('Access denied')
+      render_forbidden("Access denied")
     end
   end
 
   def authorize_reviewer!
     unless current_user.admin? || current_user.government_reviewer?
-      render_forbidden('Reviewer access required')
+      render_forbidden("Reviewer access required")
     end
   end
 
   def authorize_admin_or_reviewer!
     unless current_user.admin? || current_user.government_reviewer?
-      render_forbidden('Admin or reviewer access required')
+      render_forbidden("Admin or reviewer access required")
     end
   end
 

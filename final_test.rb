@@ -39,7 +39,7 @@ puts "-" * 30
 
 route_patterns = [
   'industry_specializations',
-  'tourism_collaborations', 
+  'tourism_collaborations',
   'ai_recommendations'
 ]
 
@@ -59,7 +59,7 @@ begin
   # フェスティバルを作成してテスト
   if defined?(User) && defined?(Festival)
     puts "  🧪 AI機能の基本テスト実行中..."
-    
+
     # シンプルなモック フェスティバル
     mock_festival = OpenStruct.new(
       id: 1,
@@ -71,11 +71,11 @@ begin
       tasks: OpenStruct.new(count: 50, completed: OpenStruct.new(count: 35)),
       expenses: OpenStruct.new(sum: ->(attr) { 400000 })
     )
-    
+
     # AI推奨エンジンのテスト
     if defined?(AiRecommendationService)
       service = AiRecommendationService.new
-      
+
       # 来場者予測テスト
       begin
         prediction = service.predict_attendance(mock_festival)
@@ -83,7 +83,7 @@ begin
       rescue => e
         puts "    ❌ 来場者予測機能: #{e.message}"
       end
-      
+
       # 予算配分推奨テスト
       begin
         budget_categories = [
@@ -96,7 +96,7 @@ begin
       rescue => e
         puts "    ❌ 予算配分推奨機能: #{e.message}"
       end
-      
+
       # リスク評価テスト
       begin
         risk_assessment = service.assess_festival_risks(mock_festival)
@@ -115,16 +115,16 @@ puts "\n5. 新機能の統合状況"
 puts "-" * 30
 
 integration_checks = [
-  { 
-    name: "業界特化機能", 
+  {
+    name: "業界特化機能",
     check: -> { defined?(IndustrySpecialization) && defined?(IndustrySpecializationsController) }
   },
-  { 
-    name: "観光連携機能", 
+  {
+    name: "観光連携機能",
     check: -> { defined?(TourismCollaboration) && defined?(TourismCollaborationsController) }
   },
-  { 
-    name: "AI推奨エンジン", 
+  {
+    name: "AI推奨エンジン",
     check: -> { defined?(AiRecommendationService) && defined?(AiRecommendationsController) }
   },
   {
@@ -166,7 +166,7 @@ completed_features = [
   "✅ テスト環境エラー修正 (FrozenError解決)",
   "✅ ログファイル最適化 (ローテーション設定)",
   "✅ 業界特化機能 (IndustrySpecialization)",
-  "✅ 観光連携機能 (TourismCollaboration)", 
+  "✅ 観光連携機能 (TourismCollaboration)",
   "✅ 自治体統合機能 (MunicipalAuthority)",
   "✅ AI推奨エンジン強化 (AiRecommendationService)",
   "✅ リアルタイム分析ダッシュボード",

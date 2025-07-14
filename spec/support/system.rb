@@ -3,12 +3,12 @@ RSpec.configure do |config|
   config.before(:each, type: :system) do
     driven_by :rack_test
   end
-  
+
   # Configure Chrome headless for JavaScript tests
   config.before(:each, type: :system, js: true) do
-    driven_by :selenium, using: :headless_chrome, screen_size: [1400, 1400]
+    driven_by :selenium, using: :headless_chrome, screen_size: [ 1400, 1400 ]
   end
-  
+
   # Helper methods for system tests
   config.include Module.new {
     def sign_in_user(user = nil)
@@ -19,17 +19,17 @@ RSpec.configure do |config|
       click_button 'Sign in'
       user
     end
-    
+
     def sign_out_user
       visit destroy_user_session_path
     end
-    
+
     def create_and_sign_in_admin
       admin = create(:user, role: :admin)
       sign_in_user(admin)
       admin
     end
-    
+
     def create_and_sign_in_user(role = :resident)
       user = create(:user, role: role)
       sign_in_user(user)
@@ -55,7 +55,7 @@ Capybara.register_driver :headless_chrome do |app|
   options.add_argument('--disable-dev-shm-usage')
   options.add_argument('--disable-gpu')
   options.add_argument('--window-size=1400,1400')
-  
+
   Capybara::Selenium::Driver.new(
     app,
     browser: :chrome,

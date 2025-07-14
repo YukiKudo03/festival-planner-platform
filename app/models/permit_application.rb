@@ -6,8 +6,8 @@ class PermitApplication < ApplicationRecord
   # Associations
   belongs_to :festival
   belongs_to :municipal_authority
-  belongs_to :submitted_by, class_name: 'User'
-  belongs_to :reviewed_by, class_name: 'User', optional: true
+  belongs_to :submitted_by, class_name: "User"
+  belongs_to :reviewed_by, class_name: "User", optional: true
   has_many :permit_documents, dependent: :destroy
   has_many :permit_reviews, dependent: :destroy
   has_many :permit_status_changes, dependent: :destroy
@@ -29,21 +29,21 @@ class PermitApplication < ApplicationRecord
 
   # Enums
   enum status: {
-    draft: 'draft',
-    submitted: 'submitted',
-    under_review: 'under_review',
-    additional_info_required: 'additional_info_required',
-    approved: 'approved',
-    rejected: 'rejected',
-    expired: 'expired',
-    cancelled: 'cancelled'
+    draft: "draft",
+    submitted: "submitted",
+    under_review: "under_review",
+    additional_info_required: "additional_info_required",
+    approved: "approved",
+    rejected: "rejected",
+    expired: "expired",
+    cancelled: "cancelled"
   }
 
   enum priority: {
-    low: 'low',
-    medium: 'medium',
-    high: 'high',
-    urgent: 'urgent'
+    low: "low",
+    medium: "medium",
+    high: "high",
+    urgent: "urgent"
   }
 
   # Constants
@@ -78,10 +78,10 @@ class PermitApplication < ApplicationRecord
   scope :for_festival, ->(festival) { where(festival: festival) }
   scope :by_authority, ->(authority) { where(municipal_authority: authority) }
   scope :by_permit_type, ->(type) { where(permit_type: type) }
-  scope :pending, -> { where(status: ['submitted', 'under_review', 'additional_info_required']) }
-  scope :completed, -> { where(status: ['approved', 'rejected']) }
-  scope :requiring_action, -> { where(status: ['submitted', 'additional_info_required']) }
-  scope :overdue, -> { where('expected_decision_date < ? AND status IN (?)', Date.current, ['submitted', 'under_review']) }
+  scope :pending, -> { where(status: [ "submitted", "under_review", "additional_info_required" ]) }
+  scope :completed, -> { where(status: [ "approved", "rejected" ]) }
+  scope :requiring_action, -> { where(status: [ "submitted", "additional_info_required" ]) }
+  scope :overdue, -> { where("expected_decision_date < ? AND status IN (?)", Date.current, [ "submitted", "under_review" ]) }
 
   # Callbacks
   before_create :set_application_number
@@ -100,7 +100,7 @@ class PermitApplication < ApplicationRecord
   # Returns current processing days
   def processing_days
     return 0 unless submitted_at
-    
+
     end_date = approved_at || rejected_at || Time.current
     (end_date.to_date - submitted_at.to_date).to_i
   end
@@ -118,19 +118,19 @@ class PermitApplication < ApplicationRecord
   # Returns days until expected decision
   def days_until_decision
     return nil unless expected_decision_date
-    
+
     (expected_decision_date - Date.current).to_i
   end
 
   # Returns progress percentage
   def progress_percentage
     case status
-    when 'draft' then 0
-    when 'submitted' then 25
-    when 'under_review' then 50
-    when 'additional_info_required' then 40
-    when 'approved', 'rejected' then 100
-    when 'cancelled', 'expired' then 100
+    when "draft" then 0
+    when "submitted" then 25
+    when "under_review" then 50
+    when "additional_info_required" then 40
+    when "approved", "rejected" then 100
+    when "cancelled", "expired" then 100
     else 0
     end
   end
@@ -138,21 +138,21 @@ class PermitApplication < ApplicationRecord
   # Submits the application
   def submit!
     return false unless draft?
-    
+
     transaction do
       update!(
-        status: 'submitted',
+        status: "submitted",
         submitted_at: Time.current,
         expected_decision_date: calculate_expected_decision_date
       )
-      
+
       # Create submission notification
       PermitApplicationMailer.submitted(self).deliver_later
-      
+
       # Create review assignment if authority has auto-assignment
       create_review_assignment if municipal_authority.auto_assign_reviews?
     end
-    
+
     true
   rescue ActiveRecord::RecordInvalid
     false
@@ -161,23 +161,23 @@ class PermitApplication < ApplicationRecord
   # Approves the application
   def approve!(reviewer, notes: nil)
     return false unless can_approve?
-    
+
     transaction do
       update!(
-        status: 'approved',
+        status: "approved",
         approved_at: Time.current,
         reviewed_by: reviewer,
         reviewer_notes: notes
       )
-      
+
       create_permit_reviews.create!(
         reviewer: reviewer,
-        decision: 'approved',
+        decision: "approved",
         notes: notes,
         reviewed_at: Time.current
       )
     end
-    
+
     true
   rescue ActiveRecord::RecordInvalid
     false
@@ -186,23 +186,23 @@ class PermitApplication < ApplicationRecord
   # Rejects the application
   def reject!(reviewer, notes:)
     return false unless can_reject?
-    
+
     transaction do
       update!(
-        status: 'rejected',
+        status: "rejected",
         rejected_at: Time.current,
         reviewed_by: reviewer,
         reviewer_notes: notes
       )
-      
+
       permit_reviews.create!(
         reviewer: reviewer,
-        decision: 'rejected',
+        decision: "rejected",
         notes: notes,
         reviewed_at: Time.current
       )
     end
-    
+
     true
   rescue ActiveRecord::RecordInvalid
     false
@@ -211,23 +211,23 @@ class PermitApplication < ApplicationRecord
   # Requests additional information
   def request_additional_info!(reviewer, requested_info:)
     return false unless under_review?
-    
+
     transaction do
       update!(
-        status: 'additional_info_required',
+        status: "additional_info_required",
         additional_info_requested: requested_info,
         info_requested_at: Time.current,
         reviewed_by: reviewer
       )
-      
+
       permit_reviews.create!(
         reviewer: reviewer,
-        decision: 'additional_info_required',
+        decision: "additional_info_required",
         notes: requested_info,
         reviewed_at: Time.current
       )
     end
-    
+
     true
   rescue ActiveRecord::RecordInvalid
     false
@@ -236,9 +236,9 @@ class PermitApplication < ApplicationRecord
   # Provides additional information
   def provide_additional_info!(info_provided)
     return false unless additional_info_required?
-    
+
     update!(
-      status: 'under_review',
+      status: "under_review",
       additional_info_provided: info_provided,
       info_provided_at: Time.current
     )
@@ -247,9 +247,9 @@ class PermitApplication < ApplicationRecord
   # Cancels the application
   def cancel!(reason: nil)
     return false if completed?
-    
+
     update!(
-      status: 'cancelled',
+      status: "cancelled",
       cancelled_at: Time.current,
       cancellation_reason: reason
     )
@@ -258,16 +258,16 @@ class PermitApplication < ApplicationRecord
   # Returns required documents for this permit type
   def required_documents
     case permit_type
-    when 'event_permit'
-      ['event_plan', 'venue_contract', 'insurance_certificate']
-    when 'fire_safety_inspection'
-      ['floor_plan', 'emergency_evacuation_plan', 'fire_equipment_list']
-    when 'food_safety_permit'
-      ['food_handler_certificates', 'supplier_certifications', 'menu_details']
-    when 'security_plan_approval'
-      ['security_plan', 'staff_training_records', 'emergency_procedures']
+    when "event_permit"
+      [ "event_plan", "venue_contract", "insurance_certificate" ]
+    when "fire_safety_inspection"
+      [ "floor_plan", "emergency_evacuation_plan", "fire_equipment_list" ]
+    when "food_safety_permit"
+      [ "food_handler_certificates", "supplier_certifications", "menu_details" ]
+    when "security_plan_approval"
+      [ "security_plan", "staff_training_records", "emergency_procedures" ]
     else
-      ['application_form', 'supporting_documents']
+      [ "application_form", "supporting_documents" ]
     end
   end
 
@@ -285,12 +285,12 @@ class PermitApplication < ApplicationRecord
 
   # Checks if application can be approved
   def can_approve?
-    ['submitted', 'under_review'].include?(status) && all_documents_uploaded?
+    [ "submitted", "under_review" ].include?(status) && all_documents_uploaded?
   end
 
   # Checks if application can be rejected
   def can_reject?
-    ['submitted', 'under_review', 'additional_info_required'].include?(status)
+    [ "submitted", "under_review", "additional_info_required" ].include?(status)
   end
 
   # Returns fee amount for this permit
@@ -329,7 +329,7 @@ class PermitApplication < ApplicationRecord
   class << self
     # Returns applications requiring attention
     def requiring_attention
-      where(status: ['submitted', 'additional_info_required']).or(overdue)
+      where(status: [ "submitted", "additional_info_required" ]).or(overdue)
     end
 
     # Returns statistics for reporting
@@ -339,13 +339,13 @@ class PermitApplication < ApplicationRecord
 
     # Returns average processing time by permit type
     def average_processing_time_by_type
-      completed.group(:permit_type).average('EXTRACT(days FROM (COALESCE(approved_at, rejected_at) - submitted_at))')
+      completed.group(:permit_type).average("EXTRACT(days FROM (COALESCE(approved_at, rejected_at) - submitted_at))")
     end
 
     # Finds applications that may expire soon
     def expiring_soon(days: 30)
-      approved.where('approved_at < ?', days.days.ago)
-        .where('approved_at + INTERVAL \'1 year\' < ?', days.days.from_now)
+      approved.where("approved_at < ?", days.days.ago)
+        .where("approved_at + INTERVAL '1 year' < ?", days.days.from_now)
     end
   end
 
@@ -353,13 +353,13 @@ class PermitApplication < ApplicationRecord
 
   def end_date_after_start_date
     return unless event_start_date && event_end_date
-    
-    errors.add(:event_end_date, 'must be after start date') if event_end_date < event_start_date
+
+    errors.add(:event_end_date, "must be after start date") if event_end_date < event_start_date
   end
 
   def application_submitted_in_advance
     return unless event_start_date
-    
+
     min_advance_days = municipal_authority&.minimum_advance_days || 14
     if event_start_date < min_advance_days.days.from_now
       errors.add(:event_start_date, "must be at least #{min_advance_days} days in the future")
@@ -368,35 +368,35 @@ class PermitApplication < ApplicationRecord
 
   def authority_has_jurisdiction
     return unless municipal_authority && venue_address
-    
+
     unless municipal_authority.has_jurisdiction?(venue_address)
-      errors.add(:municipal_authority, 'does not have jurisdiction over the venue location')
+      errors.add(:municipal_authority, "does not have jurisdiction over the venue location")
     end
   end
 
   def set_application_number
     year = Date.current.year
-    sequence = PermitApplication.where('created_at >= ?', Date.current.beginning_of_year).count + 1
-    authority_code = municipal_authority.code || municipal_authority.id.to_s.rjust(3, '0')
-    
+    sequence = PermitApplication.where("created_at >= ?", Date.current.beginning_of_year).count + 1
+    authority_code = municipal_authority.code || municipal_authority.id.to_s.rjust(3, "0")
+
     self.application_number = "PA#{year}#{authority_code}#{sequence.to_s.rjust(4, '0')}"
   end
 
   def calculate_expected_decision_date
     return nil unless submitted_at || will_save_change_to_submitted_at?
-    
+
     submission_date = submitted_at || Time.current
     processing_days = expected_processing_days
-    
+
     # Add business days (excluding weekends)
     business_days_added = 0
     current_date = submission_date.to_date
-    
+
     while business_days_added < processing_days
       current_date += 1.day
       business_days_added += 1 unless current_date.saturday? || current_date.sunday?
     end
-    
+
     current_date
   end
 
@@ -405,7 +405,7 @@ class PermitApplication < ApplicationRecord
       from_status: nil,
       to_status: status,
       changed_by: submitted_by,
-      notes: 'Application created'
+      notes: "Application created"
     )
   end
 
@@ -420,14 +420,14 @@ class PermitApplication < ApplicationRecord
 
   def notify_stakeholders
     case status
-    when 'submitted'
+    when "submitted"
       PermitApplicationMailer.submitted(self).deliver_later
       PermitApplicationMailer.received_by_authority(self).deliver_later
-    when 'approved'
+    when "approved"
       PermitApplicationMailer.approved(self).deliver_later
-    when 'rejected'
+    when "rejected"
       PermitApplicationMailer.rejected(self).deliver_later
-    when 'additional_info_required'
+    when "additional_info_required"
       PermitApplicationMailer.additional_info_required(self).deliver_later
     end
   end
@@ -439,17 +439,17 @@ class PermitApplication < ApplicationRecord
 
   def calculate_permit_fee
     base_fee = case permit_type
-               when 'event_permit'
+    when "event_permit"
                  estimated_attendance <= 500 ? 5000 : 10000
-               when 'fire_safety_inspection'
+    when "fire_safety_inspection"
                  15000
-               when 'food_safety_permit'
+    when "food_safety_permit"
                  8000
-               when 'security_plan_approval'
+    when "security_plan_approval"
                  12000
-               else
+    else
                  5000
-               end
+    end
 
     # Apply multipliers based on attendance
     if estimated_attendance > 5000

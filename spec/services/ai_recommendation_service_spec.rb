@@ -47,7 +47,7 @@ RSpec.describe AiRecommendationService, type: :service do
 
       it 'generates appropriate recommendations based on capacity' do
         high_capacity_festival = create(:festival, venue: create(:venue, capacity: 10000))
-        
+
         result = service.predict_attendance(high_capacity_festival)
 
         expect(result[:success]).to be true
@@ -161,7 +161,7 @@ RSpec.describe AiRecommendationService, type: :service do
 
         allocation = result[:recommended_allocation]
         expected_categories = %w[venue_costs marketing_promotion security_safety infrastructure entertainment food_beverage logistics contingency]
-        
+
         expect(allocation.keys.map(&:to_s)).to include(*expected_categories)
         expect(allocation.values.sum).to be_within(1).of(total_budget)
       end
@@ -290,7 +290,7 @@ RSpec.describe AiRecommendationService, type: :service do
 
     it 'logs errors appropriately' do
       expect(Rails.logger).to receive(:error).with(/Attendance prediction error/)
-      
+
       allow(festival).to receive(:venue).and_raise(StandardError.new('Test error'))
       service.predict_attendance(festival)
     end

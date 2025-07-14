@@ -1,4 +1,4 @@
-require 'paypal-sdk-rest'
+require "paypal-sdk-rest"
 
 class PaypalPaymentService
   include PayPal::SDK::REST
@@ -11,27 +11,27 @@ class PaypalPaymentService
   def create_payment(amount, options = {})
     begin
       # Convert amount to PayPal format (2 decimal places for most currencies)
-      formatted_amount = format_amount(amount, options[:currency] || 'JPY')
-      
+      formatted_amount = format_amount(amount, options[:currency] || "JPY")
+
       payment = Payment.new({
-        intent: 'sale',
+        intent: "sale",
         payer: build_payer(options),
         redirect_urls: build_redirect_urls(options),
-        transactions: [{
+        transactions: [ {
           item_list: build_item_list(options),
           amount: {
             total: formatted_amount,
-            currency: (options[:currency] || 'JPY').upcase,
+            currency: (options[:currency] || "JPY").upcase,
             details: build_amount_details(options)
           },
           description: options[:description] || "Payment for #{@integration.festival&.name}",
           invoice_number: options[:invoice_number] || generate_invoice_number,
           payment_options: {
-            allowed_payment_method: 'INSTANT_FUNDING_SOURCE'
+            allowed_payment_method: "INSTANT_FUNDING_SOURCE"
           },
           note_to_payer: options[:note_to_payer],
           custom: build_custom_data(options)
-        }]
+        } ]
       })
 
       if payment.create
@@ -39,10 +39,10 @@ class PaypalPaymentService
           success: true,
           transaction_id: payment.id,
           status: payment.state,
-          approval_url: payment.links.find { |link| link.rel == 'approval_url' }&.href,
-          execute_url: payment.links.find { |link| link.rel == 'execute' }&.href,
+          approval_url: payment.links.find { |link| link.rel == "approval_url" }&.href,
+          execute_url: payment.links.find { |link| link.rel == "execute" }&.href,
           amount: formatted_amount,
-          currency: (options[:currency] || 'JPY').upcase,
+          currency: (options[:currency] || "JPY").upcase,
           created_time: payment.create_time
         }
       else
@@ -56,7 +56,7 @@ class PaypalPaymentService
   def execute_payment(payment_id, payer_id)
     begin
       payment = Payment.find(payment_id)
-      
+
       if payment.execute(payer_id: payer_id)
         {
           success: true,
@@ -78,16 +78,16 @@ class PaypalPaymentService
   def create_payment_intent(amount, options = {})
     # PayPal doesn't have direct payment intents like Stripe
     # We'll create a payment and return the approval URL
-    result = create_payment(amount, options.merge(intent: 'authorize'))
-    
+    result = create_payment(amount, options.merge(intent: "authorize"))
+
     if result[:success]
       {
         success: true,
         payment_intent_id: result[:transaction_id],
         client_secret: result[:approval_url],
-        status: 'requires_action',
+        status: "requires_action",
         amount: amount,
-        currency: (options[:currency] || 'JPY').upcase,
+        currency: (options[:currency] || "JPY").upcase,
         approval_url: result[:approval_url]
       }
     else
@@ -100,24 +100,24 @@ class PaypalPaymentService
       # First find the sale from the payment
       payment = Payment.find(transaction_id)
       sale = payment.transactions.first.related_resources.first.sale
-      
+
       unless sale
         return {
           success: false,
-          error: 'Sale not found for this payment',
-          error_code: 'SALE_NOT_FOUND'
+          error: "Sale not found for this payment",
+          error_code: "SALE_NOT_FOUND"
         }
       end
 
       refund_amount = amount ? format_amount(amount, sale.amount.currency) : sale.amount.total
-      
+
       refund = Refund.new({
         amount: {
           total: refund_amount,
           currency: sale.amount.currency
         },
-        description: reason || 'Refund requested by customer',
-        reason: reason || 'Customer requested refund',
+        description: reason || "Refund requested by customer",
+        reason: reason || "Customer requested refund",
         invoice_number: generate_invoice_number
       })
 
@@ -146,18 +146,18 @@ class PaypalPaymentService
       # For now, return basic PayPal payment options
       [
         {
-          id: 'paypal',
-          type: 'paypal_account',
-          brand: 'PayPal',
-          description: 'PayPal Account',
-          capabilities: ['payments', 'refunds']
+          id: "paypal",
+          type: "paypal_account",
+          brand: "PayPal",
+          description: "PayPal Account",
+          capabilities: [ "payments", "refunds" ]
         },
         {
-          id: 'paypal_credit',
-          type: 'paypal_credit',
-          brand: 'PayPal Credit',
-          description: 'PayPal Credit',
-          capabilities: ['payments']
+          id: "paypal_credit",
+          type: "paypal_credit",
+          brand: "PayPal Credit",
+          description: "PayPal Credit",
+          capabilities: [ "payments" ]
         }
       ]
     rescue => error
@@ -171,34 +171,34 @@ class PaypalPaymentService
       plan = Plan.new({
         name: options[:name] || "#{@integration.festival&.name} Subscription Plan",
         description: options[:description] || "Recurring payment plan",
-        type: options[:type] || 'INFINITE',
-        payment_definitions: [{
-          name: options[:payment_name] || 'Regular Payment',
-          type: 'REGULAR',
-          frequency: options[:frequency] || 'MONTH',
-          frequency_interval: options[:frequency_interval] || '1',
+        type: options[:type] || "INFINITE",
+        payment_definitions: [ {
+          name: options[:payment_name] || "Regular Payment",
+          type: "REGULAR",
+          frequency: options[:frequency] || "MONTH",
+          frequency_interval: options[:frequency_interval] || "1",
           amount: {
             value: format_amount(options[:amount], options[:currency]),
-            currency: (options[:currency] || 'JPY').upcase
+            currency: (options[:currency] || "JPY").upcase
           },
-          cycles: options[:cycles] || '0', # 0 for infinite
-          charge_models: [{
-            type: 'TAX',
+          cycles: options[:cycles] || "0", # 0 for infinite
+          charge_models: [ {
+            type: "TAX",
             amount: {
               value: format_amount(options[:tax_amount] || 0, options[:currency]),
-              currency: (options[:currency] || 'JPY').upcase
+              currency: (options[:currency] || "JPY").upcase
             }
-          }]
-        }],
+          } ]
+        } ],
         merchant_preferences: {
           return_url: options[:return_url] || "#{Rails.application.config.frontend_url}/payment/success",
           cancel_url: options[:cancel_url] || "#{Rails.application.config.frontend_url}/payment/cancel",
-          auto_bill_amount: 'YES',
-          initial_fail_amount_action: 'CONTINUE',
-          max_fail_attempts: '3',
+          auto_bill_amount: "YES",
+          initial_fail_amount_action: "CONTINUE",
+          max_fail_attempts: "3",
           setup_fee: {
             value: format_amount(options[:setup_fee] || 0, options[:currency]),
-            currency: (options[:currency] || 'JPY').upcase
+            currency: (options[:currency] || "JPY").upcase
           }
         }
       })
@@ -234,7 +234,7 @@ class PaypalPaymentService
           id: plan_id
         },
         payer: {
-          payment_method: 'paypal'
+          payment_method: "paypal"
         },
         shipping_address: build_shipping_address(options[:shipping_address])
       })
@@ -243,7 +243,7 @@ class PaypalPaymentService
         {
           success: true,
           subscription_id: agreement.id,
-          approval_url: agreement.links.find { |link| link.rel == 'approval_url' }&.href,
+          approval_url: agreement.links.find { |link| link.rel == "approval_url" }&.href,
           status: agreement.state,
           start_date: agreement.start_date
         }
@@ -258,16 +258,16 @@ class PaypalPaymentService
   def cancel_subscription(subscription_id, options = {})
     begin
       agreement = Agreement.find(subscription_id)
-      
+
       cancel_note = {
-        note: options[:reason] || 'Subscription canceled by customer'
+        note: options[:reason] || "Subscription canceled by customer"
       }
 
       if agreement.cancel(cancel_note)
         {
           success: true,
           subscription_id: agreement.id,
-          status: 'Cancelled',
+          status: "Cancelled",
           canceled_at: Time.current.iso8601
         }
       else
@@ -307,9 +307,9 @@ class PaypalPaymentService
       # For now, we'll implement a basic verification
       # In production, you should verify the certificate chain
       event = JSON.parse(payload)
-      
+
       # Basic verification - check if required fields are present
-      required_fields = ['id', 'create_time', 'resource_type', 'event_type']
+      required_fields = [ "id", "create_time", "resource_type", "event_type" ]
       required_fields.all? { |field| event[field].present? }
     rescue JSON::ParserError
       false
@@ -322,26 +322,26 @@ class PaypalPaymentService
   def process_webhook(payload)
     begin
       event = JSON.parse(payload)
-      
-      case event['event_type']
-      when 'PAYMENT.SALE.COMPLETED'
-        handle_payment_completed(event['resource'])
-      when 'PAYMENT.SALE.DENIED'
-        handle_payment_denied(event['resource'])
-      when 'PAYMENT.SALE.REFUNDED'
-        handle_payment_refunded(event['resource'])
-      when 'BILLING.SUBSCRIPTION.ACTIVATED'
-        handle_subscription_activated(event['resource'])
-      when 'BILLING.SUBSCRIPTION.CANCELLED'
-        handle_subscription_cancelled(event['resource'])
-      when 'BILLING.SUBSCRIPTION.PAYMENT.FAILED'
-        handle_subscription_payment_failed(event['resource'])
+
+      case event["event_type"]
+      when "PAYMENT.SALE.COMPLETED"
+        handle_payment_completed(event["resource"])
+      when "PAYMENT.SALE.DENIED"
+        handle_payment_denied(event["resource"])
+      when "PAYMENT.SALE.REFUNDED"
+        handle_payment_refunded(event["resource"])
+      when "BILLING.SUBSCRIPTION.ACTIVATED"
+        handle_subscription_activated(event["resource"])
+      when "BILLING.SUBSCRIPTION.CANCELLED"
+        handle_subscription_cancelled(event["resource"])
+      when "BILLING.SUBSCRIPTION.PAYMENT.FAILED"
+        handle_subscription_payment_failed(event["resource"])
       else
         Rails.logger.info "Unhandled PayPal webhook event: #{event['event_type']}"
-        { success: true, message: 'Event received but not processed' }
+        { success: true, message: "Event received but not processed" }
       end
     rescue JSON::ParserError => error
-      { success: false, error: 'Invalid JSON payload' }
+      { success: false, error: "Invalid JSON payload" }
     rescue => error
       Rails.logger.error "PayPal webhook processing error: #{error.message}"
       { success: false, error: error.message }
@@ -352,32 +352,32 @@ class PaypalPaymentService
     begin
       # Test by creating a minimal plan and immediately deleting it
       test_plan = Plan.new({
-        name: 'Test Connection Plan',
-        description: 'Test plan for connection verification',
-        type: 'FIXED',
-        payment_definitions: [{
-          name: 'Test Payment',
-          type: 'REGULAR',
-          frequency: 'MONTH',
-          frequency_interval: '1',
+        name: "Test Connection Plan",
+        description: "Test plan for connection verification",
+        type: "FIXED",
+        payment_definitions: [ {
+          name: "Test Payment",
+          type: "REGULAR",
+          frequency: "MONTH",
+          frequency_interval: "1",
           amount: {
-            value: '10.00',
-            currency: 'JPY'
+            value: "10.00",
+            currency: "JPY"
           },
-          cycles: '1'
-        }],
+          cycles: "1"
+        } ],
         merchant_preferences: {
-          return_url: 'http://example.com/return',
-          cancel_url: 'http://example.com/cancel'
+          return_url: "http://example.com/return",
+          cancel_url: "http://example.com/cancel"
         }
       })
 
       if test_plan.create
         # Clean up the test plan
-        test_plan.replace([{ op: 'replace', path: '/', value: { state: 'INACTIVE' } }])
-        { success: true, message: 'PayPal connection successful' }
+        test_plan.replace([ { op: "replace", path: "/", value: { state: "INACTIVE" } } ])
+        { success: true, message: "PayPal connection successful" }
       else
-        { success: false, message: 'PayPal connection failed' }
+        { success: false, message: "PayPal connection failed" }
       end
     rescue => error
       { success: false, message: error.message }
@@ -387,7 +387,7 @@ class PaypalPaymentService
   def get_transaction_details(transaction_id)
     begin
       payment = Payment.find(transaction_id)
-      
+
       {
         success: true,
         transaction_id: payment.id,
@@ -405,7 +405,7 @@ class PaypalPaymentService
             related_resources: transaction.related_resources.map do |resource|
               if resource.sale
                 {
-                  type: 'sale',
+                  type: "sale",
                   id: resource.sale.id,
                   state: resource.sale.state,
                   amount: resource.sale.amount.total,
@@ -427,7 +427,7 @@ class PaypalPaymentService
 
   def configure_paypal
     PayPal::SDK.configure({
-      mode: @integration.environment || 'sandbox',
+      mode: @integration.environment || "sandbox",
       client_id: @integration.api_key,
       client_secret: @integration.api_secret,
       ssl_options: {
@@ -437,19 +437,19 @@ class PaypalPaymentService
     })
   end
 
-  def format_amount(amount, currency = 'JPY')
+  def format_amount(amount, currency = "JPY")
     # PayPal expects different decimal places for different currencies
     case currency.upcase
-    when 'JPY', 'KRW'
+    when "JPY", "KRW"
       amount.to_i.to_s # No decimal places for JPY
     else
-      sprintf('%.2f', amount.to_f / 100) # Convert from cents to dollars for most currencies
+      sprintf("%.2f", amount.to_f / 100) # Convert from cents to dollars for most currencies
     end
   end
 
   def build_payer(options)
     payer_info = {
-      payment_method: 'paypal'
+      payment_method: "paypal"
     }
 
     if options[:payer_info]
@@ -484,7 +484,7 @@ class PaypalPaymentService
           description: item[:description],
           quantity: item[:quantity].to_s,
           price: format_amount(item[:price], item[:currency]),
-          currency: (item[:currency] || 'JPY').upcase,
+          currency: (item[:currency] || "JPY").upcase,
           sku: item[:sku]
         }
       end,
@@ -513,7 +513,7 @@ class PaypalPaymentService
       line1: address_data[:line1],
       line2: address_data[:line2],
       city: address_data[:city],
-      country_code: address_data[:country_code] || 'JP',
+      country_code: address_data[:country_code] || "JP",
       postal_code: address_data[:postal_code],
       state: address_data[:state],
       phone: address_data[:phone]
@@ -527,7 +527,7 @@ class PaypalPaymentService
       line1: address_data[:line1],
       line2: address_data[:line2],
       city: address_data[:city],
-      country_code: address_data[:country_code] || 'JP',
+      country_code: address_data[:country_code] || "JP",
       postal_code: address_data[:postal_code],
       state: address_data[:state]
     }
@@ -538,10 +538,10 @@ class PaypalPaymentService
       integration_id: @integration.id,
       user_id: @integration.user_id
     }
-    
+
     custom_data[:festival_id] = @integration.festival_id if @integration.festival_id
     custom_data.merge!(options[:custom] || {})
-    
+
     JSON.generate(custom_data)
   end
 
@@ -551,93 +551,93 @@ class PaypalPaymentService
 
   def webhook_events
     [
-      'PAYMENT.SALE.COMPLETED',
-      'PAYMENT.SALE.DENIED',
-      'PAYMENT.SALE.REFUNDED',
-      'BILLING.SUBSCRIPTION.ACTIVATED',
-      'BILLING.SUBSCRIPTION.CANCELLED',
-      'BILLING.SUBSCRIPTION.SUSPENDED',
-      'BILLING.SUBSCRIPTION.PAYMENT.FAILED',
-      'BILLING.SUBSCRIPTION.PAYMENT.COMPLETED'
+      "PAYMENT.SALE.COMPLETED",
+      "PAYMENT.SALE.DENIED",
+      "PAYMENT.SALE.REFUNDED",
+      "BILLING.SUBSCRIPTION.ACTIVATED",
+      "BILLING.SUBSCRIPTION.CANCELLED",
+      "BILLING.SUBSCRIPTION.SUSPENDED",
+      "BILLING.SUBSCRIPTION.PAYMENT.FAILED",
+      "BILLING.SUBSCRIPTION.PAYMENT.COMPLETED"
     ]
   end
 
   def handle_payment_completed(sale)
     {
       success: true,
-      transaction_id: sale['parent_payment'],
-      sale_id: sale['id'],
-      status: 'completed',
-      event_type: 'payment_completed',
-      amount: sale['amount']['total'],
-      currency: sale['amount']['currency']
+      transaction_id: sale["parent_payment"],
+      sale_id: sale["id"],
+      status: "completed",
+      event_type: "payment_completed",
+      amount: sale["amount"]["total"],
+      currency: sale["amount"]["currency"]
     }
   end
 
   def handle_payment_denied(sale)
     {
       success: true,
-      transaction_id: sale['parent_payment'],
-      sale_id: sale['id'],
-      status: 'denied',
-      event_type: 'payment_denied',
-      amount: sale['amount']['total'],
-      currency: sale['amount']['currency']
+      transaction_id: sale["parent_payment"],
+      sale_id: sale["id"],
+      status: "denied",
+      event_type: "payment_denied",
+      amount: sale["amount"]["total"],
+      currency: sale["amount"]["currency"]
     }
   end
 
   def handle_payment_refunded(refund)
     {
       success: true,
-      refund_id: refund['id'],
-      transaction_id: refund['parent_payment'],
-      status: 'refunded',
-      event_type: 'payment_refunded',
-      amount: refund['amount']['total'],
-      currency: refund['amount']['currency']
+      refund_id: refund["id"],
+      transaction_id: refund["parent_payment"],
+      status: "refunded",
+      event_type: "payment_refunded",
+      amount: refund["amount"]["total"],
+      currency: refund["amount"]["currency"]
     }
   end
 
   def handle_subscription_activated(subscription)
     {
       success: true,
-      subscription_id: subscription['id'],
-      status: 'active',
-      event_type: 'subscription_activated'
+      subscription_id: subscription["id"],
+      status: "active",
+      event_type: "subscription_activated"
     }
   end
 
   def handle_subscription_cancelled(subscription)
     {
       success: true,
-      subscription_id: subscription['id'],
-      status: 'cancelled',
-      event_type: 'subscription_cancelled'
+      subscription_id: subscription["id"],
+      status: "cancelled",
+      event_type: "subscription_cancelled"
     }
   end
 
   def handle_subscription_payment_failed(payment)
     {
       success: true,
-      subscription_id: payment['billing_agreement_id'],
-      status: 'payment_failed',
-      event_type: 'subscription_payment_failed',
-      amount: payment['amount']['total'],
-      currency: payment['amount']['currency']
+      subscription_id: payment["billing_agreement_id"],
+      status: "payment_failed",
+      event_type: "subscription_payment_failed",
+      amount: payment["amount"]["total"],
+      currency: payment["amount"]["currency"]
     }
   end
 
   def handle_paypal_errors(error_details)
     error_message = if error_details.is_a?(Hash)
-                     error_details['message'] || 'PayPal API error'
-                   else
+                     error_details["message"] || "PayPal API error"
+    else
                      error_details.to_s
-                   end
+    end
 
     {
       success: false,
       error: error_message,
-      error_type: 'paypal_api_error',
+      error_type: "paypal_api_error",
       error_details: error_details
     }
   end
@@ -646,8 +646,8 @@ class PaypalPaymentService
     Rails.logger.error "Unknown PayPal error: #{error.message}"
     {
       success: false,
-      error: 'An unexpected error occurred',
-      error_type: 'unknown_error'
+      error: "An unexpected error occurred",
+      error_type: "unknown_error"
     }
   end
 end

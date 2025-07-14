@@ -8,17 +8,17 @@ RSpec.describe PaymentService, type: :service do
   describe '.available_methods' do
     it 'returns all supported payment methods' do
       methods = PaymentService.available_methods
-      
+
       expect(methods).to be_an(Array)
       expect(methods.length).to eq(4)
-      
+
       method_ids = methods.map { |m| m[:id] }
       expect(method_ids).to include('stripe', 'paypal', 'bank_transfer', 'cash')
     end
 
     it 'includes required information for each method' do
       methods = PaymentService.available_methods
-      
+
       methods.each do |method|
         expect(method).to include(:id, :name, :description, :fee_percentage, :supported_currencies, :min_amount, :max_amount)
         expect(method[:supported_currencies]).to be_an(Array)
@@ -202,7 +202,7 @@ RSpec.describe PaymentService, type: :service do
       it 'returns error for unsupported method' do
         # Use update_column to bypass enum validation
         payment.update_column(:payment_method, 'unsupported')
-        
+
         result = PaymentService.cancel_payment(payment: payment)
         expect(result[:success]).to be false
         expect(result[:error]).to eq('Unsupported payment method for cancellation')
@@ -227,7 +227,7 @@ RSpec.describe PaymentService, type: :service do
       it 'returns error for unsupported method' do
         # Use update_column to bypass enum validation
         payment.update_column(:payment_method, 'unsupported')
-        
+
         result = PaymentService.confirm_payment(payment)
         expect(result[:success]).to be false
         expect(result[:error]).to eq('Unsupported payment method for confirmation')
@@ -245,7 +245,7 @@ RSpec.describe BankTransferProcessor, type: :service do
   describe '#process' do
     it 'generates bank transfer instructions' do
       result = processor.process
-      
+
       expect(result[:success]).to be true
       expect(result[:transaction_id]).to be_present
       expect(result[:instructions]).to include(:bank_name, :branch_name, :account_type, :account_number)
@@ -256,10 +256,10 @@ RSpec.describe BankTransferProcessor, type: :service do
     it 'generates unique transfer codes' do
       processor1 = BankTransferProcessor.new(payment)
       processor2 = BankTransferProcessor.new(create(:payment, user: user, festival: festival))
-      
+
       result1 = processor1.process
       result2 = processor2.process
-      
+
       expect(result1[:transaction_id]).not_to eq(result2[:transaction_id])
     end
   end
@@ -289,7 +289,7 @@ RSpec.describe CashPaymentProcessor, type: :service do
   describe '#process' do
     it 'generates cash payment instructions' do
       result = processor.process
-      
+
       expect(result[:success]).to be true
       expect(result[:transaction_id]).to be_present
       expect(result[:instructions]).to include(:type, :amount, :receipt_number, :message)
@@ -323,7 +323,7 @@ RSpec.describe PayPalPaymentProcessor, type: :service do
   describe '#process' do
     it 'returns mock PayPal response' do
       result = processor.process
-      
+
       expect(result[:success]).to be true
       expect(result[:transaction_id]).to start_with('PAYPAL_')
       expect(result[:redirect_url]).to include('paypal.com')

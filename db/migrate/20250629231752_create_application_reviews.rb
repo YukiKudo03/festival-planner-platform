@@ -11,8 +11,8 @@ class CreateApplicationReviews < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :application_reviews, [:vendor_application_id, :created_at]
-    add_index :application_reviews, [:reviewer_id, :reviewed_at]
+    add_index :application_reviews, [ :vendor_application_id, :created_at ]
+    add_index :application_reviews, [ :reviewer_id, :reviewed_at ]
     add_index :application_reviews, :action
   end
 end

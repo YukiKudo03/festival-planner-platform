@@ -545,22 +545,22 @@ RSpec.describe "Tasks", type: :request do
 
     describe "bulk complete" do
       it "completes multiple tasks" do
-        patch bulk_complete_festival_tasks_path(festival), params: { 
-          task_ids: [task1.id, task2.id] 
+        patch bulk_complete_festival_tasks_path(festival), params: {
+          task_ids: [ task1.id, task2.id ]
         }
-        
+
         task1.reload
         task2.reload
         task3.reload
-        
+
         expect(task1.status).to eq("completed")
         expect(task2.status).to eq("completed")
         expect(task3.status).not_to eq("completed")
       end
 
       it "redirects with success message" do
-        patch bulk_complete_festival_tasks_path(festival), params: { 
-          task_ids: [task1.id, task2.id] 
+        patch bulk_complete_festival_tasks_path(festival), params: {
+          task_ids: [ task1.id, task2.id ]
         }
         expect(response).to redirect_to(festival_tasks_path(festival))
         expect(flash[:notice]).to include("2 tasks completed")
@@ -571,8 +571,8 @@ RSpec.describe "Tasks", type: :request do
       context "when user is festival owner" do
         it "deletes multiple tasks" do
           expect {
-            delete bulk_delete_festival_tasks_path(festival), params: { 
-              task_ids: [task1.id, task2.id] 
+            delete bulk_delete_festival_tasks_path(festival), params: {
+              task_ids: [ task1.id, task2.id ]
             }
           }.to change(Task, :count).by(-2)
         end
@@ -582,8 +582,8 @@ RSpec.describe "Tasks", type: :request do
         before { sign_in create(:user) }
 
         it "redirects to festivals index" do
-          delete bulk_delete_festival_tasks_path(festival), params: { 
-            task_ids: [task1.id, task2.id] 
+          delete bulk_delete_festival_tasks_path(festival), params: {
+            task_ids: [ task1.id, task2.id ]
           }
           expect(response).to redirect_to(festivals_path)
         end

@@ -1,6 +1,6 @@
 class Notification < ApplicationRecord
-  belongs_to :recipient, class_name: 'User'
-  belongs_to :sender, class_name: 'User', optional: true
+  belongs_to :recipient, class_name: "User"
+  belongs_to :sender, class_name: "User", optional: true
   belongs_to :notifiable, polymorphic: true
 
   NOTIFICATION_TYPES = %w[
@@ -65,6 +65,6 @@ class Notification < ApplicationRecord
   end
 
   def self.cleanup_old_notifications(days = 90)
-    where('created_at < ?', days.days.ago).delete_all
+    where("created_at < ?", days.days.ago).delete_all
   end
 end

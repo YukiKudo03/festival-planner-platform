@@ -1,5 +1,5 @@
 class LineIntegrationService
-  require 'line/bot'
+  require "line/bot"
 
   def initialize(line_integration)
     @integration = line_integration
@@ -9,12 +9,12 @@ class LineIntegrationService
   def authenticate_line_account
     begin
       profile = @client.get_profile(@integration.line_user_id) if @integration.line_user_id
-      
+
       {
         success: true,
-        line_user_id: profile&.dig('userId') || generate_temp_user_id,
-        display_name: profile&.dig('displayName'),
-        picture_url: profile&.dig('pictureUrl')
+        line_user_id: profile&.dig("userId") || generate_temp_user_id,
+        display_name: profile&.dig("displayName"),
+        picture_url: profile&.dig("pictureUrl")
       }
     rescue => e
       Rails.logger.error "LINE authentication failed: #{e.message}"
@@ -37,10 +37,10 @@ class LineIntegrationService
     begin
       # In a real implementation, this would fetch group information from LINE API
       # For now, we'll simulate group discovery
-      
+
       # Note: LINE Bot API doesn't provide direct group listing
       # Groups are typically discovered through incoming messages
-      
+
       Rails.logger.info "Group sync initiated for integration #{@integration.id}"
       true
     rescue => e
@@ -52,7 +52,7 @@ class LineIntegrationService
   def send_message(text, group_id = nil)
     begin
       message = {
-        type: 'text',
+        type: "text",
         text: text
       }
 
@@ -78,7 +78,7 @@ class LineIntegrationService
     begin
       # Register webhook URL with LINE
       response = @client.set_webhook_endpoint_url(webhook_url)
-      
+
       if response.is_a?(Net::HTTPOK)
         { success: true, webhook_url: webhook_url }
       else
@@ -91,16 +91,16 @@ class LineIntegrationService
   end
 
   def process_webhook_event(event)
-    case event['type']
-    when 'message'
+    case event["type"]
+    when "message"
       process_message_event(event)
-    when 'join'
+    when "join"
       process_join_event(event)
-    when 'leave'
+    when "leave"
       process_leave_event(event)
-    when 'memberJoined'
+    when "memberJoined"
       process_member_joined_event(event)
-    when 'memberLeft'
+    when "memberLeft"
       process_member_left_event(event)
     else
       Rails.logger.info "Unhandled LINE event type: #{event['type']}"
@@ -110,7 +110,7 @@ class LineIntegrationService
   def get_group_info(group_id)
     begin
       response = @client.get_group_summary(group_id)
-      
+
       if response.is_a?(Net::HTTPOK)
         JSON.parse(response.body)
       else
@@ -125,9 +125,9 @@ class LineIntegrationService
   def get_group_member_count(group_id)
     begin
       response = @client.get_group_members_count(group_id)
-      
+
       if response.is_a?(Net::HTTPOK)
-        JSON.parse(response.body)['count']
+        JSON.parse(response.body)["count"]
       else
         0
       end
@@ -148,11 +148,11 @@ class LineIntegrationService
   end
 
   def process_message_event(event)
-    return unless event['source']['type'] == 'group'
+    return unless event["source"]["type"] == "group"
 
-    group_id = event['source']['groupId']
-    user_id = event['source']['userId']
-    message = event['message']
+    group_id = event["source"]["groupId"]
+    user_id = event["source"]["userId"]
+    message = event["message"]
 
     # Find or create group
     line_group = find_or_create_group(group_id)
@@ -163,19 +163,19 @@ class LineIntegrationService
 
     # Create message record
     line_message = line_group.line_messages.create!(
-      line_message_id: event['message']['id'],
-      message_text: message['text'] || '',
-      message_type: message['type'],
+      line_message_id: event["message"]["id"],
+      message_text: message["text"] || "",
+      message_type: message["type"],
       user: user,
       sender_line_user_id: user_id,
-      line_timestamp: Time.at(event['timestamp'] / 1000.0)
+      line_timestamp: Time.at(event["timestamp"] / 1000.0)
     )
 
     # Update group activity
     line_group.update_activity!(line_message.line_timestamp)
 
     # Process message for task creation if enabled
-    if line_group.auto_parse_enabled? && message['type'] == 'text'
+    if line_group.auto_parse_enabled? && message["type"] == "text"
       LineTaskParsingJob.perform_later(line_message)
     end
 
@@ -186,71 +186,71 @@ class LineIntegrationService
   end
 
   def process_join_event(event)
-    return unless event['source']['type'] == 'group'
+    return unless event["source"]["type"] == "group"
 
-    group_id = event['source']['groupId']
+    group_id = event["source"]["groupId"]
     line_group = find_or_create_group(group_id)
-    
+
     if line_group
       # Send welcome message
       welcome_message = build_welcome_message
       send_message(welcome_message, group_id)
-      
+
       # Update group info
       update_group_info(line_group)
     end
   end
 
   def process_leave_event(event)
-    return unless event['source']['type'] == 'group'
+    return unless event["source"]["type"] == "group"
 
-    group_id = event['source']['groupId']
+    group_id = event["source"]["groupId"]
     line_group = @integration.line_groups.find_by(line_group_id: group_id)
-    
+
     if line_group
       line_group.update!(is_active: false)
     end
   end
 
   def process_member_joined_event(event)
-    return unless event['source']['type'] == 'group'
+    return unless event["source"]["type"] == "group"
 
-    group_id = event['source']['groupId']
+    group_id = event["source"]["groupId"]
     line_group = @integration.line_groups.find_by(line_group_id: group_id)
-    
+
     if line_group
-      joined_members = event['joined']['members']
+      joined_members = event["joined"]["members"]
       line_group.increment!(:member_count, joined_members.count)
     end
   end
 
   def process_member_left_event(event)
-    return unless event['source']['type'] == 'group'
+    return unless event["source"]["type"] == "group"
 
-    group_id = event['source']['groupId']
+    group_id = event["source"]["groupId"]
     line_group = @integration.line_groups.find_by(line_group_id: group_id)
-    
+
     if line_group
-      left_members = event['left']['members']
+      left_members = event["left"]["members"]
       left_members.count.times { line_group.decrement_member_count! }
     end
   end
 
   def find_or_create_group(group_id)
     line_group = @integration.line_groups.find_by(line_group_id: group_id)
-    
+
     unless line_group
       group_info = get_group_info(group_id)
       member_count = get_group_member_count(group_id)
-      
+
       line_group = @integration.line_groups.create!(
         line_group_id: group_id,
-        name: group_info&.dig('groupName') || "Group #{group_id[0..8]}",
+        name: group_info&.dig("groupName") || "Group #{group_id[0..8]}",
         member_count: member_count,
         last_activity_at: Time.current
       )
     end
-    
+
     line_group
   rescue => e
     Rails.logger.error "Failed to find or create group: #{e.message}"
@@ -266,10 +266,10 @@ class LineIntegrationService
   def update_group_info(line_group)
     group_info = get_group_info(line_group.line_group_id)
     member_count = get_group_member_count(line_group.line_group_id)
-    
+
     if group_info
       line_group.update!(
-        name: group_info['groupName'],
+        name: group_info["groupName"],
         member_count: member_count,
         last_activity_at: Time.current
       )
@@ -280,7 +280,7 @@ class LineIntegrationService
 
   def build_welcome_message
     festival_name = @integration.festival.name
-    
+
     "🎭 #{festival_name} のLINE連携が開始されました！\n\n" \
     "📝 タスクの登録方法：\n" \
     "「タスク：準備作業をする」のようにメッセージを送信\n\n" \

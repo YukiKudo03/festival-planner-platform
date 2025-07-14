@@ -64,7 +64,7 @@ RSpec.describe "Admin::VendorApplications", type: :request do
 
   context "when signed in as non-admin" do
     let(:regular_user) { create(:user) }
-    
+
     before do
       sign_out admin_user
       sign_in regular_user

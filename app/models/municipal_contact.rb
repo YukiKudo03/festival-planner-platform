@@ -15,20 +15,20 @@ class MunicipalContact < ApplicationRecord
 
   # Enums
   enum contact_type: {
-    general: 'general',
-    event_permits: 'event_permits',
-    fire_safety: 'fire_safety',
-    health_permits: 'health_permits',
-    police_coordination: 'police_coordination',
-    tourism_support: 'tourism_support',
-    environmental_review: 'environmental_review',
-    emergency_contact: 'emergency_contact'
+    general: "general",
+    event_permits: "event_permits",
+    fire_safety: "fire_safety",
+    health_permits: "health_permits",
+    police_coordination: "police_coordination",
+    tourism_support: "tourism_support",
+    environmental_review: "environmental_review",
+    emergency_contact: "emergency_contact"
   }
 
   enum status: {
-    active: 'active',
-    inactive: 'inactive',
-    on_leave: 'on_leave'
+    active: "active",
+    inactive: "inactive",
+    on_leave: "on_leave"
   }
 
   # Constants
@@ -44,14 +44,14 @@ class MunicipalContact < ApplicationRecord
   ].freeze
 
   DEPARTMENTS = {
-    'general' => '総務課',
-    'event_permits' => 'イベント許可課',
-    'fire_safety' => '消防署',
-    'health_permits' => '保健所',
-    'police_coordination' => '警察署',
-    'tourism_support' => '観光課',
-    'environmental_review' => '環境課',
-    'emergency_contact' => '危機管理室'
+    "general" => "総務課",
+    "event_permits" => "イベント許可課",
+    "fire_safety" => "消防署",
+    "health_permits" => "保健所",
+    "police_coordination" => "警察署",
+    "tourism_support" => "観光課",
+    "environmental_review" => "環境課",
+    "emergency_contact" => "危機管理室"
   }.freeze
 
   # JSON attributes
@@ -62,8 +62,8 @@ class MunicipalContact < ApplicationRecord
   # Scopes
   scope :by_contact_type, ->(type) { where(contact_type: type) }
   scope :by_department, ->(dept) { where(department: dept) }
-  scope :active, -> { where(status: 'active') }
-  scope :emergency_contacts, -> { where(contact_type: 'emergency_contact') }
+  scope :active, -> { where(status: "active") }
+  scope :emergency_contacts, -> { where(contact_type: "emergency_contact") }
   scope :for_permit_type, ->(permit_type) { where(contact_type: permit_type_to_contact_type(permit_type)) }
 
   # Callbacks
@@ -75,7 +75,7 @@ class MunicipalContact < ApplicationRecord
 
   # Returns full name with title
   def full_name_with_title
-    [title, name].compact.join(' ')
+    [ title, name ].compact.join(" ")
   end
 
   # Returns formatted contact information
@@ -97,7 +97,7 @@ class MunicipalContact < ApplicationRecord
   # Returns formatted phone number
   def formatted_phone
     return phone unless phone.match?(/\A\d+\z/)
-    
+
     # Format Japanese phone numbers
     if phone.length == 10
       phone.gsub(/(\d{3})(\d{3})(\d{4})/, '\1-\2-\3')
@@ -111,27 +111,27 @@ class MunicipalContact < ApplicationRecord
   # Returns working hours for today
   def todays_working_hours
     return nil unless working_hours.present?
-    
-    day_of_week = Date.current.strftime('%A').downcase
-    working_hours[day_of_week] || working_hours['default'] || '9:00-17:00'
+
+    day_of_week = Date.current.strftime("%A").downcase
+    working_hours[day_of_week] || working_hours["default"] || "9:00-17:00"
   end
 
   # Checks if currently available based on working hours
   def currently_available?
     return false unless active?
-    
+
     hours = todays_working_hours
-    return false if hours == 'Closed' || hours.blank?
-    
+    return false if hours == "Closed" || hours.blank?
+
     begin
-      now = Time.current.in_time_zone('Asia/Tokyo')
-      start_time, end_time = hours.split('-')
-      start_hour, start_min = start_time.split(':').map(&:to_i)
-      end_hour, end_min = end_time.split(':').map(&:to_i)
-      
+      now = Time.current.in_time_zone("Asia/Tokyo")
+      start_time, end_time = hours.split("-")
+      start_hour, start_min = start_time.split(":").map(&:to_i)
+      end_hour, end_min = end_time.split(":").map(&:to_i)
+
       start_time_today = now.beginning_of_day + start_hour.hours + start_min.minutes
       end_time_today = now.beginning_of_day + end_hour.hours + end_min.minutes
-      
+
       now.between?(start_time_today, end_time_today)
     rescue
       false
@@ -140,12 +140,12 @@ class MunicipalContact < ApplicationRecord
 
   # Returns specialization areas
   def specialization_list
-    (specializations || []).join(', ')
+    (specializations || []).join(", ")
   end
 
   # Returns spoken languages
   def language_list
-    (languages_spoken || ['日本語']).join(', ')
+    (languages_spoken || [ "日本語" ]).join(", ")
   end
 
   # Checks if contact speaks a specific language
@@ -156,14 +156,14 @@ class MunicipalContact < ApplicationRecord
   # Returns response time expectation
   def expected_response_time
     case contact_type
-    when 'emergency_contact'
-      'Immediate'
-    when 'general', 'event_permits'
-      '24 hours'
-    when 'fire_safety', 'health_permits'
-      '48 hours'
+    when "emergency_contact"
+      "Immediate"
+    when "general", "event_permits"
+      "24 hours"
+    when "fire_safety", "health_permits"
+      "48 hours"
     else
-      '3-5 business days'
+      "3-5 business days"
     end
   end
 
@@ -174,11 +174,11 @@ class MunicipalContact < ApplicationRecord
 
   # Returns contact availability status
   def availability_status
-    return 'Inactive' unless active?
-    return 'On Leave' if on_leave?
-    return 'Available' if currently_available?
-    
-    'Outside Working Hours'
+    return "Inactive" unless active?
+    return "On Leave" if on_leave?
+    return "Available" if currently_available?
+
+    "Outside Working Hours"
   end
 
   # Returns contact summary for API
@@ -203,12 +203,12 @@ class MunicipalContact < ApplicationRecord
     def for_permit_type(permit_type)
       contact_type = permit_type_to_contact_type(permit_type)
       by_contact_type(contact_type).active.first ||
-        by_contact_type('general').active.first
+        by_contact_type("general").active.first
     end
 
     # Finds emergency contacts
     def emergency_contacts_for_authority(authority)
-      where(municipal_authority: authority, contact_type: 'emergency_contact', status: 'active')
+      where(municipal_authority: authority, contact_type: "emergency_contact", status: "active")
     end
 
     # Returns contacts by availability
@@ -219,18 +219,18 @@ class MunicipalContact < ApplicationRecord
     # Maps permit types to contact types
     def permit_type_to_contact_type(permit_type)
       case permit_type
-      when 'event_permit', 'road_use_permit', 'noise_permit'
-        'event_permits'
-      when 'fire_safety_inspection', 'emergency_access_approval'
-        'fire_safety'
-      when 'food_safety_permit', 'sanitation_plan_approval'
-        'health_permits'
-      when 'security_plan_approval', 'traffic_control_permit'
-        'police_coordination'
-      when 'environmental_impact_permit'
-        'environmental_review'
+      when "event_permit", "road_use_permit", "noise_permit"
+        "event_permits"
+      when "fire_safety_inspection", "emergency_access_approval"
+        "fire_safety"
+      when "food_safety_permit", "sanitation_plan_approval"
+        "health_permits"
+      when "security_plan_approval", "traffic_control_permit"
+        "police_coordination"
+      when "environmental_impact_permit"
+        "environmental_review"
       else
-        'general'
+        "general"
       end
     end
 
@@ -249,7 +249,7 @@ class MunicipalContact < ApplicationRecord
     # Returns contact statistics
     def statistics_for_authority(authority)
       contacts = where(municipal_authority: authority)
-      
+
       {
         total_contacts: contacts.count,
         active_contacts: contacts.active.count,
@@ -263,7 +263,7 @@ class MunicipalContact < ApplicationRecord
   private
 
   def normalize_contact_info
-    self.phone = phone&.gsub(/[^\d\-\(\)\+\s]/, '')
+    self.phone = phone&.gsub(/[^\d\-\(\)\+\s]/, "")
     self.email = email&.downcase&.strip
     self.name = name&.strip
   end

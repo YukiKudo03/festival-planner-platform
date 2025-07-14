@@ -1,12 +1,12 @@
 class Api::V1::Budget::CategoriesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_festival
-  before_action :set_budget_category, only: [:show, :update, :destroy]
+  before_action :set_budget_category, only: [ :show, :update, :destroy ]
   before_action :ensure_access_permission
 
   def index
     @budget_categories = @festival.budget_categories.includes(:expenses, :revenues)
-    
+
     render json: {
       budget_categories: @budget_categories.map { |category| budget_category_json(category) },
       total_budget: @budget_categories.sum(:budget_limit),
@@ -31,16 +31,16 @@ class Api::V1::Budget::CategoriesController < ApplicationController
 
   def create
     @budget_category = @festival.budget_categories.build(budget_category_params)
-    
+
     if @budget_category.save
       render json: {
         budget_category: budget_category_json(@budget_category),
-        message: '予算カテゴリが作成されました。'
+        message: "予算カテゴリが作成されました。"
       }, status: :created
     else
       render json: {
         errors: @budget_category.errors.full_messages,
-        message: '予算カテゴリの作成に失敗しました。'
+        message: "予算カテゴリの作成に失敗しました。"
       }, status: :unprocessable_entity
     end
   end
@@ -49,12 +49,12 @@ class Api::V1::Budget::CategoriesController < ApplicationController
     if @budget_category.update(budget_category_params)
       render json: {
         budget_category: budget_category_json(@budget_category),
-        message: '予算カテゴリが更新されました。'
+        message: "予算カテゴリが更新されました。"
       }
     else
       render json: {
         errors: @budget_category.errors.full_messages,
-        message: '予算カテゴリの更新に失敗しました。'
+        message: "予算カテゴリの更新に失敗しました。"
       }, status: :unprocessable_entity
     end
   end
@@ -62,12 +62,12 @@ class Api::V1::Budget::CategoriesController < ApplicationController
   def destroy
     if @budget_category.expenses.any? || @budget_category.revenues.any?
       render json: {
-        message: '支出または収入が登録されているため削除できません。'
+        message: "支出または収入が登録されているため削除できません。"
       }, status: :unprocessable_entity
     else
       @budget_category.destroy
       render json: {
-        message: '予算カテゴリが削除されました。'
+        message: "予算カテゴリが削除されました。"
       }
     end
   end
@@ -75,8 +75,8 @@ class Api::V1::Budget::CategoriesController < ApplicationController
   private
 
   def set_festival
-    @festival = current_user.admin? || current_user.committee_member? ? 
-                Festival.find(params[:festival_id]) : 
+    @festival = current_user.admin? || current_user.committee_member? ?
+                Festival.find(params[:festival_id]) :
                 current_user.festivals.find(params[:festival_id])
   end
 
@@ -89,9 +89,9 @@ class Api::V1::Budget::CategoriesController < ApplicationController
   end
 
   def ensure_access_permission
-    unless current_user.admin? || current_user.committee_member? || 
+    unless current_user.admin? || current_user.committee_member? ||
            current_user.festivals.exists?(@festival.id)
-      render json: { error: 'アクセス権限がありません。' }, status: :forbidden
+      render json: { error: "アクセス権限がありません。" }, status: :forbidden
     end
   end
 

@@ -4,26 +4,26 @@ class Api::V1::DocsController < Api::V1::BaseController
   # GET /api/v1/docs
   def index
     render json: {
-      api_version: 'v1',
+      api_version: "v1",
       documentation: {
-        description: 'Festival Planner Platform API Documentation',
-        version: '1.0.0',
-        base_url: request.base_url + '/api/v1',
+        description: "Festival Planner Platform API Documentation",
+        version: "1.0.0",
+        base_url: request.base_url + "/api/v1",
         authentication: {
-          type: 'Bearer Token',
-          description: 'Include API key in Authorization header: Bearer <api_key>',
+          type: "Bearer Token",
+          description: "Include API key in Authorization header: Bearer <api_key>",
           endpoints: {
-            obtain_token: 'POST /auth/login',
-            refresh_token: 'POST /auth/refresh'
+            obtain_token: "POST /auth/login",
+            refresh_token: "POST /auth/refresh"
           }
         },
         rate_limiting: {
-          default: '1000 requests per hour',
-          authenticated: '5000 requests per hour',
+          default: "1000 requests per hour",
+          authenticated: "5000 requests per hour",
           headers: [
-            'X-RateLimit-Limit',
-            'X-RateLimit-Remaining',
-            'X-RateLimit-Reset'
+            "X-RateLimit-Limit",
+            "X-RateLimit-Remaining",
+            "X-RateLimit-Reset"
           ]
         },
         endpoints: api_endpoints,
@@ -44,65 +44,65 @@ class Api::V1::DocsController < Api::V1::BaseController
   def api_endpoints
     {
       authentication: {
-        'POST /api/v1/auth/login' => 'User authentication',
-        'POST /api/v1/auth/logout' => 'User logout',
-        'POST /api/v1/auth/refresh' => 'Refresh access token'
+        "POST /api/v1/auth/login" => "User authentication",
+        "POST /api/v1/auth/logout" => "User logout",
+        "POST /api/v1/auth/refresh" => "Refresh access token"
       },
       users: {
-        'GET /api/v1/users/me' => 'Get current user profile',
-        'GET /api/v1/users/:id' => 'Get user by ID',
-        'PATCH /api/v1/users/:id' => 'Update user profile',
-        'GET /api/v1/users/:id/festivals' => 'Get user festivals',
-        'GET /api/v1/users/:id/tasks' => 'Get user tasks',
-        'GET /api/v1/users/search' => 'Search users'
+        "GET /api/v1/users/me" => "Get current user profile",
+        "GET /api/v1/users/:id" => "Get user by ID",
+        "PATCH /api/v1/users/:id" => "Update user profile",
+        "GET /api/v1/users/:id/festivals" => "Get user festivals",
+        "GET /api/v1/users/:id/tasks" => "Get user tasks",
+        "GET /api/v1/users/search" => "Search users"
       },
       festivals: {
-        'GET /api/v1/festivals' => 'List festivals',
-        'POST /api/v1/festivals' => 'Create festival',
-        'GET /api/v1/festivals/:id' => 'Get festival details',
-        'PATCH /api/v1/festivals/:id' => 'Update festival',
-        'DELETE /api/v1/festivals/:id' => 'Delete festival',
-        'GET /api/v1/festivals/:id/analytics' => 'Get festival analytics',
-        'POST /api/v1/festivals/:id/join' => 'Join festival',
-        'DELETE /api/v1/festivals/:id/leave' => 'Leave festival'
+        "GET /api/v1/festivals" => "List festivals",
+        "POST /api/v1/festivals" => "Create festival",
+        "GET /api/v1/festivals/:id" => "Get festival details",
+        "PATCH /api/v1/festivals/:id" => "Update festival",
+        "DELETE /api/v1/festivals/:id" => "Delete festival",
+        "GET /api/v1/festivals/:id/analytics" => "Get festival analytics",
+        "POST /api/v1/festivals/:id/join" => "Join festival",
+        "DELETE /api/v1/festivals/:id/leave" => "Leave festival"
       },
       tasks: {
-        'GET /api/v1/tasks' => 'List all user tasks',
-        'GET /api/v1/festivals/:festival_id/tasks' => 'List festival tasks',
-        'POST /api/v1/festivals/:festival_id/tasks' => 'Create task',
-        'GET /api/v1/tasks/:id' => 'Get task details',
-        'PATCH /api/v1/tasks/:id' => 'Update task',
-        'DELETE /api/v1/tasks/:id' => 'Delete task',
-        'POST /api/v1/tasks/:id/assign' => 'Assign task to user',
-        'POST /api/v1/tasks/:id/complete' => 'Mark task as complete'
+        "GET /api/v1/tasks" => "List all user tasks",
+        "GET /api/v1/festivals/:festival_id/tasks" => "List festival tasks",
+        "POST /api/v1/festivals/:festival_id/tasks" => "Create task",
+        "GET /api/v1/tasks/:id" => "Get task details",
+        "PATCH /api/v1/tasks/:id" => "Update task",
+        "DELETE /api/v1/tasks/:id" => "Delete task",
+        "POST /api/v1/tasks/:id/assign" => "Assign task to user",
+        "POST /api/v1/tasks/:id/complete" => "Mark task as complete"
       },
       notifications: {
-        'GET /api/v1/notifications' => 'List notifications',
-        'GET /api/v1/notifications/:id' => 'Get notification details',
-        'PATCH /api/v1/notifications/:id/mark_read' => 'Mark notification as read',
-        'PATCH /api/v1/notifications/mark_all_read' => 'Mark all notifications as read',
-        'DELETE /api/v1/notifications/clear_all' => 'Clear all notifications',
-        'GET /api/v1/notifications/summary' => 'Get notifications summary',
-        'GET /api/v1/notifications/settings' => 'Get notification settings',
-        'PATCH /api/v1/notifications/settings' => 'Update notification settings'
+        "GET /api/v1/notifications" => "List notifications",
+        "GET /api/v1/notifications/:id" => "Get notification details",
+        "PATCH /api/v1/notifications/:id/mark_read" => "Mark notification as read",
+        "PATCH /api/v1/notifications/mark_all_read" => "Mark all notifications as read",
+        "DELETE /api/v1/notifications/clear_all" => "Clear all notifications",
+        "GET /api/v1/notifications/summary" => "Get notifications summary",
+        "GET /api/v1/notifications/settings" => "Get notification settings",
+        "PATCH /api/v1/notifications/settings" => "Update notification settings"
       },
       payments: {
-        'GET /api/v1/payments' => 'List payments',
-        'GET /api/v1/festivals/:festival_id/payments' => 'List festival payments',
-        'POST /api/v1/festivals/:festival_id/payments' => 'Create payment',
-        'GET /api/v1/payments/:id' => 'Get payment details',
-        'POST /api/v1/payments/:id/confirm' => 'Confirm payment'
+        "GET /api/v1/payments" => "List payments",
+        "GET /api/v1/festivals/:festival_id/payments" => "List festival payments",
+        "POST /api/v1/festivals/:festival_id/payments" => "Create payment",
+        "GET /api/v1/payments/:id" => "Get payment details",
+        "POST /api/v1/payments/:id/confirm" => "Confirm payment"
       },
       integrations: {
-        'GET /api/v1/integrations/line' => 'List LINE integrations',
-        'POST /api/v1/integrations/line' => 'Create LINE integration',
-        'GET /api/v1/integrations/slack' => 'List Slack integrations',
-        'POST /api/v1/integrations/slack' => 'Create Slack integration'
+        "GET /api/v1/integrations/line" => "List LINE integrations",
+        "POST /api/v1/integrations/line" => "Create LINE integration",
+        "GET /api/v1/integrations/slack" => "List Slack integrations",
+        "POST /api/v1/integrations/slack" => "Create Slack integration"
       },
       webhooks: {
-        'POST /api/v1/webhooks/line' => 'LINE webhook endpoint',
-        'POST /api/v1/webhooks/slack' => 'Slack webhook endpoint',
-        'POST /api/v1/webhooks/discord' => 'Discord webhook endpoint'
+        "POST /api/v1/webhooks/line" => "LINE webhook endpoint",
+        "POST /api/v1/webhooks/slack" => "Slack webhook endpoint",
+        "POST /api/v1/webhooks/discord" => "Discord webhook endpoint"
       }
     }
   end
@@ -112,23 +112,23 @@ class Api::V1::DocsController < Api::V1::BaseController
       authentication: {
         login: {
           request: {
-            method: 'POST',
-            url: '/api/v1/auth/login',
+            method: "POST",
+            url: "/api/v1/auth/login",
             headers: {
-              'Content-Type' => 'application/json'
+              "Content-Type" => "application/json"
             },
             body: {
-              email: 'user@example.com',
-              password: 'password123'
+              email: "user@example.com",
+              password: "password123"
             }
           },
           response: {
-            access_token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...',
-            refresh_token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...',
+            access_token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+            refresh_token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
             user: {
               id: 1,
-              name: 'John Doe',
-              email: 'user@example.com'
+              name: "John Doe",
+              email: "user@example.com"
             }
           }
         }
@@ -136,18 +136,18 @@ class Api::V1::DocsController < Api::V1::BaseController
       tasks: {
         create: {
           request: {
-            method: 'POST',
-            url: '/api/v1/festivals/1/tasks',
+            method: "POST",
+            url: "/api/v1/festivals/1/tasks",
             headers: {
-              'Authorization' => 'Bearer <api_key>',
-              'Content-Type' => 'application/json'
+              "Authorization" => "Bearer <api_key>",
+              "Content-Type" => "application/json"
             },
             body: {
               task: {
-                title: 'Setup stage equipment',
-                description: 'Install sound system and lighting',
-                priority: 'high',
-                due_date: '2024-12-25',
+                title: "Setup stage equipment",
+                description: "Install sound system and lighting",
+                priority: "high",
+                due_date: "2024-12-25",
                 assigned_user_id: 2
               }
             }
@@ -155,48 +155,48 @@ class Api::V1::DocsController < Api::V1::BaseController
           response: {
             task: {
               id: 123,
-              title: 'Setup stage equipment',
-              description: 'Install sound system and lighting',
-              status: 'pending',
-              priority: 'high',
-              due_date: '2024-12-25T00:00:00Z',
+              title: "Setup stage equipment",
+              description: "Install sound system and lighting",
+              status: "pending",
+              priority: "high",
+              due_date: "2024-12-25T00:00:00Z",
               assigned_user: {
                 id: 2,
-                name: 'Jane Smith',
-                email: 'jane@example.com'
+                name: "Jane Smith",
+                email: "jane@example.com"
               },
               festival: {
                 id: 1,
-                name: 'Summer Festival 2024'
+                name: "Summer Festival 2024"
               },
-              created_at: '2024-07-13T10:30:00Z'
+              created_at: "2024-07-13T10:30:00Z"
             },
-            message: 'Task created successfully'
+            message: "Task created successfully"
           }
         },
         list: {
           request: {
-            method: 'GET',
-            url: '/api/v1/tasks?status=pending&priority=high&page=1&per_page=20',
+            method: "GET",
+            url: "/api/v1/tasks?status=pending&priority=high&page=1&per_page=20",
             headers: {
-              'Authorization' => 'Bearer <api_key>'
+              "Authorization" => "Bearer <api_key>"
             }
           },
           response: {
             tasks: [
               {
                 id: 123,
-                title: 'Setup stage equipment',
-                status: 'pending',
-                priority: 'high',
-                due_date: '2024-12-25T00:00:00Z',
+                title: "Setup stage equipment",
+                status: "pending",
+                priority: "high",
+                due_date: "2024-12-25T00:00:00Z",
                 assigned_user: {
                   id: 2,
-                  name: 'Jane Smith'
+                  name: "Jane Smith"
                 },
                 festival: {
                   id: 1,
-                  name: 'Summer Festival 2024'
+                  name: "Summer Festival 2024"
                 }
               }
             ],
@@ -207,8 +207,8 @@ class Api::V1::DocsController < Api::V1::BaseController
               total_count: 95
             },
             filters: {
-              status: 'pending',
-              priority: 'high'
+              status: "pending",
+              priority: "high"
             }
           }
         }
@@ -216,26 +216,26 @@ class Api::V1::DocsController < Api::V1::BaseController
       notifications: {
         list: {
           request: {
-            method: 'GET',
-            url: '/api/v1/notifications?unread_only=true&page=1',
+            method: "GET",
+            url: "/api/v1/notifications?unread_only=true&page=1",
             headers: {
-              'Authorization' => 'Bearer <api_key>'
+              "Authorization" => "Bearer <api_key>"
             }
           },
           response: {
             notifications: [
               {
                 id: 456,
-                title: 'Task Assigned',
-                message: 'You have been assigned to task: Setup stage equipment',
-                notification_type: 'task_assigned',
+                title: "Task Assigned",
+                message: "You have been assigned to task: Setup stage equipment",
+                notification_type: "task_assigned",
                 read: false,
-                priority: 'medium',
-                created_at: '2024-07-13T10:30:00Z',
+                priority: "medium",
+                created_at: "2024-07-13T10:30:00Z",
                 related_object: {
-                  type: 'Task',
+                  type: "Task",
                   id: 123,
-                  name: 'Setup stage equipment'
+                  name: "Setup stage equipment"
                 }
               }
             ],
@@ -262,62 +262,62 @@ class Api::V1::DocsController < Api::V1::BaseController
   def error_codes
     {
       400 => {
-        code: 'BAD_REQUEST',
-        description: 'Invalid request parameters',
+        code: "BAD_REQUEST",
+        description: "Invalid request parameters",
         example: {
-          error: 'Invalid request parameters',
+          error: "Invalid request parameters",
           details: {
-            title: ['can\'t be blank'],
-            due_date: ['must be a valid date']
+            title: [ "can't be blank" ],
+            due_date: [ "must be a valid date" ]
           }
         }
       },
       401 => {
-        code: 'UNAUTHORIZED',
-        description: 'Authentication required or invalid',
+        code: "UNAUTHORIZED",
+        description: "Authentication required or invalid",
         example: {
-          error: 'Invalid or expired API key'
+          error: "Invalid or expired API key"
         }
       },
       403 => {
-        code: 'FORBIDDEN',
-        description: 'Access denied to resource',
+        code: "FORBIDDEN",
+        description: "Access denied to resource",
         example: {
-          error: 'Access denied to this festival'
+          error: "Access denied to this festival"
         }
       },
       404 => {
-        code: 'NOT_FOUND',
-        description: 'Resource not found',
+        code: "NOT_FOUND",
+        description: "Resource not found",
         example: {
-          error: 'Task not found'
+          error: "Task not found"
         }
       },
       422 => {
-        code: 'UNPROCESSABLE_ENTITY',
-        description: 'Validation errors',
+        code: "UNPROCESSABLE_ENTITY",
+        description: "Validation errors",
         example: {
-          errors: ['Title can\'t be blank', 'Due date must be in the future'],
+          errors: [ "Title can't be blank", "Due date must be in the future" ],
           details: {
-            title: ['can\'t be blank'],
-            due_date: ['must be in the future']
+            title: [ "can't be blank" ],
+            due_date: [ "must be in the future" ]
           }
         }
       },
       429 => {
-        code: 'TOO_MANY_REQUESTS',
-        description: 'Rate limit exceeded',
+        code: "TOO_MANY_REQUESTS",
+        description: "Rate limit exceeded",
         example: {
-          error: 'Rate limit exceeded. Try again in 1 hour.',
+          error: "Rate limit exceeded. Try again in 1 hour.",
           retry_after: 3600
         }
       },
       500 => {
-        code: 'INTERNAL_SERVER_ERROR',
-        description: 'Server error',
+        code: "INTERNAL_SERVER_ERROR",
+        description: "Server error",
         example: {
-          error: 'Internal server error',
-          message: 'An unexpected error occurred'
+          error: "Internal server error",
+          message: "An unexpected error occurred"
         }
       }
     }
@@ -326,16 +326,16 @@ class Api::V1::DocsController < Api::V1::BaseController
   def changelog
     [
       {
-        version: '1.0.0',
-        date: '2024-07-13',
+        version: "1.0.0",
+        date: "2024-07-13",
         changes: [
-          'Initial API release',
-          'User authentication and profile management',
-          'Festival and task management',
-          'Notification system',
-          'Webhook support for LINE and Slack',
-          'Payment processing',
-          'Comprehensive documentation'
+          "Initial API release",
+          "User authentication and profile management",
+          "Festival and task management",
+          "Notification system",
+          "Webhook support for LINE and Slack",
+          "Payment processing",
+          "Comprehensive documentation"
         ]
       }
     ]
@@ -343,37 +343,37 @@ class Api::V1::DocsController < Api::V1::BaseController
 
   def generate_openapi_spec
     {
-      openapi: '3.0.3',
+      openapi: "3.0.3",
       info: {
-        title: 'Festival Planner Platform API',
-        description: 'RESTful API for managing festivals, tasks, and team collaboration',
-        version: '1.0.0',
+        title: "Festival Planner Platform API",
+        description: "RESTful API for managing festivals, tasks, and team collaboration",
+        version: "1.0.0",
         contact: {
-          name: 'API Support',
-          email: 'api-support@festival-planner.com'
+          name: "API Support",
+          email: "api-support@festival-planner.com"
         },
         license: {
-          name: 'MIT',
-          url: 'https://opensource.org/licenses/MIT'
+          name: "MIT",
+          url: "https://opensource.org/licenses/MIT"
         }
       },
       servers: [
         {
-          url: request.base_url + '/api/v1',
-          description: 'Production server'
+          url: request.base_url + "/api/v1",
+          description: "Production server"
         }
       ],
       components: {
         securitySchemes: {
           bearerAuth: {
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'JWT'
+            type: "http",
+            scheme: "bearer",
+            bearerFormat: "JWT"
           },
           apiKeyAuth: {
-            type: 'apiKey',
-            in: 'header',
-            name: 'X-API-Key'
+            type: "apiKey",
+            in: "header",
+            name: "X-API-Key"
           }
         },
         schemas: openapi_schemas
@@ -384,14 +384,14 @@ class Api::V1::DocsController < Api::V1::BaseController
       ],
       paths: openapi_paths,
       tags: [
-        { name: 'Authentication', description: 'User authentication endpoints' },
-        { name: 'Users', description: 'User management' },
-        { name: 'Festivals', description: 'Festival management' },
-        { name: 'Tasks', description: 'Task management' },
-        { name: 'Notifications', description: 'Notification system' },
-        { name: 'Payments', description: 'Payment processing' },
-        { name: 'Integrations', description: 'External service integrations' },
-        { name: 'Webhooks', description: 'Webhook endpoints' }
+        { name: "Authentication", description: "User authentication endpoints" },
+        { name: "Users", description: "User management" },
+        { name: "Festivals", description: "Festival management" },
+        { name: "Tasks", description: "Task management" },
+        { name: "Notifications", description: "Notification system" },
+        { name: "Payments", description: "Payment processing" },
+        { name: "Integrations", description: "External service integrations" },
+        { name: "Webhooks", description: "Webhook endpoints" }
       ]
     }
   end
@@ -399,75 +399,75 @@ class Api::V1::DocsController < Api::V1::BaseController
   def openapi_schemas
     {
       User: {
-        type: 'object',
+        type: "object",
         properties: {
-          id: { type: 'integer', example: 1 },
-          name: { type: 'string', example: 'John Doe' },
-          email: { type: 'string', format: 'email', example: 'john@example.com' },
-          role: { type: 'string', enum: ['user', 'admin', 'system_admin'], example: 'user' },
-          created_at: { type: 'string', format: 'date-time' },
-          updated_at: { type: 'string', format: 'date-time' }
+          id: { type: "integer", example: 1 },
+          name: { type: "string", example: "John Doe" },
+          email: { type: "string", format: "email", example: "john@example.com" },
+          role: { type: "string", enum: [ "user", "admin", "system_admin" ], example: "user" },
+          created_at: { type: "string", format: "date-time" },
+          updated_at: { type: "string", format: "date-time" }
         }
       },
       Festival: {
-        type: 'object',
+        type: "object",
         properties: {
-          id: { type: 'integer', example: 1 },
-          name: { type: 'string', example: 'Summer Festival 2024' },
-          description: { type: 'string' },
-          start_date: { type: 'string', format: 'date' },
-          end_date: { type: 'string', format: 'date' },
-          location: { type: 'string' },
-          budget: { type: 'number', format: 'decimal' },
-          status: { type: 'string', enum: ['planning', 'active', 'completed'] },
-          created_at: { type: 'string', format: 'date-time' },
-          updated_at: { type: 'string', format: 'date-time' }
+          id: { type: "integer", example: 1 },
+          name: { type: "string", example: "Summer Festival 2024" },
+          description: { type: "string" },
+          start_date: { type: "string", format: "date" },
+          end_date: { type: "string", format: "date" },
+          location: { type: "string" },
+          budget: { type: "number", format: "decimal" },
+          status: { type: "string", enum: [ "planning", "active", "completed" ] },
+          created_at: { type: "string", format: "date-time" },
+          updated_at: { type: "string", format: "date-time" }
         }
       },
       Task: {
-        type: 'object',
+        type: "object",
         properties: {
-          id: { type: 'integer', example: 123 },
-          title: { type: 'string', example: 'Setup stage equipment' },
-          description: { type: 'string' },
-          status: { type: 'string', enum: ['pending', 'in_progress', 'completed'] },
-          priority: { type: 'string', enum: ['low', 'medium', 'high', 'urgent'] },
-          due_date: { type: 'string', format: 'date-time' },
-          progress: { type: 'integer', minimum: 0, maximum: 100 },
-          assigned_user: { '$ref': '#/components/schemas/User' },
-          festival: { '$ref': '#/components/schemas/Festival' },
-          created_at: { type: 'string', format: 'date-time' },
-          updated_at: { type: 'string', format: 'date-time' }
+          id: { type: "integer", example: 123 },
+          title: { type: "string", example: "Setup stage equipment" },
+          description: { type: "string" },
+          status: { type: "string", enum: [ "pending", "in_progress", "completed" ] },
+          priority: { type: "string", enum: [ "low", "medium", "high", "urgent" ] },
+          due_date: { type: "string", format: "date-time" },
+          progress: { type: "integer", minimum: 0, maximum: 100 },
+          assigned_user: { '$ref': "#/components/schemas/User" },
+          festival: { '$ref': "#/components/schemas/Festival" },
+          created_at: { type: "string", format: "date-time" },
+          updated_at: { type: "string", format: "date-time" }
         }
       },
       Notification: {
-        type: 'object',
+        type: "object",
         properties: {
-          id: { type: 'integer', example: 456 },
-          title: { type: 'string', example: 'Task Assigned' },
-          message: { type: 'string' },
-          notification_type: { type: 'string' },
-          read: { type: 'boolean' },
-          priority: { type: 'string', enum: ['low', 'medium', 'high'] },
-          created_at: { type: 'string', format: 'date-time' },
-          read_at: { type: 'string', format: 'date-time', nullable: true }
+          id: { type: "integer", example: 456 },
+          title: { type: "string", example: "Task Assigned" },
+          message: { type: "string" },
+          notification_type: { type: "string" },
+          read: { type: "boolean" },
+          priority: { type: "string", enum: [ "low", "medium", "high" ] },
+          created_at: { type: "string", format: "date-time" },
+          read_at: { type: "string", format: "date-time", nullable: true }
         }
       },
       Error: {
-        type: 'object',
+        type: "object",
         properties: {
-          error: { type: 'string' },
-          details: { type: 'object' },
-          timestamp: { type: 'string', format: 'date-time' }
+          error: { type: "string" },
+          details: { type: "object" },
+          timestamp: { type: "string", format: "date-time" }
         }
       },
       PaginationMeta: {
-        type: 'object',
+        type: "object",
         properties: {
-          current_page: { type: 'integer' },
-          per_page: { type: 'integer' },
-          total_pages: { type: 'integer' },
-          total_count: { type: 'integer' }
+          current_page: { type: "integer" },
+          per_page: { type: "integer" },
+          total_pages: { type: "integer" },
+          total_count: { type: "integer" }
         }
       }
     }
@@ -475,19 +475,19 @@ class Api::V1::DocsController < Api::V1::BaseController
 
   def openapi_paths
     {
-      '/users/me' => {
+      "/users/me" => {
         get: {
-          tags: ['Users'],
-          summary: 'Get current user profile',
+          tags: [ "Users" ],
+          summary: "Get current user profile",
           responses: {
-            '200' => {
-              description: 'User profile',
+            "200" => {
+              description: "User profile",
               content: {
-                'application/json' => {
+                "application/json" => {
                   schema: {
-                    type: 'object',
+                    type: "object",
                     properties: {
-                      user: { '$ref': '#/components/schemas/User' }
+                      user: { '$ref': "#/components/schemas/User" }
                     }
                   }
                 }
@@ -496,45 +496,45 @@ class Api::V1::DocsController < Api::V1::BaseController
           }
         }
       },
-      '/tasks' => {
+      "/tasks" => {
         get: {
-          tags: ['Tasks'],
-          summary: 'List user tasks',
+          tags: [ "Tasks" ],
+          summary: "List user tasks",
           parameters: [
             {
-              name: 'status',
-              in: 'query',
-              schema: { type: 'string', enum: ['pending', 'in_progress', 'completed'] }
+              name: "status",
+              in: "query",
+              schema: { type: "string", enum: [ "pending", "in_progress", "completed" ] }
             },
             {
-              name: 'priority',
-              in: 'query',
-              schema: { type: 'string', enum: ['low', 'medium', 'high', 'urgent'] }
+              name: "priority",
+              in: "query",
+              schema: { type: "string", enum: [ "low", "medium", "high", "urgent" ] }
             },
             {
-              name: 'page',
-              in: 'query',
-              schema: { type: 'integer', minimum: 1, default: 1 }
+              name: "page",
+              in: "query",
+              schema: { type: "integer", minimum: 1, default: 1 }
             },
             {
-              name: 'per_page',
-              in: 'query',
-              schema: { type: 'integer', minimum: 1, maximum: 100, default: 50 }
+              name: "per_page",
+              in: "query",
+              schema: { type: "integer", minimum: 1, maximum: 100, default: 50 }
             }
           ],
           responses: {
-            '200' => {
-              description: 'List of tasks',
+            "200" => {
+              description: "List of tasks",
               content: {
-                'application/json' => {
+                "application/json" => {
                   schema: {
-                    type: 'object',
+                    type: "object",
                     properties: {
                       tasks: {
-                        type: 'array',
-                        items: { '$ref': '#/components/schemas/Task' }
+                        type: "array",
+                        items: { '$ref': "#/components/schemas/Task" }
                       },
-                      meta: { '$ref': '#/components/schemas/PaginationMeta' }
+                      meta: { '$ref': "#/components/schemas/PaginationMeta" }
                     }
                   }
                 }
@@ -543,35 +543,35 @@ class Api::V1::DocsController < Api::V1::BaseController
           }
         }
       },
-      '/notifications' => {
+      "/notifications" => {
         get: {
-          tags: ['Notifications'],
-          summary: 'List notifications',
+          tags: [ "Notifications" ],
+          summary: "List notifications",
           parameters: [
             {
-              name: 'unread_only',
-              in: 'query',
-              schema: { type: 'boolean', default: false }
+              name: "unread_only",
+              in: "query",
+              schema: { type: "boolean", default: false }
             },
             {
-              name: 'type',
-              in: 'query',
-              schema: { type: 'string' }
+              name: "type",
+              in: "query",
+              schema: { type: "string" }
             }
           ],
           responses: {
-            '200' => {
-              description: 'List of notifications',
+            "200" => {
+              description: "List of notifications",
               content: {
-                'application/json' => {
+                "application/json" => {
                   schema: {
-                    type: 'object',
+                    type: "object",
                     properties: {
                       notifications: {
-                        type: 'array',
-                        items: { '$ref': '#/components/schemas/Notification' }
+                        type: "array",
+                        items: { '$ref': "#/components/schemas/Notification" }
                       },
-                      meta: { '$ref': '#/components/schemas/PaginationMeta' }
+                      meta: { '$ref': "#/components/schemas/PaginationMeta" }
                     }
                   }
                 }

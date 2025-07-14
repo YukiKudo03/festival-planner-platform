@@ -22,12 +22,12 @@ class CreatePayments < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :payments, :status
     add_index :payments, :payment_method
     add_index :payments, :external_transaction_id, unique: true
-    add_index :payments, [:festival_id, :status]
-    add_index :payments, [:user_id, :status]
+    add_index :payments, [ :festival_id, :status ]
+    add_index :payments, [ :user_id, :status ]
     add_index :payments, :processed_at
     add_index :payments, :confirmed_at
   end

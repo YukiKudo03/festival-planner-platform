@@ -26,7 +26,7 @@ class VendorApplication < ApplicationRecord
   validates :business_type, length: { maximum: 50 }
   validates :description, length: { maximum: 2000 }
   validates :requirements, length: { maximum: 1000 }, allow_blank: true
-  validates :user_id, uniqueness: { scope: :festival_id, message: 'can only apply once per festival' }
+  validates :user_id, uniqueness: { scope: :festival_id, message: "can only apply once per festival" }
 
   scope :by_status, ->(status) { where(status: status) }
   scope :recent, -> { order(created_at: :desc) }
@@ -74,14 +74,14 @@ class VendorApplication < ApplicationRecord
   # ステータス変更
   def submit!(user = nil)
     return false unless can_be_submitted?
-    
+
     transaction do
       update!(
         status: :submitted,
         submitted_at: Time.current,
         review_deadline: festival.start_date - 30.days # デフォルト30日前
       )
-      
+
       application_reviews.create!(
         reviewer: user || self.user,
         action: :submitted,
@@ -92,7 +92,7 @@ class VendorApplication < ApplicationRecord
 
   def start_review!(reviewer)
     return false unless can_be_reviewed?
-    
+
     transaction do
       update!(status: :under_review)
       application_reviews.create!(
@@ -105,13 +105,13 @@ class VendorApplication < ApplicationRecord
 
   def approve!(reviewer, comment = nil)
     return false unless can_be_approved?
-    
+
     transaction do
       update!(
         status: :approved,
         reviewed_at: Time.current
       )
-      
+
       application_reviews.create!(
         reviewer: reviewer,
         action: :approved,
@@ -124,13 +124,13 @@ class VendorApplication < ApplicationRecord
   def reject!(reviewer, comment)
     return false unless can_be_rejected?
     return false if comment.blank?
-    
+
     transaction do
       update!(
         status: :rejected,
         reviewed_at: Time.current
       )
-      
+
       application_reviews.create!(
         reviewer: reviewer,
         action: :rejected,
@@ -143,7 +143,7 @@ class VendorApplication < ApplicationRecord
   def request_changes!(reviewer, comment)
     return false unless can_request_changes?
     return false if comment.blank?
-    
+
     transaction do
       update!(status: :requires_changes)
       application_reviews.create!(
@@ -158,13 +158,13 @@ class VendorApplication < ApplicationRecord
   def conditionally_approve!(reviewer, conditions, comment = nil)
     return false unless can_be_approved?
     return false if conditions.blank?
-    
+
     transaction do
       update!(
         status: :conditionally_approved,
         reviewed_at: Time.current
       )
-      
+
       application_reviews.create!(
         reviewer: reviewer,
         action: :conditionally_approved,
@@ -177,7 +177,7 @@ class VendorApplication < ApplicationRecord
 
   def withdraw!(user = nil)
     return false unless can_be_withdrawn?
-    
+
     transaction do
       update!(status: :withdrawn)
       application_reviews.create!(
@@ -191,40 +191,40 @@ class VendorApplication < ApplicationRecord
   # ステータス表示
   def status_text
     case status
-    when 'draft' then '下書き'
-    when 'submitted' then '提出済み'
-    when 'under_review' then '審査中'
-    when 'requires_changes' then '修正要求'
-    when 'conditionally_approved' then '条件付き承認'
-    when 'approved' then '承認'
-    when 'rejected' then '却下'
-    when 'withdrawn' then '取り下げ'
-    when 'cancelled' then 'キャンセル'
+    when "draft" then "下書き"
+    when "submitted" then "提出済み"
+    when "under_review" then "審査中"
+    when "requires_changes" then "修正要求"
+    when "conditionally_approved" then "条件付き承認"
+    when "approved" then "承認"
+    when "rejected" then "却下"
+    when "withdrawn" then "取り下げ"
+    when "cancelled" then "キャンセル"
     else status.humanize
     end
   end
 
   def status_color
     case status
-    when 'draft' then 'secondary'
-    when 'submitted' then 'info'
-    when 'under_review' then 'warning'
-    when 'requires_changes' then 'warning'
-    when 'conditionally_approved' then 'primary'
-    when 'approved' then 'success'
-    when 'rejected' then 'danger'
-    when 'withdrawn' then 'secondary'
-    when 'cancelled' then 'dark'
-    else 'secondary'
+    when "draft" then "secondary"
+    when "submitted" then "info"
+    when "under_review" then "warning"
+    when "requires_changes" then "warning"
+    when "conditionally_approved" then "primary"
+    when "approved" then "success"
+    when "rejected" then "danger"
+    when "withdrawn" then "secondary"
+    when "cancelled" then "dark"
+    else "secondary"
     end
   end
 
   def priority_text
     case priority
-    when 'low' then '低'
-    when 'medium' then '中'
-    when 'high' then '高'
-    when 'urgent' then '緊急'
+    when "low" then "低"
+    when "medium" then "中"
+    when "high" then "高"
+    when "urgent" then "緊急"
     else priority.humanize
     end
   end
@@ -262,7 +262,7 @@ class VendorApplication < ApplicationRecord
   def create_initial_review
     # 作成時にsubmittedレビューを自動作成（下書きの場合はスキップ）
     return if draft?
-    
+
     application_reviews.create!(
       reviewer: user,
       action: :submitted,
@@ -273,11 +273,11 @@ class VendorApplication < ApplicationRecord
   def send_status_change_notification
     if saved_change_to_status?
       case status
-      when 'submitted'
+      when "submitted"
         NotificationService.send_vendor_application_submitted_notification(self)
-      when 'approved', 'rejected', 'conditionally_approved'
+      when "approved", "rejected", "conditionally_approved"
         NotificationService.send_vendor_application_status_notification(self, status)
-      when 'requires_changes'
+      when "requires_changes"
         NotificationService.send_vendor_application_changes_requested(self)
       end
     end

@@ -34,19 +34,19 @@ class LocationIntegration < ApplicationRecord
   after_update :update_map_configuration, if: :saved_change_to_active?
 
   def google_maps?
-    provider == 'google_maps'
+    provider == "google_maps"
   end
 
   def apple_maps?
-    provider == 'apple_maps'
+    provider == "apple_maps"
   end
 
   def mapbox?
-    provider == 'mapbox'
+    provider == "mapbox"
   end
 
   def openstreetmap?
-    provider == 'openstreetmap'
+    provider == "openstreetmap"
   end
 
   def maps_enabled?
@@ -71,23 +71,23 @@ class LocationIntegration < ApplicationRecord
 
   def location_service
     @location_service ||= case provider
-                         when 'google_maps'
+    when "google_maps"
                            GoogleMapsService.new(self)
-                         when 'apple_maps'
+    when "apple_maps"
                            AppleMapsService.new(self)
-                         when 'mapbox'
+    when "mapbox"
                            MapboxService.new(self)
-                         when 'openstreetmap'
+    when "openstreetmap"
                            OpenStreetMapService.new(self)
-                         end
+    end
   end
 
   def geocode_address(address)
-    return { success: false, error: 'Geocoding not supported' } unless supports_geocoding?
+    return { success: false, error: "Geocoding not supported" } unless supports_geocoding?
 
     begin
       result = location_service.geocode(address)
-      
+
       if result[:success]
         {
           success: true,
@@ -107,11 +107,11 @@ class LocationIntegration < ApplicationRecord
   end
 
   def reverse_geocode(latitude, longitude)
-    return { success: false, error: 'Reverse geocoding not supported' } unless supports_geocoding?
+    return { success: false, error: "Reverse geocoding not supported" } unless supports_geocoding?
 
     begin
       result = location_service.reverse_geocode(latitude, longitude)
-      
+
       if result[:success]
         {
           success: true,
@@ -130,11 +130,11 @@ class LocationIntegration < ApplicationRecord
   end
 
   def get_directions(origin, destination, options = {})
-    return { success: false, error: 'Directions not supported' } unless supports_directions?
+    return { success: false, error: "Directions not supported" } unless supports_directions?
 
     begin
       result = location_service.get_directions(origin, destination, options)
-      
+
       if result[:success]
         {
           success: true,
@@ -156,7 +156,7 @@ class LocationIntegration < ApplicationRecord
   def search_nearby_places(latitude, longitude, query = nil, options = {})
     begin
       result = location_service.search_nearby(latitude, longitude, query, options)
-      
+
       if result[:success]
         {
           success: true,
@@ -175,7 +175,7 @@ class LocationIntegration < ApplicationRecord
   def get_place_details(place_id)
     begin
       result = location_service.get_place_details(place_id)
-      
+
       if result[:success]
         {
           success: true,
@@ -196,7 +196,7 @@ class LocationIntegration < ApplicationRecord
   def create_static_map(latitude, longitude, options = {})
     begin
       result = location_service.create_static_map(latitude, longitude, options)
-      
+
       if result[:success]
         {
           success: true,
@@ -214,20 +214,20 @@ class LocationIntegration < ApplicationRecord
   end
 
   def create_festival_map
-    return { success: false, error: 'No festival associated' } unless festival
+    return { success: false, error: "No festival associated" } unless festival
 
     begin
       # Geocode festival location if not already done
       if festival.latitude.blank? || festival.longitude.blank?
         geocode_result = geocode_address(festival.location)
-        
+
         if geocode_result[:success]
           festival.update!(
             latitude: geocode_result[:latitude],
             longitude: geocode_result[:longitude]
           )
         else
-          return { success: false, error: 'Failed to geocode festival location' }
+          return { success: false, error: "Failed to geocode festival location" }
         end
       end
 
@@ -244,14 +244,14 @@ class LocationIntegration < ApplicationRecord
       }
 
       static_map_result = create_static_map(festival.latitude, festival.longitude, map_options)
-      
+
       if static_map_result[:success]
         # Save map configuration
         update!(
           last_map_url: static_map_result[:map_url],
           last_generated_at: Time.current
         )
-        
+
         static_map_result
       else
         static_map_result
@@ -263,11 +263,11 @@ class LocationIntegration < ApplicationRecord
   end
 
   def get_traffic_info(latitude, longitude, radius = 1000)
-    return { success: false, error: 'Traffic info not supported' } unless supports_real_time_traffic?
+    return { success: false, error: "Traffic info not supported" } unless supports_real_time_traffic?
 
     begin
       result = location_service.get_traffic_info(latitude, longitude, radius)
-      
+
       if result[:success]
         {
           success: true,
@@ -287,7 +287,7 @@ class LocationIntegration < ApplicationRecord
   def calculate_travel_time_matrix(origins, destinations, options = {})
     begin
       result = location_service.calculate_travel_time_matrix(origins, destinations, options)
-      
+
       if result[:success]
         {
           success: true,
@@ -335,13 +335,13 @@ class LocationIntegration < ApplicationRecord
 
   def update_map_configuration
     return unless active?
-    
+
     LocationMapUpdateJob.perform_later(id)
   end
 
   def build_festival_markers
     markers = []
-    
+
     # Main festival marker
     if festival.latitude && festival.longitude
       markers << {
@@ -349,9 +349,9 @@ class LocationIntegration < ApplicationRecord
         longitude: festival.longitude,
         title: festival.name,
         description: festival.description,
-        icon: 'festival',
-        color: 'red',
-        size: 'large'
+        icon: "festival",
+        color: "red",
+        size: "large"
       }
     end
 
@@ -365,7 +365,7 @@ class LocationIntegration < ApplicationRecord
           description: task.description,
           icon: task_icon(task),
           color: task_color(task),
-          size: 'medium'
+          size: "medium"
         }
       end
     end
@@ -388,59 +388,59 @@ class LocationIntegration < ApplicationRecord
 
   def task_icon(task)
     case task.category&.downcase
-    when 'setup'
-      'construction'
-    when 'security'
-      'security'
-    when 'food'
-      'restaurant'
-    when 'entertainment'
-      'music'
-    when 'cleanup'
-      'cleanup'
+    when "setup"
+      "construction"
+    when "security"
+      "security"
+    when "food"
+      "restaurant"
+    when "entertainment"
+      "music"
+    when "cleanup"
+      "cleanup"
     else
-      'task'
+      "task"
     end
   end
 
   def task_color(task)
     case task.status
-    when 'completed'
-      'green'
-    when 'in_progress'
-      'yellow'
-    when 'pending'
-      'blue'
+    when "completed"
+      "green"
+    when "in_progress"
+      "yellow"
+    when "pending"
+      "blue"
     else
-      'gray'
+      "gray"
     end
   end
 
   def geocoding_request_count(start_date, end_date)
     # This would be tracked in a separate analytics table
     location_events.where(
-      event_type: 'geocoding',
+      event_type: "geocoding",
       created_at: start_date..end_date
     ).count
   end
 
   def directions_request_count(start_date, end_date)
     location_events.where(
-      event_type: 'directions',
+      event_type: "directions",
       created_at: start_date..end_date
     ).count
   end
 
   def places_search_count(start_date, end_date)
     location_events.where(
-      event_type: 'places_search',
+      event_type: "places_search",
       created_at: start_date..end_date
     ).count
   end
 
   def static_map_count(start_date, end_date)
     location_events.where(
-      event_type: 'static_map',
+      event_type: "static_map",
       created_at: start_date..end_date
     ).count
   end
@@ -470,9 +470,9 @@ class LocationIntegration < ApplicationRecord
       created_at: start_date..end_date,
       success: false
     ).count
-    
+
     return 0 if total_requests.zero?
-    
+
     (error_requests.to_f / total_requests * 100).round(2)
   end
 end

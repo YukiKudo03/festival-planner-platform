@@ -24,13 +24,13 @@ class VendorApplicationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create vendor application" do
-    assert_difference('VendorApplication.count') do
+    assert_difference("VendorApplication.count") do
       post festival_vendor_applications_url(@festival), params: {
         vendor_application: {
-          business_name: 'New Test Business',
-          business_type: 'Food Service',
-          description: 'Test description for new business application',
-          requirements: 'Basic requirements'
+          business_name: "New Test Business",
+          business_type: "Food Service",
+          description: "Test description for new business application",
+          requirements: "Basic requirements"
         }
       }
     end
@@ -45,14 +45,14 @@ class VendorApplicationsControllerTest < ActionDispatch::IntegrationTest
   test "should update vendor application" do
     patch festival_vendor_application_url(@festival, @vendor_application), params: {
       vendor_application: {
-        business_name: 'Updated Business Name'
+        business_name: "Updated Business Name"
       }
     }
     assert_redirected_to festival_vendor_application_url(@festival, @vendor_application)
   end
 
   test "should destroy vendor application" do
-    assert_difference('VendorApplication.count', -1) do
+    assert_difference("VendorApplication.count", -1) do
       delete festival_vendor_application_url(@festival, @vendor_application)
     end
     assert_redirected_to festival_url(@festival)

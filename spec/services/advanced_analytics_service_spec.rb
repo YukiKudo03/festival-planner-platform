@@ -290,7 +290,7 @@ RSpec.describe AdvancedAnalyticsService, type: :service do
 
     it 'logs errors appropriately' do
       expect(Rails.logger).to receive(:error).with(/Predictive dashboard generation error/)
-      
+
       allow(festival).to receive(:venue).and_raise(StandardError.new('Test error'))
       service.generate_predictive_dashboard(festival)
     end

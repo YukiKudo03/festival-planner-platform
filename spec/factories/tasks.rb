@@ -3,7 +3,7 @@ FactoryBot.define do
     title { Faker::Lorem.sentence(word_count: 4) }
     description { Faker::Lorem.paragraph }
     due_date { 1.month.from_now }
-    priority { [:low, :medium, :high].sample }
+    priority { [ :low, :medium, :high ].sample }
     status { :pending }
     association :user
     association :festival

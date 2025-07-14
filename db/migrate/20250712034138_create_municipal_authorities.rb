@@ -14,7 +14,7 @@ class CreateMunicipalAuthorities < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :municipal_authorities, :authority_type
     add_index :municipal_authorities, :code, unique: true
     add_index :municipal_authorities, :email

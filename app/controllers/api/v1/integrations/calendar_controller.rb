@@ -1,12 +1,12 @@
 class Api::V1::Integrations::CalendarController < Api::V1::BaseController
-  before_action :set_calendar_integration, only: [:show, :update, :destroy, :sync, :export_events]
+  before_action :set_calendar_integration, only: [ :show, :update, :destroy, :sync, :export_events ]
 
   # GET /api/v1/integrations/calendar
   def index
     integrations = current_user.calendar_integrations.includes(:festival)
     integrations = integrations.where(festival_id: params[:festival_id]) if params[:festival_id]
     integrations = integrations.where(provider: params[:provider]) if params[:provider]
-    
+
     render json: {
       integrations: integrations.map { |integration| serialize_integration(integration) }
     }
@@ -22,25 +22,25 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
   # POST /api/v1/integrations/calendar
   def create
     @integration = current_user.calendar_integrations.build(integration_params)
-    
+
     if @integration.save
       # Test the connection
       test_result = test_calendar_connection(@integration)
-      
+
       if test_result[:success]
         @integration.update(status: :connected)
-        
+
         render json: {
           integration: serialize_integration_detailed(@integration),
-          message: 'Calendar integration created successfully',
+          message: "Calendar integration created successfully",
           connection_test: test_result
         }, status: :created
       else
         @integration.update(status: :error, last_sync_error: test_result[:message])
-        
+
         render json: {
           integration: serialize_integration_detailed(@integration),
-          message: 'Calendar integration created but connection failed',
+          message: "Calendar integration created but connection failed",
           connection_test: test_result
         }, status: :created
       end
@@ -57,7 +57,7 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
     if @integration.update(integration_params)
       render json: {
         integration: serialize_integration_detailed(@integration),
-        message: 'Calendar integration updated successfully'
+        message: "Calendar integration updated successfully"
       }
     else
       render json: {
@@ -71,7 +71,7 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
   def destroy
     @integration.destroy
     render json: {
-      message: 'Calendar integration deleted successfully'
+      message: "Calendar integration deleted successfully"
     }
   end
 
@@ -80,13 +80,13 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
     if @integration.sync_events!
       render json: {
         integration: serialize_integration_detailed(@integration),
-        message: 'Calendar sync completed successfully',
+        message: "Calendar sync completed successfully",
         last_synced_at: @integration.last_synced_at
       }
     else
       render json: {
         integration: serialize_integration_detailed(@integration),
-        message: 'Calendar sync failed',
+        message: "Calendar sync failed",
         error: @integration.last_sync_error
       }, status: :unprocessable_entity
     end
@@ -95,26 +95,26 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
   # GET /api/v1/integrations/calendar/:id/export_events
   def export_events
     events = @integration.export_festival_events
-    
+
     case params[:format]
-    when 'ical'
+    when "ical"
       ical_content = @integration.create_ical_feed
-      
+
       render json: {
-        format: 'ical',
+        format: "ical",
         content: ical_content,
         download_url: ical_url(@integration),
         events_count: events.count
       }
-    when 'json'
+    when "json"
       render json: {
-        format: 'json',
+        format: "json",
         events: events,
         events_count: events.count
       }
     else
       render json: {
-        available_formats: ['ical', 'json'],
+        available_formats: [ "ical", "json" ],
         events_count: events.count,
         preview: events.first(5)
       }
@@ -126,25 +126,25 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
     render json: {
       providers: [
         {
-          id: 'google',
-          name: 'Google Calendar',
-          description: 'Sync with Google Calendar',
+          id: "google",
+          name: "Google Calendar",
+          description: "Sync with Google Calendar",
           oauth_url: google_oauth_url,
-          features: ['bidirectional_sync', 'recurring_events', 'reminders', 'shared_calendars']
+          features: [ "bidirectional_sync", "recurring_events", "reminders", "shared_calendars" ]
         },
         {
-          id: 'outlook',
-          name: 'Microsoft Outlook',
-          description: 'Sync with Outlook Calendar',
+          id: "outlook",
+          name: "Microsoft Outlook",
+          description: "Sync with Outlook Calendar",
           oauth_url: outlook_oauth_url,
-          features: ['bidirectional_sync', 'categories', 'importance_levels']
+          features: [ "bidirectional_sync", "categories", "importance_levels" ]
         },
         {
-          id: 'ical',
-          name: 'iCalendar (ICS)',
-          description: 'Export to iCalendar format',
+          id: "ical",
+          name: "iCalendar (ICS)",
+          description: "Export to iCalendar format",
           oauth_url: nil,
-          features: ['export_only', 'universal_compatibility']
+          features: [ "export_only", "universal_compatibility" ]
         }
       ]
     }
@@ -166,50 +166,50 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
       begin
         # Exchange authorization code for access token
         auth_result = exchange_google_auth_code(params[:code])
-        
+
         if auth_result[:success]
           # Create or update calendar integration
           integration = current_user.calendar_integrations.find_or_initialize_by(
-            provider: 'google',
-            calendar_id: 'primary'
+            provider: "google",
+            calendar_id: "primary"
           )
-          
+
           integration.assign_attributes(
-            name: 'Google Calendar',
+            name: "Google Calendar",
             access_token: auth_result[:access_token],
             refresh_token: auth_result[:refresh_token],
             expires_at: Time.current + auth_result[:expires_in].seconds,
-            client_id: ENV['GOOGLE_CLIENT_ID'],
-            client_secret: ENV['GOOGLE_CLIENT_SECRET'],
+            client_id: ENV["GOOGLE_CLIENT_ID"],
+            client_secret: ENV["GOOGLE_CLIENT_SECRET"],
             status: :connected,
             active: true
           )
-          
+
           if params[:festival_id]
             integration.festival_id = params[:festival_id]
           end
-          
+
           integration.save!
-          
+
           render json: {
             integration: serialize_integration_detailed(integration),
-            message: 'Google Calendar connected successfully'
+            message: "Google Calendar connected successfully"
           }
         else
           render json: {
-            error: 'Failed to connect Google Calendar',
+            error: "Failed to connect Google Calendar",
             details: auth_result[:error]
           }, status: :unprocessable_entity
         end
       rescue => error
         render json: {
-          error: 'Authentication failed',
+          error: "Authentication failed",
           details: error.message
         }, status: :unprocessable_entity
       end
     else
       render json: {
-        error: 'Authorization code missing'
+        error: "Authorization code missing"
       }, status: :bad_request
     end
   end
@@ -220,50 +220,50 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
       begin
         # Exchange authorization code for access token
         auth_result = exchange_outlook_auth_code(params[:code])
-        
+
         if auth_result[:success]
           # Create or update calendar integration
           integration = current_user.calendar_integrations.find_or_initialize_by(
-            provider: 'outlook',
-            calendar_id: 'primary'
+            provider: "outlook",
+            calendar_id: "primary"
           )
-          
+
           integration.assign_attributes(
-            name: 'Outlook Calendar',
+            name: "Outlook Calendar",
             access_token: auth_result[:access_token],
             refresh_token: auth_result[:refresh_token],
             expires_at: Time.current + auth_result[:expires_in].seconds,
-            client_id: ENV['OUTLOOK_CLIENT_ID'],
-            client_secret: ENV['OUTLOOK_CLIENT_SECRET'],
+            client_id: ENV["OUTLOOK_CLIENT_ID"],
+            client_secret: ENV["OUTLOOK_CLIENT_SECRET"],
             status: :connected,
             active: true
           )
-          
+
           if params[:festival_id]
             integration.festival_id = params[:festival_id]
           end
-          
+
           integration.save!
-          
+
           render json: {
             integration: serialize_integration_detailed(integration),
-            message: 'Outlook Calendar connected successfully'
+            message: "Outlook Calendar connected successfully"
           }
         else
           render json: {
-            error: 'Failed to connect Outlook Calendar',
+            error: "Failed to connect Outlook Calendar",
             details: auth_result[:error]
           }, status: :unprocessable_entity
         end
       rescue => error
         render json: {
-          error: 'Authentication failed',
+          error: "Authentication failed",
           details: error.message
         }, status: :unprocessable_entity
       end
     else
       render json: {
-        error: 'Authorization code missing'
+        error: "Authorization code missing"
       }, status: :bad_request
     end
   end
@@ -271,13 +271,13 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
   # POST /api/v1/integrations/calendar/:id/test_connection
   def test_connection
     result = test_calendar_connection(@integration)
-    
+
     if result[:success]
       @integration.update(status: :connected, last_sync_error: nil)
     else
       @integration.update(status: :error, last_sync_error: result[:message])
     end
-    
+
     render json: {
       connection_test: result,
       integration: serialize_integration(@integration)
@@ -288,7 +288,7 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
   def calendars
     calendar_service = @integration.calendar_service
     result = calendar_service.fetch_calendars
-    
+
     if result[:success]
       render json: {
         calendars: result[:calendars],
@@ -296,7 +296,7 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
       }
     else
       render json: {
-        error: 'Failed to fetch calendars',
+        error: "Failed to fetch calendars",
         details: result[:message]
       }, status: :unprocessable_entity
     end
@@ -307,7 +307,7 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
   def set_calendar_integration
     @integration = current_user.calendar_integrations.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    render json: { error: 'Calendar integration not found' }, status: :not_found
+    render json: { error: "Calendar integration not found" }, status: :not_found
   end
 
   def integration_params
@@ -355,10 +355,10 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
   end
 
   def google_oauth_url
-    client_id = ENV['GOOGLE_CLIENT_ID']
+    client_id = ENV["GOOGLE_CLIENT_ID"]
     redirect_uri = api_v1_integrations_calendar_callback_google_url
-    scope = 'https://www.googleapis.com/auth/calendar'
-    
+    scope = "https://www.googleapis.com/auth/calendar"
+
     "https://accounts.google.com/o/oauth2/auth?" +
     "client_id=#{client_id}&" +
     "redirect_uri=#{CGI.escape(redirect_uri)}&" +
@@ -369,10 +369,10 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
   end
 
   def outlook_oauth_url
-    client_id = ENV['OUTLOOK_CLIENT_ID']
+    client_id = ENV["OUTLOOK_CLIENT_ID"]
     redirect_uri = api_v1_integrations_calendar_callback_outlook_url
-    scope = 'https://graph.microsoft.com/calendars.readwrite offline_access'
-    
+    scope = "https://graph.microsoft.com/calendars.readwrite offline_access"
+
     "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?" +
     "client_id=#{client_id}&" +
     "redirect_uri=#{CGI.escape(redirect_uri)}&" +
@@ -384,14 +384,14 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
   def exchange_google_auth_code(auth_code)
     begin
       auth_client = Google::Auth::UserRefreshCredentials.new(
-        client_id: ENV['GOOGLE_CLIENT_ID'],
-        client_secret: ENV['GOOGLE_CLIENT_SECRET'],
+        client_id: ENV["GOOGLE_CLIENT_ID"],
+        client_secret: ENV["GOOGLE_CLIENT_SECRET"],
         redirect_uri: api_v1_integrations_calendar_callback_google_url
       )
-      
+
       auth_client.code = auth_code
       auth_client.fetch_access_token!
-      
+
       {
         success: true,
         access_token: auth_client.access_token,
@@ -409,17 +409,17 @@ class Api::V1::Integrations::CalendarController < Api::V1::BaseController
   def exchange_outlook_auth_code(auth_code)
     begin
       oauth_client = OAuth2::Client.new(
-        ENV['OUTLOOK_CLIENT_ID'],
-        ENV['OUTLOOK_CLIENT_SECRET'],
-        site: 'https://login.microsoftonline.com',
-        token_url: '/common/oauth2/v2.0/token'
+        ENV["OUTLOOK_CLIENT_ID"],
+        ENV["OUTLOOK_CLIENT_SECRET"],
+        site: "https://login.microsoftonline.com",
+        token_url: "/common/oauth2/v2.0/token"
       )
-      
+
       token = oauth_client.auth_code.get_token(
         auth_code,
         redirect_uri: api_v1_integrations_calendar_callback_outlook_url
       )
-      
+
       {
         success: true,
         access_token: token.token,

@@ -59,14 +59,14 @@ RSpec.describe LineWebhookProcessorJob, type: :job do
 
       it 'processes message event through service' do
         expect(line_service).to receive(:process_webhook_event).with(message_event)
-        
+
         described_class.perform_now(message_event)
       end
 
       it 'logs successful processing' do
         allow(Rails.logger).to receive(:info)
         expect(Rails.logger).to receive(:info).with(/Successfully processed LINE webhook event/)
-        
+
         described_class.perform_now(message_event)
       end
     end
@@ -82,7 +82,7 @@ RSpec.describe LineWebhookProcessorJob, type: :job do
 
       it 'processes join event through service' do
         expect(line_service).to receive(:process_webhook_event).with(join_event)
-        
+
         described_class.perform_now(join_event)
       end
     end
@@ -98,7 +98,7 @@ RSpec.describe LineWebhookProcessorJob, type: :job do
 
       it 'processes leave event through service' do
         expect(line_service).to receive(:process_webhook_event).with(leave_event)
-        
+
         described_class.perform_now(leave_event)
       end
     end
@@ -111,7 +111,7 @@ RSpec.describe LineWebhookProcessorJob, type: :job do
 
       it 'logs warning and skips processing' do
         expect(Rails.logger).to receive(:warn).with(/LINE integration not found/)
-        
+
         described_class.perform_now(message_event)
       end
 
@@ -128,7 +128,7 @@ RSpec.describe LineWebhookProcessorJob, type: :job do
 
       it 'logs warning and skips processing' do
         expect(Rails.logger).to receive(:warn).with(/LINE integration is inactive/)
-        
+
         described_class.perform_now(message_event)
       end
     end
@@ -145,7 +145,7 @@ RSpec.describe LineWebhookProcessorJob, type: :job do
 
       it 'logs error and re-raises exception' do
         expect(Rails.logger).to receive(:error).with(/Failed to process LINE webhook event/)
-        
+
         expect {
           described_class.perform_now(message_event)
         }.to raise_error(StandardError, 'Processing failed')
@@ -161,7 +161,7 @@ RSpec.describe LineWebhookProcessorJob, type: :job do
 
       it 'logs error for missing source' do
         expect(Rails.logger).to receive(:error).with(/Invalid event structure/)
-        
+
         expect {
           described_class.perform_now(invalid_event)
         }.to raise_error(/Invalid event structure/)
@@ -216,7 +216,7 @@ RSpec.describe LineWebhookProcessorJob, type: :job do
         expect {
           described_class.perform_now(message_event)
         }.to raise_error(StandardError)
-        
+
         expect(call_count).to eq(1) # Job framework handles retries
       end
     end
@@ -233,7 +233,7 @@ RSpec.describe LineWebhookProcessorJob, type: :job do
 
       it 'logs processing time' do
         expect(Rails.logger).to receive(:info).with(/Successfully processed LINE webhook event.*in \d+ms/)
-        
+
         described_class.perform_now(message_event)
       end
     end

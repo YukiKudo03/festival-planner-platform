@@ -25,23 +25,23 @@ RSpec.describe BudgetApproval, type: :model do
   describe 'scopes' do
     let!(:old_approval) { create(:budget_approval, festival: festival, budget_category: budget_category, approver: admin, created_at: 1.day.ago) }
     let!(:new_approval) { create(:budget_approval, festival: festival, budget_category: budget_category, approver: admin, created_at: Time.current) }
-    
+
     it 'orders by recent' do
-      expect(BudgetApproval.recent).to eq([new_approval, old_approval])
+      expect(BudgetApproval.recent).to eq([ new_approval, old_approval ])
     end
-    
+
     it 'filters by status' do
       pending_approval = create(:budget_approval, festival: festival, budget_category: budget_category, approver: admin, status: 'pending')
       approved_approval = create(:budget_approval, festival: festival, budget_category: budget_category, approver: admin, status: 'approved')
-      
+
       expect(BudgetApproval.by_status('pending')).to include(pending_approval)
       expect(BudgetApproval.by_status('pending')).not_to include(approved_approval)
     end
-    
+
     it 'filters by approver' do
       other_admin = create(:user, :admin)
       other_approval = create(:budget_approval, festival: festival, budget_category: budget_category, approver: other_admin)
-      
+
       expect(BudgetApproval.by_approver(admin)).to include(budget_approval)
       expect(BudgetApproval.by_approver(admin)).not_to include(other_approval)
     end
@@ -51,10 +51,10 @@ RSpec.describe BudgetApproval, type: :model do
     it 'returns Japanese text for statuses' do
       budget_approval.update(status: 'pending')
       expect(budget_approval.status_text).to eq('承認待ち')
-      
+
       budget_approval.update(status: 'approved')
       expect(budget_approval.status_text).to eq('承認済み')
-      
+
       budget_approval.update(status: 'rejected')
       expect(budget_approval.status_text).to eq('却下')
     end
@@ -64,10 +64,10 @@ RSpec.describe BudgetApproval, type: :model do
     it 'returns correct color for each status' do
       budget_approval.update(status: 'pending')
       expect(budget_approval.status_color).to eq('warning')
-      
+
       budget_approval.update(status: 'approved')
       expect(budget_approval.status_color).to eq('success')
-      
+
       budget_approval.update(status: 'rejected')
       expect(budget_approval.status_color).to eq('danger')
     end
@@ -98,7 +98,7 @@ RSpec.describe BudgetApproval, type: :model do
     it 'formats difference amount with proper prefix' do
       budget_approval.update(requested_amount: 100000, approved_amount: 120000)
       expect(budget_approval.difference_amount_formatted).to eq('+¥20,000')
-      
+
       budget_approval.update(requested_amount: 100000, approved_amount: 80000)
       expect(budget_approval.difference_amount_formatted).to eq('-¥20,000')
     end
@@ -109,7 +109,7 @@ RSpec.describe BudgetApproval, type: :model do
       budget_approval.update(requested_amount: 100000, approved_amount: 80000)
       expect(budget_approval.approval_percentage).to eq(80.0)
     end
-    
+
     it 'returns 0 when requested amount is zero' do
       budget_approval.update(requested_amount: 0, approved_amount: 0)
       expect(budget_approval.approval_percentage).to eq(0)
@@ -120,20 +120,20 @@ RSpec.describe BudgetApproval, type: :model do
     let(:committee_member) { create(:user, :committee_member) }
     let(:festival_owner) { festival.user }
     let(:regular_user) { create(:user) }
-    
+
     it 'allows admin to modify' do
       expect(budget_approval.can_be_modified_by?(admin)).to be true
     end
-    
+
     it 'allows committee member to modify' do
       expect(budget_approval.can_be_modified_by?(committee_member)).to be true
     end
-    
+
     it 'allows festival owner to modify pending approvals' do
       budget_approval.update(status: 'pending')
       expect(budget_approval.can_be_modified_by?(festival_owner)).to be true
     end
-    
+
     it 'does not allow regular user to modify' do
       expect(budget_approval.can_be_modified_by?(regular_user)).to be false
     end
@@ -141,16 +141,16 @@ RSpec.describe BudgetApproval, type: :model do
 
   describe '#approve!' do
     let(:approver) { create(:user, :admin) }
-    
+
     before { budget_approval.update(status: 'pending') }
-    
+
     it 'approves the budget request' do
       expect(budget_approval.approve!(approver, 90000, 'Approved with reduction')).to be true
       expect(budget_approval.reload.status).to eq('approved')
       expect(budget_approval.approved_amount).to eq(90000)
       expect(budget_approval.notes).to eq('Approved with reduction')
     end
-    
+
     it 'updates the budget category limit' do
       budget_approval.approve!(approver, 90000, 'Approved')
       expect(budget_category.reload.budget_limit).to eq(90000)
@@ -159,16 +159,16 @@ RSpec.describe BudgetApproval, type: :model do
 
   describe '#reject!' do
     let(:approver) { create(:user, :admin) }
-    
+
     before { budget_approval.update(status: 'pending') }
-    
+
     it 'rejects the budget request' do
       expect(budget_approval.reject!(approver, 'Insufficient budget')).to be true
       expect(budget_approval.reload.status).to eq('rejected')
       expect(budget_approval.approved_amount).to eq(0)
       expect(budget_approval.notes).to eq('Insufficient budget')
     end
-    
+
     it 'requires a reason' do
       expect(budget_approval.reject!(approver, '')).to be false
     end
@@ -179,7 +179,7 @@ RSpec.describe BudgetApproval, type: :model do
       expect(NotificationService).to receive(:create_notification)
       create(:budget_approval, festival: festival, budget_category: budget_category, approver: admin)
     end
-    
+
     it 'creates notification on approval decision' do
       budget_approval.update(status: 'pending')
       expect(NotificationService).to receive(:create_notification)

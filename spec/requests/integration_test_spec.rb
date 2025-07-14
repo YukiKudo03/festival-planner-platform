@@ -38,9 +38,9 @@ RSpec.describe "Festival Platform Integration Tests", type: :request do
           customer_name: user.full_name
         }
       }
-      
+
       expect(response).to redirect_to(festival_payment_path(festival, Payment.last))
-      
+
       # View created payment
       follow_redirect!
       expect(response).to be_successful
@@ -55,7 +55,7 @@ RSpec.describe "Festival Platform Integration Tests", type: :request do
           description: ""
         }
       }
-      
+
       expect(response).to render_template(:new)
       expect(response).to have_http_status(:unprocessable_entity)
     end
@@ -77,7 +77,7 @@ RSpec.describe "Festival Platform Integration Tests", type: :request do
 
   describe "Cross-functionality integration" do
     let!(:payment) { create(:payment, festival: festival, user: user) }
-    
+
     before { sign_in user }
 
     it "integrates festival and payment data correctly" do

@@ -16,7 +16,7 @@ RSpec.describe LineMessage, type: :model do
 
   describe 'validations' do
     subject { build(:line_message, line_group: line_group) }
-    
+
     it { should validate_presence_of(:line_message_id) }
     it { should validate_presence_of(:message_text) }
     it { should validate_presence_of(:message_type) }
@@ -66,7 +66,7 @@ RSpec.describe LineMessage, type: :model do
 
     describe '.by_intent' do
       let!(:task_creation_message) { create(:line_message, line_group: line_group, intent_type: 'task_creation') }
-      
+
       it 'returns messages with specific intent type' do
         expect(LineMessage.by_intent('task_creation')).to include(task_creation_message)
         expect(LineMessage.by_intent('task_creation')).not_to include(unprocessed_message)
@@ -112,7 +112,7 @@ RSpec.describe LineMessage, type: :model do
       end
 
       it 'persists array data' do
-        errors = [{ 'message' => 'Parse error', 'timestamp' => Time.current.iso8601 }]
+        errors = [ { 'message' => 'Parse error', 'timestamp' => Time.current.iso8601 } ]
         line_message.update!(processing_errors: errors)
         line_message.reload
         expect(line_message.processing_errors.first['message']).to eq('Parse error')
@@ -232,7 +232,7 @@ RSpec.describe LineMessage, type: :model do
 
     describe '#process_message!' do
       let(:parser_service) { instance_double(LineTaskParserService) }
-      
+
       before do
         allow(LineTaskParserService).to receive(:new).with(line_message).and_return(parser_service)
       end
@@ -314,7 +314,7 @@ RSpec.describe LineMessage, type: :model do
       before do
         line_message.update!(
           is_processed: false,
-          processing_errors: [{ 'message' => 'Previous error' }],
+          processing_errors: [ { 'message' => 'Previous error' } ],
           confidence_score: 0.5,
           intent_type: 'general_message'
         )
@@ -322,7 +322,7 @@ RSpec.describe LineMessage, type: :model do
 
       it 'clears previous processing data and retries' do
         allow(line_message).to receive(:process_message!).and_return(true)
-        
+
         expect(line_message.retry_processing!).to be true
         line_message.reload
         expect(line_message.processing_errors).to be_empty
@@ -341,7 +341,7 @@ RSpec.describe LineMessage, type: :model do
         freeze_time do
           line_message.add_processing_error('Test error')
           line_message.reload
-          
+
           error = line_message.processing_errors.last
           expect(error['message']).to eq('Test error')
           expect(error['timestamp']).to eq(Time.current.iso8601)
@@ -349,10 +349,10 @@ RSpec.describe LineMessage, type: :model do
       end
 
       it 'appends to existing errors' do
-        line_message.update!(processing_errors: [{ 'message' => 'First error' }])
+        line_message.update!(processing_errors: [ { 'message' => 'First error' } ])
         line_message.add_processing_error('Second error')
         line_message.reload
-        
+
         expect(line_message.processing_errors.size).to eq(2)
         expect(line_message.processing_errors.last['message']).to eq('Second error')
       end
@@ -360,7 +360,7 @@ RSpec.describe LineMessage, type: :model do
 
     describe '#send_confirmation_message' do
       let(:task) { create(:task, festival: festival, user: user, title: 'Test Task') }
-      
+
       before do
         line_message.update!(task: task, intent_type: 'task_creation')
         allow(line_group).to receive(:notification_enabled?).and_return(true)
@@ -388,7 +388,7 @@ RSpec.describe LineMessage, type: :model do
     describe '#extract_mentions' do
       it 'extracts @mentions from message text' do
         line_message.update!(message_text: 'Hello @user1 and @user2, please check this')
-        expect(line_message.extract_mentions).to match_array(['user1', 'user2'])
+        expect(line_message.extract_mentions).to match_array([ 'user1', 'user2' ])
       end
 
       it 'returns empty array when no mentions' do
@@ -426,7 +426,7 @@ RSpec.describe LineMessage, type: :model do
 
     describe '#notification_data' do
       let(:task) { create(:task, festival: festival, user: user, title: 'Test Task') }
-      
+
       before do
         line_message.update!(
           task: task,
@@ -439,7 +439,7 @@ RSpec.describe LineMessage, type: :model do
 
       it 'returns comprehensive notification data' do
         data = line_message.notification_data
-        
+
         expect(data).to include(
           id: line_message.id,
           line_message_id: line_message.line_message_id,

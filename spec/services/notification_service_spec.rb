@@ -32,8 +32,8 @@ RSpec.describe NotificationService, type: :service do
 
     context 'when user has email notifications enabled and immediate frequency' do
       before do
-        create(:notification_setting, 
-               user: user, 
+        create(:notification_setting,
+               user: user,
                notification_type: 'task_assigned',
                email_enabled: true,
                frequency: 'immediate')
@@ -50,7 +50,7 @@ RSpec.describe NotificationService, type: :service do
       before do
         create(:notification_setting,
                user: user,
-               notification_type: 'task_assigned', 
+               notification_type: 'task_assigned',
                web_enabled: true,
                frequency: 'immediate')
       end
@@ -64,7 +64,7 @@ RSpec.describe NotificationService, type: :service do
             notification_type: 'task_assigned'
           )
         )
-        
+
         NotificationService.create_notification(params)
       end
     end
@@ -82,14 +82,14 @@ RSpec.describe NotificationService, type: :service do
 
     it 'does not send notification to the task owner' do
       NotificationService.send_task_deadline_reminder(task)
-      
+
       notifications = Notification.where(recipient: user)
       expect(notifications).to be_empty
     end
 
     it 'creates notification with correct type and message' do
       NotificationService.send_task_deadline_reminder(task)
-      
+
       notification = Notification.last
       expect(notification.notification_type).to eq('task_deadline_reminder')
       expect(notification.title).to eq('タスクの期限が近づいています')
@@ -106,7 +106,7 @@ RSpec.describe NotificationService, type: :service do
 
     it 'sends notification to task owner' do
       NotificationService.send_task_overdue_notification(task)
-      
+
       notification = Notification.last
       expect(notification.recipient).to eq(user)
       expect(notification.notification_type).to eq('task_overdue')
@@ -122,7 +122,7 @@ RSpec.describe NotificationService, type: :service do
 
     it 'includes sender information' do
       NotificationService.send_task_assigned_notification(task, sender)
-      
+
       notification = Notification.last
       expect(notification.sender).to eq(sender)
       expect(notification.notification_type).to eq('task_assigned')
@@ -141,7 +141,7 @@ RSpec.describe NotificationService, type: :service do
 
     it 'includes status change information' do
       NotificationService.send_task_status_changed_notification(task, 'pending')
-      
+
       notification = Notification.last
       expect(notification.message).to include('pending')
       expect(notification.message).to include(task.status)
@@ -164,7 +164,7 @@ RSpec.describe NotificationService, type: :service do
 
     it 'notifies the correct festival manager' do
       NotificationService.send_vendor_application_submitted_notification(vendor_application)
-      
+
       notification = Notification.last
       expect(notification.recipient).to eq(festival_manager)
       expect(notification.notification_type).to eq('vendor_application_submitted')
@@ -183,7 +183,7 @@ RSpec.describe NotificationService, type: :service do
 
       it 'creates correct notification type' do
         NotificationService.send_vendor_application_status_notification(vendor_application, 'approved')
-        
+
         notification = Notification.last
         expect(notification.notification_type).to eq('vendor_application_approved')
         expect(notification.title).to eq('出店申請が承認されました')
@@ -193,7 +193,7 @@ RSpec.describe NotificationService, type: :service do
     context 'when application is rejected' do
       it 'sends rejection notification' do
         NotificationService.send_vendor_application_status_notification(vendor_application, 'rejected')
-        
+
         notification = Notification.last
         expect(notification.notification_type).to eq('vendor_application_rejected')
         expect(notification.title).to eq('出店申請が却下されました')
@@ -206,7 +206,7 @@ RSpec.describe NotificationService, type: :service do
       create(:user, :resident)
       create(:user, :volunteer)
       create(:user, :admin) # Should not receive notification
-      
+
       expect {
         NotificationService.send_festival_created_notification(festival)
       }.to change(Notification, :count).by(2)
@@ -214,9 +214,9 @@ RSpec.describe NotificationService, type: :service do
 
     it 'creates correct notification content' do
       resident = create(:user, :resident)
-      
+
       NotificationService.send_festival_created_notification(festival)
-      
+
       notification = Notification.where(recipient: resident).first
       expect(notification.notification_type).to eq('festival_created')
       expect(notification.message).to include(festival.name)

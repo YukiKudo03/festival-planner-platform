@@ -47,31 +47,31 @@ class UserPreference < ApplicationRecord
   end
 
   def preferred_theme
-    theme_settings['theme'] || 'light'
+    theme_settings["theme"] || "light"
   end
 
   def preferred_language
-    language.presence || 'en'
+    language.presence || "en"
   end
 
   def preferred_timezone
-    timezone.presence || 'UTC'
+    timezone.presence || "UTC"
   end
 
   def enable_feature_shortcut(feature_name)
-    update(quick_actions: (quick_actions + [feature_name]).uniq)
+    update(quick_actions: (quick_actions + [ feature_name ]).uniq)
   end
 
   def disable_feature_shortcut(feature_name)
-    update(quick_actions: quick_actions - [feature_name])
+    update(quick_actions: quick_actions - [ feature_name ])
   end
 
   def add_favorite_feature(feature_name)
-    update(favorite_features: (favorite_features + [feature_name]).uniq)
+    update(favorite_features: (favorite_features + [ feature_name ]).uniq)
   end
 
   def remove_favorite_feature(feature_name)
-    update(favorite_features: favorite_features - [feature_name])
+    update(favorite_features: favorite_features - [ feature_name ])
   end
 
   def update_notification_preference(category, enabled)
@@ -83,8 +83,8 @@ class UserPreference < ApplicationRecord
   private
 
   def set_defaults
-    self.language ||= 'en'
-    self.timezone ||= 'UTC'
+    self.language ||= "en"
+    self.timezone ||= "UTC"
     self.dashboard_widgets ||= default_dashboard_widgets
     self.dashboard_layout ||= default_dashboard_layout
     self.notification_preferences ||= default_notification_preferences
@@ -106,42 +106,42 @@ class UserPreference < ApplicationRecord
 
   def default_dashboard_layout
     {
-      'columns' => 2,
-      'widget_positions' => {
-        'recent_festivals' => { 'row' => 0, 'col' => 0 },
-        'budget_overview' => { 'row' => 0, 'col' => 1 },
-        'pending_tasks' => { 'row' => 1, 'col' => 0 },
-        'vendor_applications' => { 'row' => 1, 'col' => 1 },
-        'upcoming_deadlines' => { 'row' => 2, 'col' => 0 },
-        'analytics_summary' => { 'row' => 2, 'col' => 1 }
+      "columns" => 2,
+      "widget_positions" => {
+        "recent_festivals" => { "row" => 0, "col" => 0 },
+        "budget_overview" => { "row" => 0, "col" => 1 },
+        "pending_tasks" => { "row" => 1, "col" => 0 },
+        "vendor_applications" => { "row" => 1, "col" => 1 },
+        "upcoming_deadlines" => { "row" => 2, "col" => 0 },
+        "analytics_summary" => { "row" => 2, "col" => 1 }
       }
     }
   end
 
   def default_notification_preferences
     {
-      'email_notifications' => true,
-      'browser_notifications' => true,
-      'mobile_notifications' => true,
-      'festival_updates' => true,
-      'budget_alerts' => true,
-      'task_reminders' => true,
-      'vendor_notifications' => true,
-      'chat_messages' => true,
-      'forum_replies' => true,
-      'system_announcements' => true
+      "email_notifications" => true,
+      "browser_notifications" => true,
+      "mobile_notifications" => true,
+      "festival_updates" => true,
+      "budget_alerts" => true,
+      "task_reminders" => true,
+      "vendor_notifications" => true,
+      "chat_messages" => true,
+      "forum_replies" => true,
+      "system_announcements" => true
     }
   end
 
   def default_theme_settings
     {
-      'theme' => 'light',
-      'primary_color' => '#007bff',
-      'secondary_color' => '#6c757d',
-      'font_size' => 'medium',
-      'compact_mode' => false,
-      'animation_enabled' => true,
-      'sidebar_collapsed' => false
+      "theme" => "light",
+      "primary_color" => "#007bff",
+      "secondary_color" => "#6c757d",
+      "font_size" => "medium",
+      "compact_mode" => false,
+      "animation_enabled" => true,
+      "sidebar_collapsed" => false
     }
   end
 

@@ -4,34 +4,34 @@
 # Handles government subsidy application workflow and document management
 class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
   before_action :authenticate_user!
-  before_action :set_subsidy_application, except: [:index, :create, :statistics]
-  before_action :set_festival, only: [:index, :create]
-  before_action :authorize_access!, except: [:index, :create, :statistics]
+  before_action :set_subsidy_application, except: [ :index, :create, :statistics ]
+  before_action :set_festival, only: [ :index, :create ]
+  before_action :authorize_access!, except: [ :index, :create, :statistics ]
 
   # GET /api/v1/festivals/:festival_id/subsidy_applications
   # GET /api/v1/subsidy_applications
   def index
     @applications = if params[:festival_id]
                      @festival.subsidy_applications
-                   else
+    else
                      SubsidyApplication.all
-                   end
-    
+    end
+
     # Apply filters
     @applications = @applications.by_program(SubsidyProgram.find(params[:program_id])) if params[:program_id].present?
     @applications = @applications.where(status: params[:status]) if params[:status].present?
     @applications = @applications.by_amount_range(params[:min_amount], params[:max_amount]) if params[:min_amount] && params[:max_amount]
-    @applications = @applications.pending if params[:pending_only] == 'true'
-    @applications = @applications.deadline_approaching if params[:deadline_approaching] == 'true'
-    
+    @applications = @applications.pending if params[:pending_only] == "true"
+    @applications = @applications.deadline_approaching if params[:deadline_approaching] == "true"
+
     # Include associations
     @applications = @applications.includes(:festival, :subsidy_program, :submitted_by, :subsidy_documents)
-    
+
     # Pagination
     page = params[:page] || 1
-    per_page = [params[:per_page]&.to_i || 20, 100].min
+    per_page = [ params[:per_page]&.to_i || 20, 100 ].min
     @applications = @applications.page(page).per(per_page)
-    
+
     render json: {
       success: true,
       data: {
@@ -58,14 +58,14 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
   def create
     @application = @festival.subsidy_applications.build(application_params)
     @application.submitted_by = current_user
-    
+
     if @application.save
       render json: {
         success: true,
         data: {
           subsidy_application: detailed_application_data(@application)
         },
-        message: 'Subsidy application created successfully'
+        message: "Subsidy application created successfully"
       }, status: :created
     else
       render json: {
@@ -83,7 +83,7 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
         data: {
           subsidy_application: detailed_application_data(@application)
         },
-        message: 'Subsidy application updated successfully'
+        message: "Subsidy application updated successfully"
       }
     else
       render json: {
@@ -98,7 +98,7 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
     if @application.destroy
       render json: {
         success: true,
-        message: 'Subsidy application deleted successfully'
+        message: "Subsidy application deleted successfully"
       }
     else
       render json: {
@@ -115,18 +115,18 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
       if @application.subsidy_program.municipal_authority.api_integration_available?
         integration_service = MunicipalIntegrationService.new(@application.subsidy_program.municipal_authority)
         integration_result = integration_service.submit_subsidy_application(@application)
-        
+
         unless integration_result[:success]
           Rails.logger.warn "Municipal integration failed: #{integration_result[:error]}"
         end
       end
-      
+
       render json: {
         success: true,
         data: {
           subsidy_application: detailed_application_data(@application.reload)
         },
-        message: 'Subsidy application submitted successfully'
+        message: "Subsidy application submitted successfully"
       }
     else
       render json: {
@@ -139,18 +139,18 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
   # POST /api/v1/subsidy_applications/:id/approve
   def approve
     authorize_reviewer!
-    
+
     granted_amount = params.require(:granted_amount).to_f
     conditions = params[:conditions]
     notes = params[:notes]
-    
+
     if @application.approve!(current_user, granted_amount: granted_amount, conditions: conditions, notes: notes)
       render json: {
         success: true,
         data: {
           subsidy_application: detailed_application_data(@application.reload)
         },
-        message: 'Subsidy application approved successfully'
+        message: "Subsidy application approved successfully"
       }
     else
       render json: {
@@ -163,17 +163,17 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
   # POST /api/v1/subsidy_applications/:id/reject
   def reject
     authorize_reviewer!
-    
+
     reason = params.require(:reason)
     notes = params[:notes]
-    
+
     if @application.reject!(current_user, reason: reason, notes: notes)
       render json: {
         success: true,
         data: {
           subsidy_application: detailed_application_data(@application.reload)
         },
-        message: 'Subsidy application rejected'
+        message: "Subsidy application rejected"
       }
     else
       render json: {
@@ -186,16 +186,16 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
   # POST /api/v1/subsidy_applications/:id/request_additional_info
   def request_additional_info
     authorize_reviewer!
-    
+
     requested_info = params.require(:requested_info)
-    
+
     if @application.request_additional_info!(current_user, requested_info: requested_info)
       render json: {
         success: true,
         data: {
           subsidy_application: detailed_application_data(@application.reload)
         },
-        message: 'Additional information requested'
+        message: "Additional information requested"
       }
     else
       render json: {
@@ -208,14 +208,14 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
   # POST /api/v1/subsidy_applications/:id/provide_additional_info
   def provide_additional_info
     info_provided = params.require(:info_provided)
-    
+
     if @application.provide_additional_info!(info_provided)
       render json: {
         success: true,
         data: {
           subsidy_application: detailed_application_data(@application.reload)
         },
-        message: 'Additional information provided'
+        message: "Additional information provided"
       }
     else
       render json: {
@@ -228,14 +228,14 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
   # POST /api/v1/subsidy_applications/:id/withdraw
   def withdraw
     reason = params[:reason]
-    
+
     if @application.withdraw!(reason: reason)
       render json: {
         success: true,
         data: {
           subsidy_application: detailed_application_data(@application.reload)
         },
-        message: 'Subsidy application withdrawn'
+        message: "Subsidy application withdrawn"
       }
     else
       render json: {
@@ -249,9 +249,9 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
   def calculate_grant
     festival_budget = params[:festival_budget]&.to_f || @application.festival.total_budget
     requested_amount = params[:requested_amount]&.to_f || @application.requested_amount
-    
+
     calculated_amount = @application.subsidy_program.calculate_grant_amount(festival_budget, requested_amount)
-    
+
     render json: {
       success: true,
       data: {
@@ -271,7 +271,7 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
   # GET /api/v1/subsidy_applications/:id/documents
   def documents
     documents = @application.subsidy_documents.includes(:uploaded_by)
-    
+
     render json: {
       success: true,
       data: {
@@ -287,24 +287,24 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
   def upload_document
     file = params[:file]
     document_type = params[:document_type]
-    
-    return render_error('File is required', :bad_request) unless file.present?
-    return render_error('Document type is required', :bad_request) unless document_type.present?
-    
+
+    return render_error("File is required", :bad_request) unless file.present?
+    return render_error("Document type is required", :bad_request) unless document_type.present?
+
     document = @application.subsidy_documents.build(
       document_type: document_type,
       uploaded_by: current_user
     )
-    
+
     document.file.attach(file)
-    
+
     if document.save
       render json: {
         success: true,
         data: {
           document: document_summary(document)
         },
-        message: 'Document uploaded successfully'
+        message: "Document uploaded successfully"
       }, status: :created
     else
       render json: {
@@ -320,12 +320,12 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
     if @application.subsidy_program.municipal_authority.api_integration_available? && @application.external_reference_id.present?
       integration_service = MunicipalIntegrationService.new(@application.subsidy_program.municipal_authority)
       integration_result = integration_service.check_subsidy_status(@application)
-      
+
       unless integration_result[:success]
         Rails.logger.warn "Status check integration failed: #{integration_result[:error]}"
       end
     end
-    
+
     render json: {
       success: true,
       data: {
@@ -363,27 +363,27 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
   # GET /api/v1/subsidy_applications/statistics
   def statistics
     authorize_admin_or_reviewer!
-    
+
     period = params[:period]&.to_i&.days || 30.days
-    
+
     stats = {
       overview: SubsidyApplication.statistics(period: period),
       by_program: SubsidyApplication.joins(:subsidy_program)
                                    .where(created_at: period.ago..Time.current)
-                                   .group('subsidy_programs.name').count,
+                                   .group("subsidy_programs.name").count,
       by_authority: SubsidyApplication.joins(subsidy_program: :municipal_authority)
                                      .where(created_at: period.ago..Time.current)
-                                     .group('municipal_authorities.name').count,
+                                     .group("municipal_authorities.name").count,
       grant_amounts: SubsidyApplication.average_grants_by_category,
       deadline_approaching: SubsidyApplication.deadline_approaching.count,
       impact_scores: {
-        average: SubsidyApplication.approved.average('impact_score'),
-        high_impact: SubsidyApplication.approved.where('impact_score >= 80').count,
-        medium_impact: SubsidyApplication.approved.where('impact_score >= 60 AND impact_score < 80').count,
-        low_impact: SubsidyApplication.approved.where('impact_score < 60').count
+        average: SubsidyApplication.approved.average("impact_score"),
+        high_impact: SubsidyApplication.approved.where("impact_score >= 80").count,
+        medium_impact: SubsidyApplication.approved.where("impact_score >= 60 AND impact_score < 80").count,
+        low_impact: SubsidyApplication.approved.where("impact_score < 60").count
       }
     }
-    
+
     render json: {
       success: true,
       data: stats
@@ -395,13 +395,13 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
   def set_subsidy_application
     @application = SubsidyApplication.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    render_not_found('Subsidy application not found')
+    render_not_found("Subsidy application not found")
   end
 
   def set_festival
     @festival = Festival.find(params[:festival_id]) if params[:festival_id]
   rescue ActiveRecord::RecordNotFound
-    render_not_found('Festival not found')
+    render_not_found("Festival not found")
   end
 
   def application_params
@@ -415,22 +415,22 @@ class Api::V1::SubsidyApplicationsController < Api::V1::BaseController
   end
 
   def authorize_access!
-    unless current_user.admin? || current_user.festival_organizer? || 
+    unless current_user.admin? || current_user.festival_organizer? ||
            @application.submitted_by == current_user ||
            @application.reviewed_by == current_user
-      render_forbidden('Access denied')
+      render_forbidden("Access denied")
     end
   end
 
   def authorize_reviewer!
     unless current_user.admin? || current_user.government_reviewer?
-      render_forbidden('Reviewer access required')
+      render_forbidden("Reviewer access required")
     end
   end
 
   def authorize_admin_or_reviewer!
     unless current_user.admin? || current_user.government_reviewer?
-      render_forbidden('Admin or reviewer access required')
+      render_forbidden("Admin or reviewer access required")
     end
   end
 

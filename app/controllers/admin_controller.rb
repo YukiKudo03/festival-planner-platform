@@ -1,9 +1,9 @@
 class AdminController < ApplicationController
   before_action :ensure_admin_access
-  
+
   def dashboard
     authorize! :access, :admin_dashboard
-    
+
     @statistics = {
       total_users: User.count,
       total_festivals: Festival.count,
@@ -14,7 +14,7 @@ class AdminController < ApplicationController
       recent_registrations: User.order(created_at: :desc).limit(10),
       recent_festivals: Festival.order(created_at: :desc).limit(5)
     }
-    
+
     respond_to do |format|
       format.html
       format.turbo_stream
@@ -23,11 +23,11 @@ class AdminController < ApplicationController
 
   def users
     authorize! :access, :user_management
-    
+
     @users = User.includes(:owned_festivals, :tasks, :vendor_applications)
                  .order(created_at: :desc)
                  .page(params[:page])
-    
+
     respond_to do |format|
       format.html
       format.turbo_stream
@@ -36,7 +36,7 @@ class AdminController < ApplicationController
 
   def monitoring
     authorize! :access, :system_monitoring
-    
+
     @system_status = {
       database_status: check_database_status,
       redis_status: check_redis_status,
@@ -44,7 +44,7 @@ class AdminController < ApplicationController
       memory_usage: check_memory_usage,
       recent_errors: get_recent_errors
     }
-    
+
     respond_to do |format|
       format.html
       format.turbo_stream
@@ -55,7 +55,7 @@ class AdminController < ApplicationController
 
   def ensure_admin_access
     unless current_user&.system_admin? || current_user&.admin?
-      flash[:alert] = 'この機能にアクセスする権限がありません。'
+      flash[:alert] = "この機能にアクセスする権限がありません。"
       redirect_to root_path
     end
   end
@@ -63,15 +63,15 @@ class AdminController < ApplicationController
   def check_database_status
     begin
       ActiveRecord::Base.connection.active?
-      'OK'
+      "OK"
     rescue
-      'ERROR'
+      "ERROR"
     end
   end
 
   def check_redis_status
     # Redis check if implemented
-    'N/A'
+    "N/A"
   end
 
   def check_disk_usage
@@ -79,7 +79,7 @@ class AdminController < ApplicationController
     begin
       `df -h /`.split("\n")[1].split[4]
     rescue
-      'N/A'
+      "N/A"
     end
   end
 
@@ -88,7 +88,7 @@ class AdminController < ApplicationController
     begin
       `free -m`.split("\n")[1].split[2]
     rescue
-      'N/A'
+      "N/A"
     end
   end
 

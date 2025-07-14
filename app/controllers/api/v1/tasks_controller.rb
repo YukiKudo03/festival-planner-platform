@@ -1,17 +1,17 @@
 class Api::V1::TasksController < Api::V1::BaseController
-  before_action :set_festival, only: [:index, :create]
-  before_action :set_task, only: [:show, :update, :destroy, :assign, :complete]
-  before_action :authorize_festival_access, only: [:index, :create]
-  before_action :authorize_task_access, only: [:show, :update, :destroy, :assign, :complete]
+  before_action :set_festival, only: [ :index, :create ]
+  before_action :set_task, only: [ :show, :update, :destroy, :assign, :complete ]
+  before_action :authorize_festival_access, only: [ :index, :create ]
+  before_action :authorize_task_access, only: [ :show, :update, :destroy, :assign, :complete ]
 
   # GET /api/v1/festivals/:festival_id/tasks
   # GET /api/v1/tasks
   def index
     @tasks = if @festival
                @festival.tasks.includes(:assigned_user, :festival)
-             else
+    else
                current_user.tasks.includes(:assigned_user, :festival)
-             end
+    end
 
     @tasks = filter_tasks(@tasks)
     @tasks = @tasks.page(params[:page]).per(params[:per_page] || 50)
@@ -38,12 +38,12 @@ class Api::V1::TasksController < Api::V1::BaseController
     if @task.save
       # LINE integration for task creation
       if @festival.line_integration&.active?
-        LineTaskParsingJob.perform_later(@task.id, 'api_created')
+        LineTaskParsingJob.perform_later(@task.id, "api_created")
       end
 
       render json: {
         task: serialize_task_detailed(@task),
-        message: 'Task created successfully'
+        message: "Task created successfully"
       }, status: :created
     else
       render json: {
@@ -58,7 +58,7 @@ class Api::V1::TasksController < Api::V1::BaseController
     if @task.update(task_params)
       render json: {
         task: serialize_task_detailed(@task),
-        message: 'Task updated successfully'
+        message: "Task updated successfully"
       }
     else
       render json: {
@@ -72,14 +72,14 @@ class Api::V1::TasksController < Api::V1::BaseController
   def destroy
     @task.destroy
     render json: {
-      message: 'Task deleted successfully'
+      message: "Task deleted successfully"
     }
   end
 
   # POST /api/v1/tasks/:id/assign
   def assign
     assignee = User.find(params[:assignee_id]) if params[:assignee_id]
-    
+
     @task.update(
       assigned_user: assignee,
       assigned_at: assignee ? Time.current : nil
@@ -89,15 +89,15 @@ class Api::V1::TasksController < Api::V1::BaseController
       # Send notification
       NotificationService.create_notification(
         user: assignee,
-        type: 'task_assigned',
-        title: 'Task Assigned',
+        type: "task_assigned",
+        title: "Task Assigned",
         message: "You have been assigned to task: #{@task.title}",
         related_object: @task
       ) if assignee
 
       render json: {
         task: serialize_task_detailed(@task),
-        message: assignee ? 'Task assigned successfully' : 'Task unassigned successfully'
+        message: assignee ? "Task assigned successfully" : "Task unassigned successfully"
       }
     else
       render json: {
@@ -109,7 +109,7 @@ class Api::V1::TasksController < Api::V1::BaseController
   # POST /api/v1/tasks/:id/complete
   def complete
     @task.update(
-      status: 'completed',
+      status: "completed",
       completed_at: Time.current,
       completed_by: current_user
     )
@@ -119,14 +119,14 @@ class Api::V1::TasksController < Api::V1::BaseController
       if @task.festival.line_integration&.active?
         LineNotificationJob.perform_later(
           @task.festival.line_integration.id,
-          'task_completed',
+          "task_completed",
           @task.id
         )
       end
 
       render json: {
         task: serialize_task_detailed(@task),
-        message: 'Task completed successfully'
+        message: "Task completed successfully"
       }
     else
       render json: {
@@ -147,15 +147,15 @@ class Api::V1::TasksController < Api::V1::BaseController
 
   def authorize_festival_access
     return unless @festival
-    
+
     unless @festival.users.include?(current_user) || current_user.admin?
-      render json: { error: 'Access denied to this festival' }, status: :forbidden
+      render json: { error: "Access denied to this festival" }, status: :forbidden
     end
   end
 
   def authorize_task_access
     unless @task.festival.users.include?(current_user) || current_user.admin?
-      render json: { error: 'Access denied to this task' }, status: :forbidden
+      render json: { error: "Access denied to this task" }, status: :forbidden
     end
   end
 
@@ -171,17 +171,17 @@ class Api::V1::TasksController < Api::V1::BaseController
     tasks = tasks.where(status: params[:status]) if params[:status].present?
     tasks = tasks.where(priority: params[:priority]) if params[:priority].present?
     tasks = tasks.where(assigned_user_id: params[:assignee_id]) if params[:assignee_id].present?
-    tasks = tasks.where('due_date >= ?', params[:due_from]) if params[:due_from].present?
-    tasks = tasks.where('due_date <= ?', params[:due_to]) if params[:due_to].present?
-    tasks = tasks.where('title ILIKE ? OR description ILIKE ?', "%#{params[:search]}%", "%#{params[:search]}%") if params[:search].present?
-    
+    tasks = tasks.where("due_date >= ?", params[:due_from]) if params[:due_from].present?
+    tasks = tasks.where("due_date <= ?", params[:due_to]) if params[:due_to].present?
+    tasks = tasks.where("title ILIKE ? OR description ILIKE ?", "%#{params[:search]}%", "%#{params[:search]}%") if params[:search].present?
+
     # Sorting
     case params[:sort]
-    when 'due_date'
+    when "due_date"
       tasks.order(:due_date)
-    when 'priority'
+    when "priority"
       tasks.order(priority: :desc)
-    when 'created'
+    when "created"
       tasks.order(created_at: :desc)
     else
       tasks.order(:due_date)

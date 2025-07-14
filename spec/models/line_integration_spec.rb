@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe LineIntegration, type: :model do
   let(:user) { create(:user) }
   let(:festival) { create(:festival, user: user) }
-  
+
   describe 'associations' do
     it { should belong_to(:festival) }
     it { should belong_to(:user) }
@@ -13,7 +13,7 @@ RSpec.describe LineIntegration, type: :model do
 
   describe 'validations' do
     subject { build(:line_integration, festival: festival, user: user) }
-    
+
     it { should validate_presence_of(:line_channel_id) }
     it { should validate_presence_of(:line_channel_secret) }
     it { should validate_presence_of(:line_access_token) }
@@ -163,7 +163,7 @@ RSpec.describe LineIntegration, type: :model do
       it 'handles service errors and sets error status' do
         expect(service).to receive(:sync_groups).and_raise(StandardError, 'API Error')
         expect(Rails.logger).to receive(:error).with(/Failed to sync LINE groups/)
-        
+
         result = integration.sync_groups!
         expect(result).to be false
         expect(integration.reload.status).to eq('error')
@@ -298,7 +298,7 @@ RSpec.describe LineIntegration, type: :model do
         prefs = integration.send(:default_notification_preferences)
         expect(prefs).to include(
           'task_created',
-          'task_assigned', 
+          'task_assigned',
           'task_completed',
           'task_overdue',
           'deadline_reminder',

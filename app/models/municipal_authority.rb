@@ -21,7 +21,7 @@ class MunicipalAuthority < ApplicationRecord
   has_many :municipal_contacts, dependent: :destroy
   has_many :festivals, through: :permit_applications
   has_many :safety_compliance_records, dependent: :destroy
-  has_many :tourism_collaborations, foreign_key: 'tourism_board_id', dependent: :destroy
+  has_many :tourism_collaborations, foreign_key: "tourism_board_id", dependent: :destroy
 
   # Validations
   validates :name, presence: true
@@ -31,20 +31,20 @@ class MunicipalAuthority < ApplicationRecord
 
   # Enums
   enum authority_type: {
-    city_hall: 'city_hall',
-    prefecture_office: 'prefecture_office',
-    police_department: 'police_department',
-    fire_department: 'fire_department',
-    health_department: 'health_department',
-    tourism_board: 'tourism_board',
-    environmental_agency: 'environmental_agency',
-    labor_standards: 'labor_standards'
+    city_hall: "city_hall",
+    prefecture_office: "prefecture_office",
+    police_department: "police_department",
+    fire_department: "fire_department",
+    health_department: "health_department",
+    tourism_board: "tourism_board",
+    environmental_agency: "environmental_agency",
+    labor_standards: "labor_standards"
   }
 
   enum status: {
-    active: 'active',
-    inactive: 'inactive',
-    suspended: 'suspended'
+    active: "active",
+    inactive: "inactive",
+    suspended: "suspended"
   }
 
   # Constants
@@ -72,8 +72,8 @@ class MunicipalAuthority < ApplicationRecord
   # Scopes
   scope :by_prefecture, ->(prefecture) { where(prefecture: prefecture) }
   scope :by_authority_type, ->(type) { where(authority_type: type) }
-  scope :active, -> { where(status: 'active') }
-  scope :in_jurisdiction, ->(area) { where('jurisdiction_area ILIKE ?', "%#{area}%") }
+  scope :active, -> { where(status: "active") }
+  scope :in_jurisdiction, ->(area) { where("jurisdiction_area ILIKE ?", "%#{area}%") }
 
   # Callbacks
   before_validation :normalize_contact_info
@@ -89,7 +89,7 @@ class MunicipalAuthority < ApplicationRecord
 
   # Returns formatted address
   def full_address
-    [address, city, prefecture].compact.join(', ')
+    [ address, city, prefecture ].compact.join(", ")
   end
 
   # Checks if this authority has jurisdiction over a given area
@@ -102,36 +102,36 @@ class MunicipalAuthority < ApplicationRecord
   # Returns required permits for a given festival type
   def required_permits_for(festival_type, estimated_attendance)
     permits = []
-    
+
     case authority_type
-    when 'city_hall'
-      permits << 'event_permit' if estimated_attendance > 100
-      permits << 'road_use_permit' if festival_type.include?('outdoor')
-      permits << 'noise_permit' if festival_type.include?('music')
-    when 'police_department'
-      permits << 'security_plan_approval' if estimated_attendance > 500
-      permits << 'traffic_control_permit' if estimated_attendance > 1000
-    when 'fire_department'
-      permits << 'fire_safety_inspection' if estimated_attendance > 300
-      permits << 'emergency_access_approval'
-    when 'health_department'
-      permits << 'food_safety_permit' if festival_type.include?('food')
-      permits << 'sanitation_plan_approval' if estimated_attendance > 200
+    when "city_hall"
+      permits << "event_permit" if estimated_attendance > 100
+      permits << "road_use_permit" if festival_type.include?("outdoor")
+      permits << "noise_permit" if festival_type.include?("music")
+    when "police_department"
+      permits << "security_plan_approval" if estimated_attendance > 500
+      permits << "traffic_control_permit" if estimated_attendance > 1000
+    when "fire_department"
+      permits << "fire_safety_inspection" if estimated_attendance > 300
+      permits << "emergency_access_approval"
+    when "health_department"
+      permits << "food_safety_permit" if festival_type.include?("food")
+      permits << "sanitation_plan_approval" if estimated_attendance > 200
     end
-    
+
     permits
   end
 
   # Returns processing time for permit applications
   def typical_processing_time(permit_type)
     case permit_type
-    when 'event_permit'
+    when "event_permit"
       { business_days: 14 }
-    when 'security_plan_approval'
+    when "security_plan_approval"
       { business_days: 21 }
-    when 'fire_safety_inspection'
+    when "fire_safety_inspection"
       { business_days: 10 }
-    when 'food_safety_permit'
+    when "food_safety_permit"
       { business_days: 7 }
     else
       { business_days: 14 }
@@ -141,15 +141,15 @@ class MunicipalAuthority < ApplicationRecord
   # Returns contact information for specific permit types
   def contact_for_permit(permit_type)
     municipal_contacts.find_by(permit_type: permit_type) ||
-      municipal_contacts.find_by(contact_type: 'general') ||
+      municipal_contacts.find_by(contact_type: "general") ||
       default_contact
   end
 
   # Returns available subsidy programs
   def available_subsidies(festival_type: nil, estimated_budget: nil)
     programs = subsidy_programs.active
-    programs = programs.where('eligible_festival_types @> ?', [festival_type].to_json) if festival_type
-    programs = programs.where('min_budget <= ? AND max_budget >= ?', estimated_budget, estimated_budget) if estimated_budget
+    programs = programs.where("eligible_festival_types @> ?", [ festival_type ].to_json) if festival_type
+    programs = programs.where("min_budget <= ? AND max_budget >= ?", estimated_budget, estimated_budget) if estimated_budget
     programs
   end
 
@@ -160,10 +160,10 @@ class MunicipalAuthority < ApplicationRecord
 
   # Returns integration status
   def integration_status
-    return 'not_configured' unless api_integration_available?
-    return 'active' if last_api_sync_at && last_api_sync_at > 24.hours.ago
-    return 'stale' if last_api_sync_at && last_api_sync_at > 7.days.ago
-    'inactive'
+    return "not_configured" unless api_integration_available?
+    return "active" if last_api_sync_at && last_api_sync_at > 24.hours.ago
+    return "stale" if last_api_sync_at && last_api_sync_at > 7.days.ago
+    "inactive"
   end
 
   # Syncs data with municipal API
@@ -172,11 +172,11 @@ class MunicipalAuthority < ApplicationRecord
 
     begin
       MunicipalApiSyncService.new(self).perform_sync
-      update(last_api_sync_at: Time.current, api_sync_status: 'success')
+      update(last_api_sync_at: Time.current, api_sync_status: "success")
       true
     rescue StandardError => e
       Rails.logger.error "Municipal API sync failed for #{name}: #{e.message}"
-      update(api_sync_status: 'failed', api_sync_error: e.message)
+      update(api_sync_status: "failed", api_sync_error: e.message)
       false
     end
   end
@@ -196,32 +196,32 @@ class MunicipalAuthority < ApplicationRecord
   # Returns working hours information
   def working_hours
     {
-      monday: working_hours_monday || '9:00-17:00',
-      tuesday: working_hours_tuesday || '9:00-17:00',
-      wednesday: working_hours_wednesday || '9:00-17:00',
-      thursday: working_hours_thursday || '9:00-17:00',
-      friday: working_hours_friday || '9:00-17:00',
-      saturday: working_hours_saturday || 'Closed',
-      sunday: working_hours_sunday || 'Closed'
+      monday: working_hours_monday || "9:00-17:00",
+      tuesday: working_hours_tuesday || "9:00-17:00",
+      wednesday: working_hours_wednesday || "9:00-17:00",
+      thursday: working_hours_thursday || "9:00-17:00",
+      friday: working_hours_friday || "9:00-17:00",
+      saturday: working_hours_saturday || "Closed",
+      sunday: working_hours_sunday || "Closed"
     }
   end
 
   # Returns if currently open based on working hours
   def currently_open?
-    now = Time.current.in_time_zone('Asia/Tokyo')
-    day_of_week = now.strftime('%A').downcase
+    now = Time.current.in_time_zone("Asia/Tokyo")
+    day_of_week = now.strftime("%A").downcase
     hours = working_hours[day_of_week.to_sym]
-    
-    return false if hours == 'Closed' || hours.blank?
-    
+
+    return false if hours == "Closed" || hours.blank?
+
     begin
-      start_time, end_time = hours.split('-')
-      start_hour, start_min = start_time.split(':').map(&:to_i)
-      end_hour, end_min = end_time.split(':').map(&:to_i)
-      
+      start_time, end_time = hours.split("-")
+      start_hour, start_min = start_time.split(":").map(&:to_i)
+      end_hour, end_min = end_time.split(":").map(&:to_i)
+
       start_time_today = now.beginning_of_day + start_hour.hours + start_min.minutes
       end_time_today = now.beginning_of_day + end_hour.hours + end_min.minutes
-      
+
       now.between?(start_time_today, end_time_today)
     rescue
       false
@@ -232,7 +232,7 @@ class MunicipalAuthority < ApplicationRecord
   class << self
     # Finds authorities with jurisdiction over a specific area
     def for_area(area_name)
-      where('jurisdiction_area ILIKE ? OR city ILIKE ?', "%#{area_name}%", "%#{area_name}%")
+      where("jurisdiction_area ILIKE ? OR city ILIKE ?", "%#{area_name}%", "%#{area_name}%")
     end
 
     # Returns authorities by prefecture
@@ -243,14 +243,14 @@ class MunicipalAuthority < ApplicationRecord
     # Finds authorities that handle specific permit types
     def handling_permit_type(permit_type)
       case permit_type
-      when 'event_permit', 'road_use_permit'
-        where(authority_type: ['city_hall', 'prefecture_office'])
-      when 'security_plan_approval', 'traffic_control_permit'
-        where(authority_type: 'police_department')
-      when 'fire_safety_inspection', 'emergency_access_approval'
-        where(authority_type: 'fire_department')
-      when 'food_safety_permit', 'sanitation_plan_approval'
-        where(authority_type: 'health_department')
+      when "event_permit", "road_use_permit"
+        where(authority_type: [ "city_hall", "prefecture_office" ])
+      when "security_plan_approval", "traffic_control_permit"
+        where(authority_type: "police_department")
+      when "fire_safety_inspection", "emergency_access_approval"
+        where(authority_type: "fire_department")
+      when "food_safety_permit", "sanitation_plan_approval"
+        where(authority_type: "health_department")
       else
         all
       end
@@ -258,7 +258,7 @@ class MunicipalAuthority < ApplicationRecord
 
     # Returns authorities offering subsidies
     def with_subsidies
-      joins(:subsidy_programs).where(subsidy_programs: { status: 'active' }).distinct
+      joins(:subsidy_programs).where(subsidy_programs: { status: "active" }).distinct
     end
 
     # Import authorities from external data source
@@ -270,22 +270,22 @@ class MunicipalAuthority < ApplicationRecord
   private
 
   def normalize_contact_info
-    self.phone_number = phone_number&.gsub(/[^\d\-\(\)\+\s]/, '')
+    self.phone_number = phone_number&.gsub(/[^\d\-\(\)\+\s]/, "")
     self.contact_email = contact_email&.downcase&.strip
   end
 
   def create_default_contacts
     municipal_contacts.create!(
-      contact_type: 'general',
+      contact_type: "general",
       name: "#{name} General Contact",
       email: contact_email,
       phone: phone_number,
-      department: 'General Affairs'
+      department: "General Affairs"
     )
   end
 
   def sync_contact_changes
-    municipal_contacts.where(contact_type: 'general').update_all(email: contact_email)
+    municipal_contacts.where(contact_type: "general").update_all(email: contact_email)
   end
 
   def default_contact
@@ -293,7 +293,7 @@ class MunicipalAuthority < ApplicationRecord
       name: "#{name} General Contact",
       email: contact_email,
       phone: phone_number,
-      department: 'General Affairs'
+      department: "General Affairs"
     )
   end
 

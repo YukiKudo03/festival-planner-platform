@@ -42,23 +42,23 @@ class BackupIntegration < ApplicationRecord
   after_update :schedule_backup, if: :saved_change_to_backup_frequency?
 
   def aws_s3?
-    provider == 'aws_s3'
+    provider == "aws_s3"
   end
 
   def google_drive?
-    provider == 'google_drive'
+    provider == "google_drive"
   end
 
   def dropbox?
-    provider == 'dropbox'
+    provider == "dropbox"
   end
 
   def azure_blob?
-    provider == 'azure_blob'
+    provider == "azure_blob"
   end
 
   def local_storage?
-    provider == 'local_storage'
+    provider == "local_storage"
   end
 
   def backup_enabled?
@@ -67,15 +67,15 @@ class BackupIntegration < ApplicationRecord
 
   def has_valid_credentials?
     case provider
-    when 'aws_s3'
+    when "aws_s3"
       access_key.present? && secret_key.present? && bucket_name.present?
-    when 'google_drive'
+    when "google_drive"
       access_token.present? && folder_id.present?
-    when 'dropbox'
+    when "dropbox"
       access_token.present?
-    when 'azure_blob'
+    when "azure_blob"
       access_key.present? && bucket_name.present?
-    when 'local_storage'
+    when "local_storage"
       storage_path.present?
     else
       false
@@ -96,27 +96,27 @@ class BackupIntegration < ApplicationRecord
 
   def backup_service
     @backup_service ||= case provider
-                       when 'aws_s3'
+    when "aws_s3"
                          AwsS3BackupService.new(self)
-                       when 'google_drive'
+    when "google_drive"
                          GoogleDriveBackupService.new(self)
-                       when 'dropbox'
+    when "dropbox"
                          DropboxBackupService.new(self)
-                       when 'azure_blob'
+    when "azure_blob"
                          AzureBlobBackupService.new(self)
-                       when 'local_storage'
+    when "local_storage"
                          LocalStorageBackupService.new(self)
-                       end
+    end
   end
 
-  def create_backup!(backup_type = 'full', options = {})
-    return { success: false, error: 'Backup not enabled' } unless backup_enabled?
+  def create_backup!(backup_type = "full", options = {})
+    return { success: false, error: "Backup not enabled" } unless backup_enabled?
 
     begin
       # Create backup job record
       backup_job = backup_jobs.create!(
         backup_type: backup_type,
-        status: 'running',
+        status: "running",
         started_at: Time.current,
         backup_size: 0,
         compression_type: compression_type,
@@ -126,9 +126,9 @@ class BackupIntegration < ApplicationRecord
 
       # Prepare backup data
       backup_data = prepare_backup_data(backup_type, options)
-      
+
       # Compress if needed
-      if compression_type != 'none'
+      if compression_type != "none"
         backup_data = compress_backup_data(backup_data, compression_type)
       end
 
@@ -137,7 +137,7 @@ class BackupIntegration < ApplicationRecord
 
       if result[:success]
         backup_job.update!(
-          status: 'completed',
+          status: "completed",
           completed_at: Time.current,
           backup_size: result[:file_size],
           backup_path: result[:backup_path],
@@ -146,7 +146,7 @@ class BackupIntegration < ApplicationRecord
         )
 
         # Update last backup time
-        update!(last_backup_at: Time.current, last_backup_status: 'success')
+        update!(last_backup_at: Time.current, last_backup_status: "success")
 
         {
           success: true,
@@ -156,49 +156,49 @@ class BackupIntegration < ApplicationRecord
         }
       else
         backup_job.update!(
-          status: 'failed',
+          status: "failed",
           completed_at: Time.current,
           error_message: result[:error]
         )
 
-        update!(last_backup_status: 'failed', last_error: result[:error])
+        update!(last_backup_status: "failed", last_error: result[:error])
 
         result
       end
     rescue => error
       Rails.logger.error "Backup creation failed for integration #{id}: #{error.message}"
-      
+
       backup_job&.update!(
-        status: 'failed',
+        status: "failed",
         completed_at: Time.current,
         error_message: error.message
       )
 
-      update!(last_backup_status: 'failed', last_error: error.message)
+      update!(last_backup_status: "failed", last_error: error.message)
 
       { success: false, error: error.message }
     end
   end
 
   def restore_backup!(backup_job_id, options = {})
-    return { success: false, error: 'Backup not enabled' } unless backup_enabled?
+    return { success: false, error: "Backup not enabled" } unless backup_enabled?
 
     begin
       backup_job = backup_jobs.find(backup_job_id)
-      
+
       unless backup_job.completed?
-        return { success: false, error: 'Backup job not completed' }
+        return { success: false, error: "Backup job not completed" }
       end
 
       # Download backup from storage provider
       backup_data = backup_service.download_backup(backup_job.backup_path)
 
       unless backup_data
-        return { success: false, error: 'Failed to download backup data' }
+        return { success: false, error: "Failed to download backup data" }
       end
 
       # Decompress if needed
-      if backup_job.compression_type != 'none'
+      if backup_job.compression_type != "none"
         backup_data = decompress_backup_data(backup_data, backup_job.compression_type)
       end
 
@@ -206,15 +206,15 @@ class BackupIntegration < ApplicationRecord
       result = restore_backup_data(backup_data, options)
 
       if result[:success]
-        update!(last_restore_at: Time.current, last_restore_status: 'success')
+        update!(last_restore_at: Time.current, last_restore_status: "success")
         result
       else
-        update!(last_restore_status: 'failed', last_error: result[:error])
+        update!(last_restore_status: "failed", last_error: result[:error])
         result
       end
     rescue => error
       Rails.logger.error "Backup restoration failed for integration #{id}: #{error.message}"
-      update!(last_restore_status: 'failed', last_error: error.message)
+      update!(last_restore_status: "failed", last_error: error.message)
       { success: false, error: error.message }
     end
   end
@@ -224,7 +224,7 @@ class BackupIntegration < ApplicationRecord
     backups = backups.where(backup_type: options[:backup_type]) if options[:backup_type]
     backups = backups.where(status: options[:status]) if options[:status]
     backups = backups.limit(options[:limit]) if options[:limit]
-    
+
     backups.map do |backup_job|
       {
         id: backup_job.id,
@@ -242,18 +242,18 @@ class BackupIntegration < ApplicationRecord
   end
 
   def cleanup_old_backups!(retention_days = 30)
-    return { success: false, error: 'Backup not enabled' } unless backup_enabled?
+    return { success: false, error: "Backup not enabled" } unless backup_enabled?
 
     begin
       cutoff_date = retention_days.days.ago
-      old_backups = backup_jobs.where('created_at < ?', cutoff_date).where(status: 'completed')
+      old_backups = backup_jobs.where("created_at < ?", cutoff_date).where(status: "completed")
 
       deleted_count = 0
       total_size_freed = 0
 
       old_backups.find_each do |backup_job|
         delete_result = backup_service.delete_backup(backup_job.backup_path)
-        
+
         if delete_result[:success]
           total_size_freed += backup_job.backup_size || 0
           backup_job.destroy
@@ -277,9 +277,9 @@ class BackupIntegration < ApplicationRecord
       # Create data export record
       data_export = data_exports.create!(
         export_type: export_type,
-        status: 'running',
+        status: "running",
         started_at: Time.current,
-        export_format: options[:format] || 'json',
+        export_format: options[:format] || "json",
         include_attachments: options[:include_attachments] == true
       )
 
@@ -287,14 +287,14 @@ class BackupIntegration < ApplicationRecord
       export_data = prepare_export_data(export_type, options)
 
       # Format data
-      formatted_data = format_export_data(export_data, options[:format] || 'json')
+      formatted_data = format_export_data(export_data, options[:format] || "json")
 
       # Save to storage
       result = backup_service.upload_export(formatted_data, data_export)
 
       if result[:success]
         data_export.update!(
-          status: 'completed',
+          status: "completed",
           completed_at: Time.current,
           file_size: result[:file_size],
           export_path: result[:export_path],
@@ -308,7 +308,7 @@ class BackupIntegration < ApplicationRecord
         }
       else
         data_export.update!(
-          status: 'failed',
+          status: "failed",
           completed_at: Time.current,
           error_message: result[:error]
         )
@@ -330,7 +330,7 @@ class BackupIntegration < ApplicationRecord
   def storage_usage
     begin
       result = backup_service.get_storage_usage
-      
+
       if result[:success]
         {
           success: true,
@@ -351,14 +351,14 @@ class BackupIntegration < ApplicationRecord
 
   def backup_analytics(start_date = 30.days.ago, end_date = Time.current)
     jobs = backup_jobs.where(created_at: start_date..end_date)
-    
+
     {
       total_backups: jobs.count,
-      successful_backups: jobs.where(status: 'completed').count,
-      failed_backups: jobs.where(status: 'failed').count,
-      total_backup_size: jobs.where(status: 'completed').sum(:backup_size),
-      average_backup_size: jobs.where(status: 'completed').average(:backup_size)&.round(2) || 0,
-      average_backup_duration: calculate_average_duration(jobs.where(status: 'completed')),
+      successful_backups: jobs.where(status: "completed").count,
+      failed_backups: jobs.where(status: "failed").count,
+      total_backup_size: jobs.where(status: "completed").sum(:backup_size),
+      average_backup_size: jobs.where(status: "completed").average(:backup_size)&.round(2) || 0,
+      average_backup_duration: calculate_average_duration(jobs.where(status: "completed")),
       backup_frequency_stats: jobs.group(:backup_type).count,
       success_rate: calculate_success_rate(jobs),
       storage_trend: jobs.group_by_day(:created_at, last: 30).sum(:backup_size)
@@ -377,8 +377,8 @@ class BackupIntegration < ApplicationRecord
   end
 
   def schedule_backup
-    return unless active? && backup_frequency != 'manual'
-    
+    return unless active? && backup_frequency != "manual"
+
     BackupSchedulerJob.perform_later(id)
   end
 
@@ -398,15 +398,15 @@ class BackupIntegration < ApplicationRecord
     }
 
     case backup_type
-    when 'full'
-      backup_data[:festival] = festival&.as_json(include: [:tasks, :users, :notifications])
-      backup_data[:tasks] = festival&.tasks&.as_json(include: [:assignments, :comments])
+    when "full"
+      backup_data[:festival] = festival&.as_json(include: [ :tasks, :users, :notifications ])
+      backup_data[:tasks] = festival&.tasks&.as_json(include: [ :assignments, :comments ])
       backup_data[:integrations] = user.integrations_data if options[:include_integrations]
-    when 'festival_only'
+    when "festival_only"
       backup_data[:festival] = festival&.as_json
-    when 'tasks_only'
-      backup_data[:tasks] = festival&.tasks&.as_json(include: [:assignments, :comments])
-    when 'incremental'
+    when "tasks_only"
+      backup_data[:tasks] = festival&.tasks&.as_json(include: [ :assignments, :comments ])
+    when "incremental"
       backup_data = prepare_incremental_backup_data(options[:since] || last_backup_at)
     end
 
@@ -423,10 +423,10 @@ class BackupIntegration < ApplicationRecord
 
     {
       festival: festival&.updated_at > since_date ? festival.as_json : nil,
-      tasks: festival&.tasks&.where('updated_at > ?', since_date)&.as_json(include: [:assignments, :comments]),
-      notifications: festival&.notifications&.where('created_at > ?', since_date)&.as_json,
+      tasks: festival&.tasks&.where("updated_at > ?", since_date)&.as_json(include: [ :assignments, :comments ]),
+      notifications: festival&.notifications&.where("created_at > ?", since_date)&.as_json,
       metadata: {
-        backup_type: 'incremental',
+        backup_type: "incremental",
         since_date: since_date.iso8601,
         created_at: Time.current.iso8601
       }
@@ -435,13 +435,13 @@ class BackupIntegration < ApplicationRecord
 
   def prepare_export_data(export_type, options)
     case export_type
-    when 'festival_data'
-      festival&.as_json(include: [:tasks, :users, :notifications])
-    when 'tasks_csv'
+    when "festival_data"
+      festival&.as_json(include: [ :tasks, :users, :notifications ])
+    when "tasks_csv"
       festival&.tasks&.as_json
-    when 'user_data'
-      user.as_json(include: [:festivals, :tasks])
-    when 'analytics_data'
+    when "user_data"
+      user.as_json(include: [ :festivals, :tasks ])
+    when "analytics_data"
       collect_analytics_data(options)
     else
       {}
@@ -450,13 +450,13 @@ class BackupIntegration < ApplicationRecord
 
   def format_export_data(data, format)
     case format.downcase
-    when 'json'
+    when "json"
       JSON.pretty_generate(data)
-    when 'csv'
+    when "csv"
       convert_to_csv(data)
-    when 'xml'
+    when "xml"
       convert_to_xml(data)
-    when 'yaml'
+    when "yaml"
       data.to_yaml
     else
       JSON.pretty_generate(data)
@@ -464,14 +464,14 @@ class BackupIntegration < ApplicationRecord
   end
 
   def convert_to_csv(data)
-    return '' unless data.is_a?(Array) && data.any?
+    return "" unless data.is_a?(Array) && data.any?
 
-    require 'csv'
-    
+    require "csv"
+
     CSV.generate do |csv|
       # Add headers
       csv << data.first.keys if data.first.is_a?(Hash)
-      
+
       # Add data rows
       data.each do |row|
         csv << (row.is_a?(Hash) ? row.values : row)
@@ -480,16 +480,16 @@ class BackupIntegration < ApplicationRecord
   end
 
   def convert_to_xml(data)
-    data.to_xml(root: 'backup_data', skip_instruct: true)
+    data.to_xml(root: "backup_data", skip_instruct: true)
   end
 
   def compress_backup_data(data, compression_type)
     case compression_type
-    when 'zip'
+    when "zip"
       compress_zip(data)
-    when 'gzip'
+    when "gzip"
       compress_gzip(data)
-    when 'tar_gz'
+    when "tar_gz"
       compress_tar_gz(data)
     else
       data
@@ -498,11 +498,11 @@ class BackupIntegration < ApplicationRecord
 
   def decompress_backup_data(data, compression_type)
     case compression_type
-    when 'zip'
+    when "zip"
       decompress_zip(data)
-    when 'gzip'
+    when "gzip"
       decompress_gzip(data)
-    when 'tar_gz'
+    when "tar_gz"
       decompress_tar_gz(data)
     else
       data
@@ -510,31 +510,31 @@ class BackupIntegration < ApplicationRecord
   end
 
   def compress_zip(data)
-    require 'zip'
-    
+    require "zip"
+
     Zip::OutputStream.write_buffer do |zos|
-      zos.put_next_entry('backup_data.json')
+      zos.put_next_entry("backup_data.json")
       zos.write(JSON.pretty_generate(data))
     end.string
   end
 
   def compress_gzip(data)
-    require 'zlib'
-    
+    require "zlib"
+
     Zlib::Deflate.deflate(JSON.pretty_generate(data))
   end
 
   def compress_tar_gz(data)
-    require 'zlib'
-    require 'rubygems/package'
-    
+    require "zlib"
+    require "rubygems/package"
+
     tar_data = StringIO.new
     Gem::Package::TarWriter.new(tar_data) do |tar|
-      tar.add_file('backup_data.json', 0644) do |file|
+      tar.add_file("backup_data.json", 0644) do |file|
         file.write(JSON.pretty_generate(data))
       end
     end
-    
+
     Zlib::GzipWriter.wrap(StringIO.new) do |gz|
       gz.write(tar_data.string)
     end.string
@@ -543,11 +543,11 @@ class BackupIntegration < ApplicationRecord
   def restore_backup_data(backup_data, options)
     # Implementation would depend on specific restoration requirements
     # This is a simplified version
-    
+
     begin
       if backup_data[:festival] && options[:restore_festival] != false
         # Restore festival data
-        festival&.update!(backup_data[:festival].except('id', 'created_at', 'updated_at'))
+        festival&.update!(backup_data[:festival].except("id", "created_at", "updated_at"))
       end
 
       if backup_data[:tasks] && options[:restore_tasks] != false
@@ -555,7 +555,7 @@ class BackupIntegration < ApplicationRecord
         restore_tasks_data(backup_data[:tasks])
       end
 
-      { success: true, message: 'Backup restored successfully' }
+      { success: true, message: "Backup restored successfully" }
     rescue => error
       { success: false, error: error.message }
     end
@@ -571,7 +571,7 @@ class BackupIntegration < ApplicationRecord
 
   def collect_attachments
     attachments = []
-    
+
     # Collect festival attachments if any
     if festival && festival.respond_to?(:attachments)
       attachments.concat(festival.attachments.map(&:attachment))
@@ -601,7 +601,7 @@ class BackupIntegration < ApplicationRecord
 
   def collect_integration_usage_stats(start_date, end_date)
     stats = {}
-    
+
     user.calendar_integrations.each do |integration|
       stats["calendar_#{integration.id}"] = integration.usage_analytics(start_date, end_date)
     end
@@ -629,8 +629,8 @@ class BackupIntegration < ApplicationRecord
 
   def calculate_success_rate(jobs)
     return 0 if jobs.count.zero?
-    
-    success_count = jobs.where(status: 'completed').count
+
+    success_count = jobs.where(status: "completed").count
     (success_count.to_f / jobs.count * 100).round(2)
   end
 end

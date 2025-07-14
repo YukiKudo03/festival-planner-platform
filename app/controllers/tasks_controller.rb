@@ -1,17 +1,17 @@
 class TasksController < ApplicationController
-  before_action :set_festival, except: [:index]
-  before_action :set_task, only: [:show, :edit, :update, :destroy]
+  before_action :set_festival, except: [ :index ]
+  before_action :set_task, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @tasks = current_user.tasks.includes(:festival, :user)
     authorize! :read, Task
-    
+
     # フィルタリング
     @tasks = filter_tasks(@tasks)
-    
+
     # ソート
     @tasks = sort_tasks(@tasks)
-    
+
     respond_to do |format|
       format.html
       format.turbo_stream
@@ -21,15 +21,15 @@ class TasksController < ApplicationController
   def gantt
     @tasks = current_user.tasks.includes(:festival, :user)
     authorize! :read, Task
-    
+
     # フィルタリング適用
     @tasks = filter_tasks(@tasks)
-    
+
     # ガントチャート用のデータ準備
     @gantt_data = prepare_gantt_data(@tasks)
     @festivals = @tasks.map(&:festival).uniq
     @date_range = calculate_date_range(@tasks)
-    
+
     respond_to do |format|
       format.html
       format.json { render json: @gantt_data }
@@ -38,7 +38,7 @@ class TasksController < ApplicationController
 
   def show
     authorize! :read, @task
-    
+
     respond_to do |format|
       format.html
       format.json { render json: @task }
@@ -56,7 +56,7 @@ class TasksController < ApplicationController
     authorize! :create, @task
 
     if @task.save
-      redirect_to [@festival, @task], notice: 'タスクが作成されました。'
+      redirect_to [ @festival, @task ], notice: "タスクが作成されました。"
     else
       render :new, status: :unprocessable_entity
     end
@@ -70,7 +70,7 @@ class TasksController < ApplicationController
     authorize! :update, @task
 
     if @task.update(task_params)
-      redirect_to [@festival, @task], notice: 'タスクが更新されました。'
+      redirect_to [ @festival, @task ], notice: "タスクが更新されました。"
     else
       render :edit, status: :unprocessable_entity
     end
@@ -79,7 +79,7 @@ class TasksController < ApplicationController
   def destroy
     authorize! :destroy, @task
     @task.destroy
-    redirect_to @festival, notice: 'タスクが削除されました。'
+    redirect_to @festival, notice: "タスクが削除されました。"
   end
 
   private
@@ -98,48 +98,48 @@ class TasksController < ApplicationController
 
   def filter_tasks(tasks)
     filtered_tasks = tasks
-    
+
     # ステータスフィルタ
-    if params[:status].present? && params[:status] != 'all'
+    if params[:status].present? && params[:status] != "all"
       filtered_tasks = filtered_tasks.where(status: params[:status])
     end
-    
+
     # 優先度フィルタ
-    if params[:priority].present? && params[:priority] != 'all'
+    if params[:priority].present? && params[:priority] != "all"
       filtered_tasks = filtered_tasks.where(priority: params[:priority])
     end
-    
+
     # お祭りフィルタ
-    if params[:festival_id].present? && params[:festival_id] != 'all'
+    if params[:festival_id].present? && params[:festival_id] != "all"
       filtered_tasks = filtered_tasks.where(festival_id: params[:festival_id])
     end
-    
+
     # 期限フィルタ
     case params[:due_filter]
-    when 'overdue'
+    when "overdue"
       filtered_tasks = filtered_tasks.overdue
-    when 'due_soon'
+    when "due_soon"
       filtered_tasks = filtered_tasks.due_soon
-    when 'future'
-      filtered_tasks = filtered_tasks.where('due_date > ?', 3.days.from_now)
+    when "future"
+      filtered_tasks = filtered_tasks.where("due_date > ?", 3.days.from_now)
     end
-    
+
     filtered_tasks
   end
-  
+
   def sort_tasks(tasks)
     case params[:sort]
-    when 'due_date_asc'
+    when "due_date_asc"
       tasks.order(due_date: :asc)
-    when 'due_date_desc'
+    when "due_date_desc"
       tasks.order(due_date: :desc)
-    when 'priority_desc'
+    when "priority_desc"
       tasks.order(priority: :desc)
-    when 'priority_asc'
+    when "priority_asc"
       tasks.order(priority: :asc)
-    when 'created_desc'
+    when "created_desc"
       tasks.order(created_at: :desc)
-    when 'created_asc'
+    when "created_asc"
       tasks.order(created_at: :asc)
     else
       tasks.order(due_date: :asc) # デフォルト
@@ -151,12 +151,12 @@ class TasksController < ApplicationController
       start_date = task.created_at.to_date
       end_date = task.due_date.to_date
       duration = (end_date - start_date).to_i + 1
-      
+
       {
         id: task.id,
         name: task.title,
-        start: start_date.strftime('%Y-%m-%d'),
-        end: end_date.strftime('%Y-%m-%d'),
+        start: start_date.strftime("%Y-%m-%d"),
+        end: end_date.strftime("%Y-%m-%d"),
         duration: duration,
         progress: task_progress_percentage(task),
         priority: task.priority,
@@ -174,29 +174,29 @@ class TasksController < ApplicationController
 
   def calculate_date_range(tasks)
     return { start: Date.current, end: Date.current + 30.days } if tasks.empty?
-    
+
     start_dates = tasks.map { |t| t.created_at.to_date }
     end_dates = tasks.map { |t| t.due_date.to_date }
-    
+
     min_date = start_dates.min
     max_date = end_dates.max
-    
+
     # 少し余裕を持たせる
     {
-      start: [min_date - 7.days, Date.current - 30.days].max,
-      end: [max_date + 7.days, Date.current + 90.days].min
+      start: [ min_date - 7.days, Date.current - 30.days ].max,
+      end: [ max_date + 7.days, Date.current + 90.days ].min
     }
   end
 
   def task_progress_percentage(task)
     case task.status
-    when 'pending'
+    when "pending"
       0
-    when 'in_progress'
+    when "in_progress"
       50
-    when 'completed'
+    when "completed"
       100
-    when 'cancelled'
+    when "cancelled"
       0
     else
       0
@@ -205,21 +205,21 @@ class TasksController < ApplicationController
 
   def task_gantt_color(task)
     if task.overdue?
-      '#dc3545' # 赤色
+      "#dc3545" # 赤色
     elsif task.due_soon?
-      '#ffc107' # 黄色
+      "#ffc107" # 黄色
     else
       case task.priority
-      when 'urgent'
-        '#e74c3c'
-      when 'high'
-        '#f39c12'
-      when 'medium'
-        '#3498db'
-      when 'low'
-        '#27ae60'
+      when "urgent"
+        "#e74c3c"
+      when "high"
+        "#f39c12"
+      when "medium"
+        "#3498db"
+      when "low"
+        "#27ae60"
       else
-        '#95a5a6'
+        "#95a5a6"
       end
     end
   end

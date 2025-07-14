@@ -13,7 +13,7 @@ RSpec.describe LineGroup, type: :model do
 
   describe 'validations' do
     subject { build(:line_group, line_integration: line_integration) }
-    
+
     it { should validate_presence_of(:line_group_id) }
     it { should validate_presence_of(:name) }
     it { should validate_uniqueness_of(:line_group_id) }
@@ -89,7 +89,7 @@ RSpec.describe LineGroup, type: :model do
       it 'returns value of is_active?' do
         line_group.update!(is_active: true)
         expect(line_group.active?).to be true
-        
+
         line_group.update!(is_active: false)
         expect(line_group.active?).to be false
       end
@@ -102,7 +102,7 @@ RSpec.describe LineGroup, type: :model do
 
       it 'returns recent messages in descending order' do
         messages = line_group.recent_messages(2)
-        expect(messages).to eq([message1, message2])
+        expect(messages).to eq([ message1, message2 ])
       end
 
       it 'defaults to 50 messages' do
@@ -117,7 +117,7 @@ RSpec.describe LineGroup, type: :model do
 
       it 'returns only unprocessed messages in chronological order' do
         messages = line_group.unprocessed_messages
-        expect(messages).to eq([unprocessed2, unprocessed1])
+        expect(messages).to eq([ unprocessed2, unprocessed1 ])
         expect(messages).not_to include(processed)
       end
     end
@@ -243,12 +243,12 @@ RSpec.describe LineGroup, type: :model do
       it 'processes all unprocessed messages' do
         parser1 = instance_double(LineTaskParserService)
         parser2 = instance_double(LineTaskParserService)
-        
+
         expect(LineTaskParserService).to receive(:new).with(unprocessed1).and_return(parser1)
         expect(LineTaskParserService).to receive(:new).with(unprocessed2).and_return(parser2)
         expect(parser1).to receive(:process_message)
         expect(parser2).to receive(:process_message)
-        
+
         line_group.process_pending_messages!
       end
     end
@@ -259,7 +259,7 @@ RSpec.describe LineGroup, type: :model do
 
       it 'returns comprehensive statistics' do
         line_group.update!(member_count: 10, last_activity_at: 1.hour.ago, is_active: true)
-        
+
         stats = line_group.stats
         expect(stats).to include(
           total_messages: 2,

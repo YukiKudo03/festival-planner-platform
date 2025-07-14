@@ -10,7 +10,7 @@ class LineGroup < ApplicationRecord
   serialize :group_settings, coder: JSON
 
   scope :active_groups, -> { where(is_active: true) }
-  scope :recent_activity, -> { where('last_activity_at > ?', 24.hours.ago) }
+  scope :recent_activity, -> { where("last_activity_at > ?", 24.hours.ago) }
   scope :by_integration, ->(integration) { where(line_integration: integration) }
 
   before_create :set_default_group_settings
@@ -44,24 +44,24 @@ class LineGroup < ApplicationRecord
   end
 
   def can_create_tasks?
-    active? && group_settings['task_creation_enabled']
+    active? && group_settings["task_creation_enabled"]
   end
 
   def task_creation_enabled?
-    group_settings['task_creation_enabled'] == true
+    group_settings["task_creation_enabled"] == true
   end
 
   def notification_enabled?
-    group_settings['notifications_enabled'] == true
+    group_settings["notifications_enabled"] == true
   end
 
   def auto_parse_enabled?
-    group_settings['auto_parse_enabled'] == true
+    group_settings["auto_parse_enabled"] == true
   end
 
   def send_message(text)
     return false unless active?
-    
+
     line_integration.send_notification(text, line_group_id)
   end
 
@@ -96,19 +96,19 @@ class LineGroup < ApplicationRecord
       require_keywords: false,
       allowed_users: [], # Empty means all users allowed
       restricted_mode: false,
-      task_assignment_mode: 'auto', # 'auto', 'manual', 'none'
-      default_task_priority: 'medium',
-      notification_format: 'detailed', # 'detailed', 'summary', 'minimal'
+      task_assignment_mode: "auto", # 'auto', 'manual', 'none'
+      default_task_priority: "medium",
+      notification_format: "detailed", # 'detailed', 'summary', 'minimal'
       quiet_hours: {
         enabled: false,
-        start: '22:00',
-        end: '07:00'
+        start: "22:00",
+        end: "07:00"
       },
       keywords: {
-        task_indicators: ['やること', 'タスク', 'TODO', '作業'],
-        priority_high: ['緊急', '急ぎ', '重要'],
-        priority_low: ['後で', 'あとで'],
-        completion: ['完了', '終了', 'done', '済み']
+        task_indicators: [ "やること", "タスク", "TODO", "作業" ],
+        priority_high: [ "緊急", "急ぎ", "重要" ],
+        priority_low: [ "後で", "あとで" ],
+        completion: [ "完了", "終了", "done", "済み" ]
       }
     }
   end

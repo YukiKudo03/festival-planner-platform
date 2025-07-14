@@ -5,7 +5,7 @@ class ApiKey < ApplicationRecord
   # API キーのスコープ定義
   SCOPES = %w[
     festivals:read festivals:write festivals:delete
-    tasks:read tasks:write tasks:delete  
+    tasks:read tasks:write tasks:delete
     budgets:read budgets:write
     vendors:read vendors:write
     payments:read payments:write
@@ -20,7 +20,7 @@ class ApiKey < ApplicationRecord
   validates :key_type, inclusion: { in: KEY_TYPES }
   validates :api_key, presence: true, uniqueness: true
   validates :scopes, presence: true
-  
+
   validate :validate_scopes
   validate :validate_ip_whitelist
   validate :validate_user_permissions
@@ -29,10 +29,10 @@ class ApiKey < ApplicationRecord
   before_validation :set_defaults
 
   scope :active, -> { where(active: true) }
-  scope :expired, -> { where('expires_at < ?', Time.current) }
-  scope :personal, -> { where(key_type: 'personal') }
-  scope :application, -> { where(key_type: 'application') }
-  scope :webhook, -> { where(key_type: 'webhook') }
+  scope :expired, -> { where("expires_at < ?", Time.current) }
+  scope :personal, -> { where(key_type: "personal") }
+  scope :application, -> { where(key_type: "application") }
+  scope :webhook, -> { where(key_type: "webhook") }
 
   # スコープをJSON配列として保存
   serialize :scopes, coder: JSON
@@ -60,22 +60,22 @@ class ApiKey < ApplicationRecord
 
   def within_rate_limit?(window = 1.hour)
     return true unless rate_limits.present?
-    
+
     current_hour_requests = api_requests
-                           .where('created_at > ?', window.ago)
+                           .where("created_at > ?", window.ago)
                            .count
-    
-    limit = rate_limits['requests_per_hour'] || 1000
+
+    limit = rate_limits["requests_per_hour"] || 1000
     current_hour_requests < limit
   end
 
   def record_request!(request_info = {})
     increment!(:request_count)
     update!(last_used_at: Time.current)
-    
+
     # 使用統計の更新
     update_usage_stats!
-    
+
     # リクエスト履歴の記録（詳細ログが必要な場合）
     if should_log_request?
       api_requests.create!(
@@ -91,7 +91,7 @@ class ApiKey < ApplicationRecord
 
   def revoke!
     update!(active: false, revoked_at: Time.current)
-    
+
     # JWT ブラックリストに追加
     Rails.cache.write(
       "revoked_api_key:#{api_key}",
@@ -118,24 +118,24 @@ class ApiKey < ApplicationRecord
   # セキュリティアラートが必要かチェック
   def security_alert_needed?
     return false unless active?
-    
+
     # 異常な使用パターンの検出
-    recent_requests = api_requests.where('created_at > ?', 1.hour.ago)
-    
+    recent_requests = api_requests.where("created_at > ?", 1.hour.ago)
+
     # 急激な使用量増加
-    if recent_requests.count > (rate_limits['requests_per_hour'] || 1000) * 0.8
+    if recent_requests.count > (rate_limits["requests_per_hour"] || 1000) * 0.8
       return true
     end
-    
+
     # 複数IPからのアクセス（personal keyの場合）
-    if key_type == 'personal' && recent_requests.distinct.count(:ip_address) > 3
+    if key_type == "personal" && recent_requests.distinct.count(:ip_address) > 3
       return true
     end
-    
+
     # 異常なエラー率
-    error_rate = recent_requests.where('response_status >= 400').count.to_f / 
-                 [recent_requests.count, 1].max
-    
+    error_rate = recent_requests.where("response_status >= 400").count.to_f /
+                 [ recent_requests.count, 1 ].max
+
     error_rate > 0.5
   end
 
@@ -154,25 +154,25 @@ class ApiKey < ApplicationRecord
     self.ip_whitelist ||= []
     self.rate_limits ||= default_rate_limits
     self.usage_stats ||= {}
-    self.expires_at ||= 1.year.from_now if key_type != 'personal'
+    self.expires_at ||= 1.year.from_now if key_type != "personal"
   end
 
   def default_rate_limits
     case key_type
-    when 'personal'
-      { 'requests_per_hour' => 1000, 'requests_per_day' => 10000 }
-    when 'application'
-      { 'requests_per_hour' => 5000, 'requests_per_day' => 100000 }
-    when 'webhook'
-      { 'requests_per_hour' => 100, 'requests_per_day' => 1000 }
+    when "personal"
+      { "requests_per_hour" => 1000, "requests_per_day" => 10000 }
+    when "application"
+      { "requests_per_hour" => 5000, "requests_per_day" => 100000 }
+    when "webhook"
+      { "requests_per_hour" => 100, "requests_per_day" => 1000 }
     else
-      { 'requests_per_hour' => 1000, 'requests_per_day' => 10000 }
+      { "requests_per_hour" => 1000, "requests_per_day" => 10000 }
     end
   end
 
   def validate_scopes
     return if scopes.blank?
-    
+
     invalid_scopes = scopes - SCOPES
     if invalid_scopes.any?
       errors.add(:scopes, "Invalid scopes: #{invalid_scopes.join(', ')}")
@@ -181,7 +181,7 @@ class ApiKey < ApplicationRecord
 
   def validate_ip_whitelist
     return if ip_whitelist.blank?
-    
+
     ip_whitelist.each do |ip|
       begin
         IPAddr.new(ip)
@@ -194,11 +194,11 @@ class ApiKey < ApplicationRecord
 
   def validate_user_permissions
     return unless user
-    
+
     # ユーザーが持っていないスコープは使用できない
     user_scopes = user.available_api_scopes
     unauthorized_scopes = scopes - user_scopes
-    
+
     if unauthorized_scopes.any?
       errors.add(:scopes, "User doesn't have permission for: #{unauthorized_scopes.join(', ')}")
     end
@@ -206,7 +206,7 @@ class ApiKey < ApplicationRecord
 
   def should_log_request?
     # 詳細ログが必要なケース
-    key_type == 'application' || 
+    key_type == "application" ||
     security_alert_needed? ||
     Rails.env.development?
   end
@@ -214,39 +214,39 @@ class ApiKey < ApplicationRecord
   def update_usage_stats!
     today = Date.current.to_s
     self.usage_stats ||= {}
-    self.usage_stats['daily'] ||= {}
-    self.usage_stats['daily'][today] = (self.usage_stats['daily'][today] || 0) + 1
-    
+    self.usage_stats["daily"] ||= {}
+    self.usage_stats["daily"][today] = (self.usage_stats["daily"][today] || 0) + 1
+
     # 古いデータのクリーンアップ（30日以上前）
     cutoff_date = 30.days.ago.to_date.to_s
-    self.usage_stats['daily'] = self.usage_stats['daily'].select { |date, _| date >= cutoff_date }
-    
+    self.usage_stats["daily"] = self.usage_stats["daily"].select { |date, _| date >= cutoff_date }
+
     save!
   end
 
   def calculate_daily_average
-    return 0 unless usage_stats['daily'].present?
-    
-    usage_stats['daily'].values.sum.to_f / usage_stats['daily'].size
+    return 0 unless usage_stats["daily"].present?
+
+    usage_stats["daily"].values.sum.to_f / usage_stats["daily"].size
   end
 
   def calculate_top_endpoints
     api_requests
-      .where('created_at > ?', 30.days.ago)
+      .where("created_at > ?", 30.days.ago)
       .group(:endpoint)
-      .order('count_all DESC')
+      .order("count_all DESC")
       .limit(5)
       .count
   end
 
   def calculate_success_rate
-    total = api_requests.where('created_at > ?', 30.days.ago).count
+    total = api_requests.where("created_at > ?", 30.days.ago).count
     return 100.0 if total.zero?
-    
+
     success = api_requests
-             .where('created_at > ? AND response_status < 400', 30.days.ago)
+             .where("created_at > ? AND response_status < 400", 30.days.ago)
              .count
-             
+
     (success.to_f / total * 100).round(2)
   end
 end

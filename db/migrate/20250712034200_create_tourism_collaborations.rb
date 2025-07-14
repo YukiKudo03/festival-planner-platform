@@ -31,10 +31,10 @@ class CreateTourismCollaborations < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :tourism_collaborations, :collaboration_type
     add_index :tourism_collaborations, :status
     add_index :tourism_collaborations, :collaboration_number, unique: true
-    add_index :tourism_collaborations, [:start_date, :end_date]
+    add_index :tourism_collaborations, [ :start_date, :end_date ]
   end
 end

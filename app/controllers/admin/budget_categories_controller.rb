@@ -2,7 +2,7 @@ class Admin::BudgetCategoriesController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_admin_or_committee_member
   before_action :set_festival
-  before_action :set_budget_category, only: [:show, :edit, :update, :destroy]
+  before_action :set_budget_category, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @budget_categories = @festival.budget_categories.includes(:expenses, :revenues)
@@ -24,10 +24,10 @@ class Admin::BudgetCategoriesController < ApplicationController
 
   def create
     @budget_category = @festival.budget_categories.build(budget_category_params)
-    
+
     if @budget_category.save
       redirect_to admin_festival_budget_category_path(@festival, @budget_category),
-                  notice: '予算カテゴリが作成されました。'
+                  notice: "予算カテゴリが作成されました。"
     else
       @parent_categories = @festival.budget_categories.root_categories
       render :new, status: :unprocessable_entity
@@ -42,7 +42,7 @@ class Admin::BudgetCategoriesController < ApplicationController
   def update
     if @budget_category.update(budget_category_params)
       redirect_to admin_festival_budget_category_path(@festival, @budget_category),
-                  notice: '予算カテゴリが更新されました。'
+                  notice: "予算カテゴリが更新されました。"
     else
       @parent_categories = @festival.budget_categories.root_categories
                                     .where.not(id: @budget_category.id)
@@ -53,25 +53,25 @@ class Admin::BudgetCategoriesController < ApplicationController
   def destroy
     if @budget_category.expenses.any? || @budget_category.revenues.any?
       redirect_to admin_festival_budget_categories_path(@festival),
-                  alert: '支出または収入が登録されているため削除できません。'
+                  alert: "支出または収入が登録されているため削除できません。"
     else
       @budget_category.destroy
       redirect_to admin_festival_budget_categories_path(@festival),
-                  notice: '予算カテゴリが削除されました。'
+                  notice: "予算カテゴリが削除されました。"
     end
   end
 
   def create_standard_categories
     BudgetCategory.create_standard_categories_for(@festival)
     redirect_to admin_festival_budget_categories_path(@festival),
-                notice: '標準予算カテゴリを作成しました。'
+                notice: "標準予算カテゴリを作成しました。"
   end
 
   private
 
   def set_festival
-    @festival = current_user.admin? || current_user.committee_member? ? 
-                Festival.find(params[:festival_id]) : 
+    @festival = current_user.admin? || current_user.committee_member? ?
+                Festival.find(params[:festival_id]) :
                 current_user.festivals.find(params[:festival_id])
   end
 
@@ -84,9 +84,9 @@ class Admin::BudgetCategoriesController < ApplicationController
   end
 
   def ensure_admin_or_committee_member
-    unless current_user.admin? || current_user.committee_member? || 
+    unless current_user.admin? || current_user.committee_member? ||
            current_user.festivals.exists?(params[:festival_id])
-      redirect_to root_path, alert: 'アクセス権限がありません。'
+      redirect_to root_path, alert: "アクセス権限がありません。"
     end
   end
 

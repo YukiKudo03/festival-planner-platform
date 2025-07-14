@@ -12,11 +12,11 @@ class CreateRevenues < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :revenues, :revenue_date
     add_index :revenues, :revenue_type
     add_index :revenues, :status
-    add_index :revenues, [:festival_id, :revenue_date]
-    add_index :revenues, [:budget_category_id, :status]
+    add_index :revenues, [ :festival_id, :revenue_date ]
+    add_index :revenues, [ :budget_category_id, :status ]
   end
 end

@@ -23,7 +23,7 @@ class AnalyticsService
   # 概要メトリクス
   def overview_metrics
     return {} unless @festival
-    
+
     {
       total_budget: @festival.budget || 0,
       total_expenses: @festival.total_expenses,
@@ -58,8 +58,8 @@ class AnalyticsService
     total_tasks = tasks.count
     completed_tasks = tasks.completed.count
     pending_tasks = tasks.pending.count
-    overdue_tasks = tasks.where('due_date < ? AND status != ?', Date.current, Task.statuses[:completed]).count
-    
+    overdue_tasks = tasks.where("due_date < ? AND status != ?", Date.current, Task.statuses[:completed]).count
+
     {
       total_tasks: total_tasks,
       completed_tasks: completed_tasks,
@@ -72,7 +72,7 @@ class AnalyticsService
         medium: tasks.where(priority: :medium).count,
         low: tasks.where(priority: :low).count
       },
-      upcoming_deadlines: tasks.where('due_date > ? AND due_date < ?', Date.current, 7.days.from_now).limit(5).pluck(:title, :due_date)
+      upcoming_deadlines: tasks.where("due_date > ? AND due_date < ?", Date.current, 7.days.from_now).limit(5).pluck(:title, :due_date)
     }
   end
 
@@ -85,7 +85,7 @@ class AnalyticsService
     approved_applications = applications.approved.count
     pending_applications = applications.under_review.count
     rejected_applications = applications.rejected.count
-    
+
     {
       total_applications: total_applications,
       approved_applications: approved_applications,
@@ -104,7 +104,7 @@ class AnalyticsService
     venues = @festival.venues
     total_capacity = venues.sum(:capacity)
     allocated_spaces = @festival.booths.count
-    
+
     {
       total_capacity: total_capacity,
       allocated_spaces: allocated_spaces,
@@ -120,8 +120,8 @@ class AnalyticsService
 
     forum_posts = @festival.forums.joins(:forum_threads).joins(:forum_posts).count
     chat_messages = @festival.chat_rooms.joins(:chat_messages).count
-    active_discussions = @festival.forums.joins(:forum_threads).where('forum_threads.updated_at > ?', 7.days.ago).count
-    
+    active_discussions = @festival.forums.joins(:forum_threads).where("forum_threads.updated_at > ?", 7.days.ago).count
+
     {
       total_messages: forum_posts + chat_messages,
       active_discussions: active_discussions,
@@ -138,7 +138,7 @@ class AnalyticsService
   # トレンド分析
   def trend_analysis
     return {} unless @festival
-    
+
     {
       budget_trends: budget_trend_data,
       task_completion_trends: task_completion_trend_data,
@@ -165,17 +165,17 @@ class AnalyticsService
   end
 
   # 時系列データ生成（グラフ用）
-  def time_series_data(metric, period = 'daily')
+  def time_series_data(metric, period = "daily")
     case metric
-    when 'budget_utilization'
+    when "budget_utilization"
       generate_budget_time_series(period)
-    when 'task_completion'
+    when "task_completion"
       generate_task_completion_time_series(period)
-    when 'vendor_applications'
+    when "vendor_applications"
       generate_vendor_application_time_series(period)
-    when 'user_activity'
+    when "user_activity"
       generate_user_activity_time_series(period)
-    when 'communication_volume'
+    when "communication_volume"
       generate_communication_time_series(period)
     else
       {}
@@ -185,13 +185,13 @@ class AnalyticsService
   # 予測分析
   def forecast_analysis(metric, periods = 30)
     case metric
-    when 'budget'
+    when "budget"
       forecast_budget_trends(periods)
-    when 'task_completion'
+    when "task_completion"
       forecast_task_completion(periods)
-    when 'vendor_applications'
+    when "vendor_applications"
       forecast_vendor_applications(periods)
-    when 'user_growth'
+    when "user_growth"
       forecast_user_growth(periods)
     else
       {}
@@ -199,15 +199,15 @@ class AnalyticsService
   end
 
   # 比較分析
-  def comparative_analysis(comparison_type = 'previous_period')
+  def comparative_analysis(comparison_type = "previous_period")
     case comparison_type
-    when 'previous_period'
+    when "previous_period"
       previous_period_comparison
-    when 'same_period_last_year'
+    when "same_period_last_year"
       year_over_year_comparison
-    when 'industry_average'
+    when "industry_average"
       industry_benchmark_comparison
-    when 'best_performing'
+    when "best_performing"
       best_performing_comparison
     else
       {}
@@ -217,43 +217,43 @@ class AnalyticsService
   # レコメンデーション
   def generate_recommendations
     return [] unless @festival
-    
+
     recommendations = []
-    
+
     # Budget recommendations
     utilization_rate = @festival.budget_utilization_rate
     if utilization_rate > 90
       recommendations << {
-        type: 'budget',
-        priority: 'high',
-        message: 'Budget utilization is over 90%. Consider reviewing expenses.',
-        action: 'Review and optimize budget allocation'
+        type: "budget",
+        priority: "high",
+        message: "Budget utilization is over 90%. Consider reviewing expenses.",
+        action: "Review and optimize budget allocation"
       }
     end
-    
+
     # Task recommendations
     if @festival.completion_rate < 70
       recommendations << {
-        type: 'task',
-        priority: 'medium',
-        message: 'Task completion rate is below 70%. Focus on task management.',
-        action: 'Prioritize pending tasks and set clear deadlines'
+        type: "task",
+        priority: "medium",
+        message: "Task completion rate is below 70%. Focus on task management.",
+        action: "Prioritize pending tasks and set clear deadlines"
       }
     end
-    
+
     # Vendor recommendations
     if @festival.vendor_applications.under_review.count > 5
       recommendations << {
-        type: 'vendor',
-        priority: 'medium',
-        message: 'Multiple vendor applications are pending review.',
-        action: 'Review pending vendor applications promptly'
+        type: "vendor",
+        priority: "medium",
+        message: "Multiple vendor applications are pending review.",
+        action: "Review pending vendor applications promptly"
       }
     end
-    
+
     recommendations
   end
-  
+
   # Export functionality
   def export_data(format = :json)
     data = {
@@ -262,25 +262,25 @@ class AnalyticsService
       task_analytics: task_analytics,
       vendor_analytics: vendor_analytics
     }
-    
+
     case format
     when :json
       {
-        format: 'json',
+        format: "json",
         data: data,
         generated_at: Time.current
       }
     when :csv
       {
-        format: 'csv',
+        format: "csv",
         data: convert_to_csv(data),
         generated_at: Time.current
       }
     else
-      { error: 'Unsupported format' }
+      { error: "Unsupported format" }
     end
   end
-  
+
   # Cache invalidation
   def invalidate_cache
     Rails.cache.delete("analytics_dashboard_#{@festival&.id}")
@@ -325,7 +325,7 @@ class AnalyticsService
     scope = scope.where(festival: @festival) if @festival
     total_tasks = scope.count
     return 0 if total_tasks.zero?
-    
+
     completed_tasks = scope.where(status: :completed).count
     (completed_tasks.to_f / total_tasks * 100).round(2)
   end
@@ -367,7 +367,7 @@ class AnalyticsService
       spent = category.expenses.approved.sum(:amount)
       budget = category.budget_limit || 0
       percentage = budget > 0 ? (spent / budget * 100).round(2) : 0
-      
+
       {
         name: category.name,
         budget: budget,
@@ -389,12 +389,12 @@ class AnalyticsService
     # Get data for last 12 months
     start_date = 12.months.ago.beginning_of_month
     end_date = Date.current.end_of_month
-    
+
     revenues_by_month = @festival.revenues.confirmed
                                 .where(created_at: start_date..end_date)
                                 .group("DATE_TRUNC('month', created_at)")
                                 .sum(:amount)
-    
+
     expenses_by_month = @festival.expenses.approved
                                 .where(created_at: start_date..end_date)
                                 .group("DATE_TRUNC('month', created_at)")
@@ -405,9 +405,9 @@ class AnalyticsService
       month = i.months.ago.beginning_of_month
       revenue = revenues_by_month[month] || 0
       expense = expenses_by_month[month] || 0
-      
+
       {
-        month: month.strftime('%Y-%m'),
+        month: month.strftime("%Y-%m"),
         revenue: revenue,
         expense: expense,
         net: revenue - expense
@@ -445,8 +445,8 @@ class AnalyticsService
     tasks = @festival.tasks.completed
     return {} if tasks.empty?
 
-    average_completion_time = tasks.average('EXTRACT(epoch FROM (updated_at - created_at)) / 86400')
-    
+    average_completion_time = tasks.average("EXTRACT(epoch FROM (updated_at - created_at)) / 86400")
+
     {
       average_completion_days: average_completion_time&.round(2) || 0,
       on_time_completion_rate: calculate_on_time_completion_rate(tasks),
@@ -457,8 +457,8 @@ class AnalyticsService
   def identify_bottlenecks
     return {} unless @festival
 
-    overdue_tasks = @festival.tasks.where('due_date < ? AND status != ?', Date.current, Task.statuses[:completed])
-    
+    overdue_tasks = @festival.tasks.where("due_date < ? AND status != ?", Date.current, Task.statuses[:completed])
+
     {
       overdue_count: overdue_tasks.count,
       categories_with_delays: overdue_tasks.group(:category).count,
@@ -550,88 +550,88 @@ class AnalyticsService
     return 0 unless @festival&.start_date
     (@festival.start_date.to_date - Date.current).to_i
   end
-  
+
   def budget_health_assessment
     utilization = @festival.budget_utilization_rate
-    
+
     status = case utilization
-    when 0..60 then 'excellent'
-    when 61..80 then 'good' 
-    when 81..95 then 'warning'
-    else 'critical'
+    when 0..60 then "excellent"
+    when 61..80 then "good"
+    when 81..95 then "warning"
+    else "critical"
     end
-    
+
     {
       status: status,
       score: (100 - utilization).round(2),
-      warnings: utilization > 90 ? ['Budget utilization is very high'] : []
+      warnings: utilization > 90 ? [ "Budget utilization is very high" ] : []
     }
   end
-  
+
   def calculate_average_completion_time(tasks)
     completed = tasks.completed
     return 0 if completed.empty?
-    
+
     total_time = completed.sum do |task|
       (task.updated_at - task.created_at) / 1.day
     end
-    
+
     (total_time / completed.count).round(2)
   end
-  
+
   def revenue_breakdown_by_category
     return {} unless @festival
     @festival.revenues.confirmed.group(:revenue_type).sum(:amount)
   end
-  
+
   def get_top_vendors
     return [] unless @festival
     @festival.vendor_applications.approved.includes(:user).limit(5).map do |app|
       {
         name: app.business_name,
-        user: app.user.first_name + ' ' + app.user.last_name,
+        user: app.user.first_name + " " + app.user.last_name,
         status: app.status
       }
     end
   end
-  
+
   def calculate_layout_efficiency
     # Simple calculation based on venue utilization
     return 0 unless @festival
     venues = @festival.venues
     return 0 if venues.empty?
-    
+
     total_capacity = venues.sum(:capacity)
     allocated = @festival.booths.count
-    
+
     return 0 if total_capacity.zero?
     (allocated.to_f / total_capacity * 100).round(2)
   end
-  
+
   def calculate_messages_per_user
     return 0 unless @festival
-    
+
     total_messages = @festival.chat_rooms.joins(:chat_messages).count
-    active_users = @festival.chat_rooms.joins(:chat_room_members).distinct.count('chat_room_members.user_id')
-    
+    active_users = @festival.chat_rooms.joins(:chat_room_members).distinct.count("chat_room_members.user_id")
+
     return 0 if active_users.zero?
     (total_messages.to_f / active_users).round(2)
   end
-  
+
   def calculate_engagement_score
     # Simple engagement score based on activity
     return 0 unless @festival
-    
+
     forum_activity = @festival.forums.joins(:forum_posts).count
     chat_activity = @festival.chat_rooms.joins(:chat_messages).count
     vendor_activity = @festival.vendor_applications.count
-    
+
     (forum_activity + chat_activity + vendor_activity).to_f
   end
-  
+
   def calculate_message_trends
     return {} unless @festival
-    
+
     # Get message counts for last 7 days
     7.times.map do |i|
       date = i.days.ago.to_date
@@ -641,85 +641,85 @@ class AnalyticsService
       { date: date, count: count }
     end
   end
-  
+
   def get_popular_topics
     return [] unless @festival
-    
+
     @festival.forums.joins(:forum_threads)
-             .group('forum_threads.title')
-             .order('COUNT(forum_threads.id) DESC')
+             .group("forum_threads.title")
+             .order("COUNT(forum_threads.id) DESC")
              .limit(5)
              .count
              .keys
   end
-  
+
   def budget_trend_data
     return {} unless @festival
     # Simplified budget trend - in real implementation would track over time
     {
       current_utilization: @festival.budget_utilization_rate,
-      trend: 'stable' # Would calculate actual trend
+      trend: "stable" # Would calculate actual trend
     }
   end
-  
+
   def task_completion_trend_data
     return {} unless @festival
     {
       current_rate: @festival.completion_rate,
-      trend: 'improving' # Would calculate actual trend
+      trend: "improving" # Would calculate actual trend
     }
   end
-  
+
   def vendor_application_trend_data
     return {} unless @festival
     {
       total_applications: @festival.vendor_applications.count,
-      trend: 'stable' # Would calculate actual trend
+      trend: "stable" # Would calculate actual trend
     }
   end
-  
+
   def communication_trend_data
     return {} unless @festival
     {
       total_messages: @festival.chat_rooms.joins(:chat_messages).count + @festival.forums.joins(:forum_posts).count,
-      trend: 'increasing' # Would calculate actual trend
+      trend: "increasing" # Would calculate actual trend
     }
   end
-  
+
   def forecast_budget_completion
     return {} unless @festival
     {
       projected_completion: @festival.budget_utilization_rate,
-      confidence: 'medium'
+      confidence: "medium"
     }
   end
-  
+
   def forecast_task_completion
     return {} unless @festival
     {
       projected_completion: @festival.completion_rate,
-      confidence: 'high'
+      confidence: "high"
     }
   end
-  
+
   def assess_project_risks
     return {} unless @festival
     risks = []
-    
+
     if @festival.budget_utilization_rate > 90
-      risks << 'Budget overrun risk'
+      risks << "Budget overrun risk"
     end
-    
+
     if @festival.completion_rate < 70
-      risks << 'Timeline risk'
+      risks << "Timeline risk"
     end
-    
+
     {
       high_risk: risks.count > 1,
       risks: risks
     }
   end
-  
+
   def convert_to_csv(data)
     # Simplified CSV conversion
     "Overview,Budget,Tasks,Vendors\n#{data[:overview]&.values&.join(',')},#{data[:budget_analytics]&.values&.join(',')},#{data[:task_analytics]&.values&.join(',')},#{data[:vendor_analytics]&.values&.join(',')}"

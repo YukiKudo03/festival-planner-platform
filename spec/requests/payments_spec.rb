@@ -339,16 +339,16 @@ RSpec.describe "Payments", type: :request do
     let(:pending_payment) { create(:payment, festival: festival, user: user, status: :pending) }
 
     it "cancels the payment" do
-      post cancel_festival_payment_path(festival, pending_payment), params: { 
-        cancellation_reason: "User requested cancellation" 
+      post cancel_festival_payment_path(festival, pending_payment), params: {
+        cancellation_reason: "User requested cancellation"
       }
       pending_payment.reload
       expect(pending_payment.status).to eq("cancelled")
     end
 
     it "sets cancellation timestamp and reason" do
-      post cancel_festival_payment_path(festival, pending_payment), params: { 
-        cancellation_reason: "User requested cancellation" 
+      post cancel_festival_payment_path(festival, pending_payment), params: {
+        cancellation_reason: "User requested cancellation"
       }
       pending_payment.reload
       expect(pending_payment.cancelled_at).to be_present
@@ -356,8 +356,8 @@ RSpec.describe "Payments", type: :request do
     end
 
     it "redirects to payment with success message" do
-      post cancel_festival_payment_path(festival, pending_payment), params: { 
-        cancellation_reason: "User requested cancellation" 
+      post cancel_festival_payment_path(festival, pending_payment), params: {
+        cancellation_reason: "User requested cancellation"
       }
       expect(response).to redirect_to(festival_payment_path(festival, pending_payment))
       expect(flash[:notice]).to be_present
@@ -367,8 +367,8 @@ RSpec.describe "Payments", type: :request do
       let(:completed_payment) { create(:payment, festival: festival, user: user, status: :completed) }
 
       it "does not cancel the payment" do
-        post cancel_festival_payment_path(festival, completed_payment), params: { 
-          cancellation_reason: "User requested cancellation" 
+        post cancel_festival_payment_path(festival, completed_payment), params: {
+          cancellation_reason: "User requested cancellation"
         }
         completed_payment.reload
         expect(completed_payment.status).to eq("completed")
@@ -488,9 +488,9 @@ RSpec.describe "Payments", type: :request do
       let!(:old_payment) { create(:payment, festival: festival, user: user, created_at: 1.month.ago) }
 
       it "filters payments by date range" do
-        get festival_payments_path(festival), params: { 
-          start_date: 1.week.ago.to_date, 
-          end_date: Date.current 
+        get festival_payments_path(festival), params: {
+          start_date: 1.week.ago.to_date,
+          end_date: Date.current
         }
         expect(response.body).to include(recent_payment.description)
         expect(response.body).not_to include(old_payment.description)

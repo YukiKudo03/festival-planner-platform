@@ -11,9 +11,9 @@ class CreateBudgetApprovals < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :budget_approvals, :status
-    add_index :budget_approvals, [:festival_id, :status]
-    add_index :budget_approvals, [:budget_category_id, :status]
+    add_index :budget_approvals, [ :festival_id, :status ]
+    add_index :budget_approvals, [ :budget_category_id, :status ]
   end
 end

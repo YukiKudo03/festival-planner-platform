@@ -1,11 +1,11 @@
 class VendorApplicationsController < ApplicationController
-  before_action :set_festival, except: [:index]
-  before_action :set_vendor_application, only: [:show, :edit, :update, :destroy]
+  before_action :set_festival, except: [ :index ]
+  before_action :set_vendor_application, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @vendor_applications = current_user.vendor_applications.includes(:festival, :user)
     authorize! :read, VendorApplication
-    
+
     respond_to do |format|
       format.html
       format.turbo_stream
@@ -14,7 +14,7 @@ class VendorApplicationsController < ApplicationController
 
   def show
     authorize! :read, @vendor_application
-    
+
     respond_to do |format|
       format.html
       format.json { render json: @vendor_application }
@@ -32,7 +32,7 @@ class VendorApplicationsController < ApplicationController
     authorize! :create, @vendor_application
 
     if @vendor_application.save
-      redirect_to [@festival, @vendor_application], notice: '出店申請が送信されました。'
+      redirect_to [ @festival, @vendor_application ], notice: "出店申請が送信されました。"
     else
       render :new, status: :unprocessable_entity
     end
@@ -46,7 +46,7 @@ class VendorApplicationsController < ApplicationController
     authorize! :update, @vendor_application
 
     if @vendor_application.update(vendor_application_params)
-      redirect_to [@festival, @vendor_application], notice: '出店申請が更新されました。'
+      redirect_to [ @festival, @vendor_application ], notice: "出店申請が更新されました。"
     else
       render :edit, status: :unprocessable_entity
     end
@@ -55,7 +55,7 @@ class VendorApplicationsController < ApplicationController
   def destroy
     authorize! :destroy, @vendor_application
     @vendor_application.destroy
-    redirect_to @festival, notice: '出店申請が削除されました。'
+    redirect_to @festival, notice: "出店申請が削除されました。"
   end
 
   private

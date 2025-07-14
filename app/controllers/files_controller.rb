@@ -1,15 +1,15 @@
 class FilesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_file, only: [:show, :download, :destroy]
-  before_action :check_access_permission, only: [:show, :download, :destroy]
+  before_action :set_file, only: [ :show, :download, :destroy ]
+  before_action :check_access_permission, only: [ :show, :download, :destroy ]
 
   def index
     @files = current_user_files.includes_blobs
     @files = @files.where("active_storage_blobs.filename ILIKE ?", "%#{params[:search]}%") if params[:search].present?
     @files = @files.where("active_storage_blobs.content_type LIKE ?", "#{params[:type]}%") if params[:type].present?
-    
+
     @files = @files.order(created_at: :desc).limit(100)
-    
+
     @total_size = @files.sum(&:byte_size)
     @file_count = @files.count
     @file_types = current_user_files.joins(:blob).group("active_storage_blobs.content_type").count
@@ -29,28 +29,28 @@ class FilesController < ApplicationController
         file_data = @file.download
         safe_filename = sanitize_filename(@file.filename.to_s)
         content_type = validate_content_type(@file.content_type)
-        
-        send_data file_data, 
-                  filename: safe_filename, 
-                  type: content_type, 
-                  disposition: 'attachment'
+
+        send_data file_data,
+                  filename: safe_filename,
+                  type: content_type,
+                  disposition: "attachment"
       rescue => e
         Rails.logger.error "File download error: #{e.message}"
-        redirect_to files_path, alert: 'ファイルのダウンロードに失敗しました。'
+        redirect_to files_path, alert: "ファイルのダウンロードに失敗しました。"
       end
     else
-      redirect_to files_path, alert: 'ファイルにアクセスできません。'
+      redirect_to files_path, alert: "ファイルにアクセスできません。"
     end
   rescue ActiveStorage::FileNotFoundError
-    redirect_to files_path, alert: 'ファイルが見つかりません。'
+    redirect_to files_path, alert: "ファイルが見つかりません。"
   end
 
   def destroy
     if can_modify_file?(@file)
       @file.purge
-      redirect_to files_path, notice: 'ファイルを削除しました。'
+      redirect_to files_path, notice: "ファイルを削除しました。"
     else
-      redirect_to files_path, alert: 'ファイルを削除する権限がありません。'
+      redirect_to files_path, alert: "ファイルを削除する権限がありません。"
     end
   end
 
@@ -58,12 +58,12 @@ class FilesController < ApplicationController
     return unless current_user.admin? || current_user.system_admin?
 
     # 30日以上古い未使用ファイルを削除
-    old_blobs = ActiveStorage::Blob.where('created_at < ?', 30.days.ago)
+    old_blobs = ActiveStorage::Blob.where("created_at < ?", 30.days.ago)
     unused_blobs = old_blobs.left_joins(:attachments).where(active_storage_attachments: { id: nil })
-    
+
     count = unused_blobs.count
     unused_blobs.each(&:purge)
-    
+
     redirect_to files_path, notice: "#{count}個の未使用ファイルを削除しました。"
   end
 
@@ -90,7 +90,7 @@ class FilesController < ApplicationController
   def set_file
     @file = ActiveStorage::Attachment.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    redirect_to files_path, alert: 'ファイルが見つかりません。'
+    redirect_to files_path, alert: "ファイルが見つかりません。"
   end
 
   def current_user_files
@@ -104,24 +104,24 @@ class FilesController < ApplicationController
 
     # ユーザー自身のファイル
     attachable_ids << current_user.id
-    attachable_types << 'User'
+    attachable_types << "User"
 
     # 関連する祭りのファイル
     if user_festivals.any?
       attachable_ids.concat(user_festivals.ids)
-      attachable_types.concat(['Festival'] * user_festivals.count)
+      attachable_types.concat([ "Festival" ] * user_festivals.count)
     end
 
     # 関連するタスクのファイル
     if user_tasks.any?
       attachable_ids.concat(user_tasks.ids)
-      attachable_types.concat(['Task'] * user_tasks.count)
+      attachable_types.concat([ "Task" ] * user_tasks.count)
     end
 
     # 関連する申請のファイル（管理者のみ）
     if current_user.admin? && user_applications.any?
       attachable_ids.concat(user_applications.ids)
-      attachable_types.concat(['VendorApplication'] * user_applications.count)
+      attachable_types.concat([ "VendorApplication" ] * user_applications.count)
     end
 
     ActiveStorage::Attachment.joins(:blob)
@@ -132,14 +132,14 @@ class FilesController < ApplicationController
     return true if current_user.admin? || current_user.system_admin?
 
     case file.record_type
-    when 'User'
+    when "User"
       file.record_id == current_user.id
-    when 'Festival'
+    when "Festival"
       current_user.festivals.exists?(id: file.record_id)
-    when 'Task'
-      current_user.tasks.exists?(id: file.record_id) || 
+    when "Task"
+      current_user.tasks.exists?(id: file.record_id) ||
       current_user.festivals.joins(:tasks).exists?(tasks: { id: file.record_id })
-    when 'VendorApplication'
+    when "VendorApplication"
       current_user.admin? || file.record.user_id == current_user.id
     else
       false
@@ -150,13 +150,13 @@ class FilesController < ApplicationController
     return true if current_user.admin? || current_user.system_admin?
 
     case file.record_type
-    when 'User'
+    when "User"
       file.record_id == current_user.id
-    when 'Festival'
+    when "Festival"
       current_user.festivals.exists?(id: file.record_id)
-    when 'Task'
+    when "Task"
       current_user.tasks.exists?(id: file.record_id)
-    when 'VendorApplication'
+    when "VendorApplication"
       file.record.user_id == current_user.id
     else
       false
@@ -165,7 +165,7 @@ class FilesController < ApplicationController
 
   def check_access_permission
     unless can_access_file?(@file)
-      redirect_to files_path, alert: 'このファイルにアクセスする権限がありません。'
+      redirect_to files_path, alert: "このファイルにアクセスする権限がありません。"
     end
   end
 
@@ -184,21 +184,21 @@ class FilesController < ApplicationController
 
   def sanitize_filename(filename)
     # ファイル名から危険な文字を除去
-    safe_name = filename.gsub(/[^\w\-_\.]/, '_')
-    safe_name = safe_name.gsub(/_{2,}/, '_')
+    safe_name = filename.gsub(/[^\w\-_\.]/, "_")
+    safe_name = safe_name.gsub(/_{2,}/, "_")
     safe_name.length > 255 ? safe_name[0..254] : safe_name
   end
 
   def validate_content_type(content_type)
     # 許可されたコンテンツタイプのみ許可
     allowed_types = [
-      'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-      'application/pdf', 'text/plain', 'text/csv',
-      'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/zip', 'application/x-zip-compressed'
+      "image/jpeg", "image/png", "image/gif", "image/webp",
+      "application/pdf", "text/plain", "text/csv",
+      "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/zip", "application/x-zip-compressed"
     ]
-    
-    allowed_types.include?(content_type) ? content_type : 'application/octet-stream'
+
+    allowed_types.include?(content_type) ? content_type : "application/octet-stream"
   end
 end

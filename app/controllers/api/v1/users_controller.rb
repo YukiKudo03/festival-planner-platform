@@ -1,6 +1,6 @@
 class Api::V1::UsersController < Api::V1::BaseController
-  before_action :set_user, only: [:show, :update]
-  before_action :authorize_user_access, only: [:show, :update]
+  before_action :set_user, only: [ :show, :update ]
+  before_action :authorize_user_access, only: [ :show, :update ]
 
   # GET /api/v1/users/me
   def me
@@ -21,7 +21,7 @@ class Api::V1::UsersController < Api::V1::BaseController
     if @user.update(user_params)
       render json: {
         user: serialize_user_detailed(@user),
-        message: 'User updated successfully'
+        message: "User updated successfully"
       }
     else
       render json: {
@@ -35,7 +35,7 @@ class Api::V1::UsersController < Api::V1::BaseController
   def festivals
     user = User.find(params[:id])
     authorize_user_access_for(user)
-    
+
     festivals = user.festivals.includes(:users, :tasks)
     festivals = festivals.page(params[:page]).per(params[:per_page] || 20)
 
@@ -49,7 +49,7 @@ class Api::V1::UsersController < Api::V1::BaseController
   def tasks
     user = User.find(params[:id])
     authorize_user_access_for(user)
-    
+
     tasks = user.tasks.includes(:festival, :assigned_user)
     tasks = filter_tasks(tasks)
     tasks = tasks.page(params[:page]).per(params[:per_page] || 50)
@@ -64,9 +64,9 @@ class Api::V1::UsersController < Api::V1::BaseController
   def notifications
     user = User.find(params[:id])
     authorize_user_access_for(user)
-    
+
     notifications = user.notifications.includes(:related_object)
-    notifications = notifications.unread if params[:unread_only] == 'true'
+    notifications = notifications.unread if params[:unread_only] == "true"
     notifications = notifications.page(params[:page]).per(params[:per_page] || 50)
 
     render json: {
@@ -80,18 +80,18 @@ class Api::V1::UsersController < Api::V1::BaseController
   def mark_notifications_read
     user = User.find(params[:id])
     authorize_user_access_for(user)
-    
+
     user.notifications.unread.update_all(read_at: Time.current)
-    
+
     render json: {
-      message: 'All notifications marked as read',
+      message: "All notifications marked as read",
       unread_count: 0
     }
   end
 
   # GET /api/v1/users/search
   def search
-    users = User.where('name ILIKE ? OR email ILIKE ?', "%#{params[:q]}%", "%#{params[:q]}%")
+    users = User.where("name ILIKE ? OR email ILIKE ?", "%#{params[:q]}%", "%#{params[:q]}%")
     users = users.limit(params[:limit] || 20)
 
     render json: {
@@ -111,7 +111,7 @@ class Api::V1::UsersController < Api::V1::BaseController
 
   def authorize_user_access_for(user)
     unless user == current_user || current_user.admin?
-      render json: { error: 'Access denied' }, status: :forbidden
+      render json: { error: "Access denied" }, status: :forbidden
     end
   end
 
@@ -129,15 +129,15 @@ class Api::V1::UsersController < Api::V1::BaseController
   def filter_tasks(tasks)
     tasks = tasks.where(status: params[:status]) if params[:status].present?
     tasks = tasks.where(priority: params[:priority]) if params[:priority].present?
-    tasks = tasks.where('due_date >= ?', params[:due_from]) if params[:due_from].present?
-    tasks = tasks.where('due_date <= ?', params[:due_to]) if params[:due_to].present?
-    
+    tasks = tasks.where("due_date >= ?", params[:due_from]) if params[:due_from].present?
+    tasks = tasks.where("due_date <= ?", params[:due_to]) if params[:due_to].present?
+
     case params[:sort]
-    when 'due_date'
+    when "due_date"
       tasks.order(:due_date)
-    when 'priority'
+    when "priority"
       tasks.order(priority: :desc)
-    when 'created'
+    when "created"
       tasks.order(created_at: :desc)
     else
       tasks.order(:due_date)

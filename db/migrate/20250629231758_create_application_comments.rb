@@ -9,8 +9,8 @@ class CreateApplicationComments < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :application_comments, [:vendor_application_id, :created_at]
-    add_index :application_comments, [:user_id, :created_at]
+    add_index :application_comments, [ :vendor_application_id, :created_at ]
+    add_index :application_comments, [ :user_id, :created_at ]
     add_index :application_comments, :internal
   end
 end

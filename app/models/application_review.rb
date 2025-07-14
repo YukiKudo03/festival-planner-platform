@@ -1,6 +1,6 @@
 class ApplicationReview < ApplicationRecord
   belongs_to :vendor_application
-  belongs_to :reviewer, class_name: 'User'
+  belongs_to :reviewer, class_name: "User"
 
   enum :action, {
     submitted: 0,
@@ -19,30 +19,30 @@ class ApplicationReview < ApplicationRecord
   scope :recent, -> { order(created_at: :desc) }
   scope :by_reviewer, ->(reviewer) { where(reviewer: reviewer) }
   scope :by_action, ->(action) { where(action: action) }
-  scope :pending_review, -> { where(action: [:submitted, :started_review]) }
+  scope :pending_review, -> { where(action: [ :submitted, :started_review ]) }
 
   before_create :set_reviewed_at, unless: :submitted?
 
   def reviewer_name
-    reviewer&.display_name || 'システム'
+    reviewer&.display_name || "システム"
   end
 
   def action_text
     case action
-    when 'submitted'
-      '申請提出'
-    when 'started_review'
-      '審査開始'
-    when 'requested_changes'
-      '修正要求'
-    when 'conditionally_approved'
-      '条件付き承認'
-    when 'approved'
-      '承認'
-    when 'rejected'
-      '却下'
-    when 'withdrawn'
-      '取り下げ'
+    when "submitted"
+      "申請提出"
+    when "started_review"
+      "審査開始"
+    when "requested_changes"
+      "修正要求"
+    when "conditionally_approved"
+      "条件付き承認"
+    when "approved"
+      "承認"
+    when "rejected"
+      "却下"
+    when "withdrawn"
+      "取り下げ"
     else
       action.humanize
     end

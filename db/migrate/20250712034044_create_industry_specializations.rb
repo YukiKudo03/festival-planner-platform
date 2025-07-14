@@ -21,10 +21,10 @@ class CreateIndustrySpecializations < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :industry_specializations, :industry_type
     add_index :industry_specializations, :status
     add_index :industry_specializations, :specialization_code, unique: true
-    add_index :industry_specializations, [:festival_id, :industry_type], unique: true
+    add_index :industry_specializations, [ :festival_id, :industry_type ], unique: true
   end
 end

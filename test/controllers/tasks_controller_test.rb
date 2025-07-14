@@ -24,14 +24,14 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create task" do
-    assert_difference('Task.count') do
+    assert_difference("Task.count") do
       post festival_tasks_url(@festival), params: {
         task: {
-          title: 'New Test Task',
-          description: 'Test description',
+          title: "New Test Task",
+          description: "Test description",
           due_date: 1.week.from_now,
-          priority: 'medium',
-          status: 'pending'
+          priority: "medium",
+          status: "pending"
         }
       }
     end
@@ -46,14 +46,14 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
   test "should update task" do
     patch festival_task_url(@festival, @task), params: {
       task: {
-        title: 'Updated Task Title'
+        title: "Updated Task Title"
       }
     }
     assert_redirected_to festival_task_url(@festival, @task)
   end
 
   test "should destroy task" do
-    assert_difference('Task.count', -1) do
+    assert_difference("Task.count", -1) do
       delete festival_task_url(@festival, @task)
     end
     assert_redirected_to festival_url(@festival)

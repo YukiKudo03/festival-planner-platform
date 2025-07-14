@@ -41,13 +41,13 @@ class ForumPost < ApplicationRecord
   def send_notification
     # スレッド参加者への通知
     participants = forum_thread.participants.where.not(id: user.id)
-    
+
     participants.each do |participant|
       NotificationService.create_notification(
         recipient: participant,
         sender: user,
         notifiable: self,
-        notification_type: 'forum_reply',
+        notification_type: "forum_reply",
         title: "「#{forum_thread.title}」に新しい返信があります",
         message: content.truncate(100)
       )
@@ -59,7 +59,7 @@ class ForumPost < ApplicationRecord
         recipient: mentioned_user,
         sender: user,
         notifiable: self,
-        notification_type: 'forum_mention',
+        notification_type: "forum_mention",
         title: "フォーラムでメンションされました",
         message: content.truncate(100)
       )

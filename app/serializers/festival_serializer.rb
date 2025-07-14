@@ -1,11 +1,11 @@
 class FestivalSerializer
   attr_reader :festival, :options
-  
+
   def initialize(festival, options = {})
     @festival = festival
     @options = options
   end
-  
+
   def as_json
     base_attributes.tap do |json|
       json.merge!(detailed_attributes) if options[:detailed]
@@ -16,9 +16,9 @@ class FestivalSerializer
       json.merge!(member_data) if options[:include_members]
     end
   end
-  
+
   private
-  
+
   def base_attributes
     {
       id: festival.id,
@@ -45,7 +45,7 @@ class FestivalSerializer
       }
     }
   end
-  
+
   def detailed_attributes
     {
       budget: festival.budget,
@@ -72,10 +72,10 @@ class FestivalSerializer
       }
     }
   end
-  
+
   def task_data
     return { tasks: [] } unless festival.tasks.any?
-    
+
     {
       tasks: festival.tasks.limit(10).map do |task|
         {
@@ -99,10 +99,10 @@ class FestivalSerializer
       }
     }
   end
-  
+
   def vendor_data
     return { vendors: [] } unless festival.vendor_applications.any?
-    
+
     {
       vendors: festival.vendor_applications.limit(10).includes(:user).map do |application|
         {
@@ -132,10 +132,10 @@ class FestivalSerializer
       }
     }
   end
-  
+
   def budget_data
     return { budget: {} } unless festival.budget_categories.any?
-    
+
     {
       budget: {
         total_budget: festival.budget,
@@ -165,10 +165,10 @@ class FestivalSerializer
       }
     }
   end
-  
+
   def venue_data
     return { venue: nil } unless festival.venue
-    
+
     {
       venue: {
         id: festival.venue.id,
@@ -182,7 +182,7 @@ class FestivalSerializer
       }
     }
   end
-  
+
   def member_data
     {
       members: festival.festival_members.includes(:user).limit(10).map do |member|
@@ -199,21 +199,21 @@ class FestivalSerializer
       end,
       member_summary: {
         total: festival.festival_members.count,
-        admins: festival.festival_members.where(role: 'admin').count,
-        committee_members: festival.festival_members.where(role: 'committee_member').count,
-        regular_members: festival.festival_members.where(role: 'member').count
+        admins: festival.festival_members.where(role: "admin").count,
+        committee_members: festival.festival_members.where(role: "committee_member").count,
+        regular_members: festival.festival_members.where(role: "member").count
       }
     }
   end
-  
+
   def api_v1_festival_url(festival)
     Rails.application.routes.url_helpers.api_v1_festival_url(festival)
   end
-  
+
   def api_v1_festival_dashboard_url(festival)
     Rails.application.routes.url_helpers.api_v1_festival_dashboard_url(festival)
   end
-  
+
   def api_v1_festival_analytics_url(festival)
     Rails.application.routes.url_helpers.api_v1_festival_analytics_url(festival)
   end

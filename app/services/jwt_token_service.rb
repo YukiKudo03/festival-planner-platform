@@ -1,6 +1,6 @@
 class JwtTokenService
   # JWT秘密鍵の設定
-  JWT_SECRET = Rails.application.credentials.jwt_secret_key || ENV['JWT_SECRET_KEY'] || Rails.application.secret_key_base
+  JWT_SECRET = Rails.application.credentials.jwt_secret_key || ENV["JWT_SECRET_KEY"] || Rails.application.secret_key_base
 
   # トークンの有効期限設定
   TOKEN_EXPIRATION = {
@@ -14,9 +14,9 @@ class JwtTokenService
 
   class << self
     # JWTトークンの生成
-    def encode(payload, token_type: 'access')
+    def encode(payload, token_type: "access")
       validate_token_type!(token_type)
-      
+
       # 標準クレームの追加
       now = Time.current
       payload.merge!(
@@ -28,14 +28,14 @@ class JwtTokenService
         typ: token_type                                  # token type
       )
 
-      JWT.encode(payload, JWT_SECRET, 'HS256')
+      JWT.encode(payload, JWT_SECRET, "HS256")
     end
 
     # JWTトークンの復号・検証
     def decode(token, token_type: nil)
       begin
         decoded = JWT.decode(token, JWT_SECRET, true, {
-          algorithm: 'HS256',
+          algorithm: "HS256",
           verify_iat: true,
           verify_exp: true,
           verify_iss: true,
@@ -43,17 +43,17 @@ class JwtTokenService
           iss: Rails.application.class.module_parent_name,
           aud: token_type ? determine_audience(token_type) : nil
         })
-        
+
         payload = decoded[0]
-        
+
         # トークンタイプの検証
-        if token_type && payload['typ'] != token_type
+        if token_type && payload["typ"] != token_type
           raise JWT::InvalidPayload, "Invalid token type. Expected: #{token_type}, Got: #{payload['typ']}"
         end
 
         # カスタム検証
         validate_custom_claims(payload)
-        
+
         payload
       rescue JWT::DecodeError => e
         Rails.logger.warn "JWT decode error: #{e.message}"
@@ -78,8 +78,8 @@ class JwtTokenService
         request_ip: request_info[:ip],
         user_agent: request_info[:user_agent]&.truncate(200)
       }
-      
-      encode(payload, token_type: 'access')
+
+      encode(payload, token_type: "access")
     end
 
     # リフレッシュトークンの生成
@@ -89,8 +89,8 @@ class JwtTokenService
         device_id: device_id,
         token_family: SecureRandom.uuid # トークンファミリーでセッション管理
       }
-      
-      encode(payload, token_type: 'refresh')
+
+      encode(payload, token_type: "refresh")
     end
 
     # APIトークンの生成（長期利用）
@@ -102,8 +102,8 @@ class JwtTokenService
         scopes: Array(scopes),
         permissions: user.api_permissions || {}
       }
-      
-      encode(payload, token_type: 'api')
+
+      encode(payload, token_type: "api")
     end
 
     # トークンからユーザー情報を取得
@@ -111,14 +111,14 @@ class JwtTokenService
       payload = decode(token, token_type: token_type)
       return nil unless payload
 
-      user = User.find_by(id: payload['user_id'])
+      user = User.find_by(id: payload["user_id"])
       return nil unless user&.active?
 
       # 追加セキュリティ検証
-      if token_type == 'access'
+      if token_type == "access"
         # IPアドレス検証（設定されている場合）
-        if payload['request_ip'] && user.api_ip_whitelist.present?
-          return nil unless user.api_ip_whitelist.include?(payload['request_ip'])
+        if payload["request_ip"] && user.api_ip_whitelist.present?
+          return nil unless user.api_ip_whitelist.include?(payload["request_ip"])
         end
       end
 
@@ -135,16 +135,16 @@ class JwtTokenService
     def token_scopes(token)
       payload = decode(token)
       return [] unless payload
-      
-      Array(payload['scopes'])
+
+      Array(payload["scopes"])
     end
 
     # リフレッシュトークンからアクセストークンを生成
     def refresh_access_token(refresh_token, request_info: {})
-      payload = decode(refresh_token, token_type: 'refresh')
+      payload = decode(refresh_token, token_type: "refresh")
       return nil unless payload
 
-      user = User.find_by(id: payload['user_id'])
+      user = User.find_by(id: payload["user_id"])
       return nil unless user&.active?
 
       # 新しいアクセストークンを生成
@@ -158,11 +158,11 @@ class JwtTokenService
 
       # Redisまたはデータベースにブラックリストを保存
       Rails.cache.write(
-        "revoked_token:#{payload['jti']}", 
-        true, 
-        expires_in: Time.at(payload['exp']) - Time.current
+        "revoked_token:#{payload['jti']}",
+        true,
+        expires_in: Time.at(payload["exp"]) - Time.current
       )
-      
+
       true
     end
 
@@ -184,14 +184,14 @@ class JwtTokenService
 
     def determine_audience(token_type)
       case token_type.to_s
-      when 'access'
-        'festival-planner-web'
-      when 'refresh'
-        'festival-planner-auth'
-      when 'api'
-        'festival-planner-api'
+      when "access"
+        "festival-planner-web"
+      when "refresh"
+        "festival-planner-auth"
+      when "api"
+        "festival-planner-api"
       else
-        'festival-planner'
+        "festival-planner"
       end
     end
 
@@ -202,10 +202,10 @@ class JwtTokenService
       end
 
       # 必要に応じてJTIを記録（replay攻撃防止）
-      if payload['typ'] == 'access'
+      if payload["typ"] == "access"
         Rails.cache.write(
-          "used_token:#{payload['jti']}", 
-          true, 
+          "used_token:#{payload['jti']}",
+          true,
           expires_in: TOKEN_EXPIRATION[:access]
         )
       end

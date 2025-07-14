@@ -12,9 +12,9 @@ class CreateLineGroups < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :line_groups, :line_group_id, unique: true
-    add_index :line_groups, [:line_integration_id, :line_group_id], unique: true
+    add_index :line_groups, [ :line_integration_id, :line_group_id ], unique: true
     add_index :line_groups, :is_active
     add_index :line_groups, :last_activity_at
   end

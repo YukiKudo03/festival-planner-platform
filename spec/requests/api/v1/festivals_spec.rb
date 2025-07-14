@@ -18,7 +18,7 @@ RSpec.describe "Api::V1::Festivals", type: :request do
 
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        
+
         expect(json['success']).to be true
         expect(json['data']).to be_an(Array)
         expect(json['meta']).to include('current_page', 'total_pages', 'total_count')
@@ -26,26 +26,26 @@ RSpec.describe "Api::V1::Festivals", type: :request do
 
       it "filters festivals by status" do
         active_festival = create(:festival, status: :active, user: user)
-        
-        get "/api/v1/festivals", 
-            params: { filters: { status: 'active' }.to_json }, 
+
+        get "/api/v1/festivals",
+            params: { filters: { status: 'active' }.to_json },
             headers: headers
 
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        
+
         expect(json['data'].length).to eq(1)
         expect(json['data'][0]['id']).to eq(active_festival.id)
       end
 
       it "supports pagination" do
-        get "/api/v1/festivals", 
-            params: { page: 1, per_page: 2 }, 
+        get "/api/v1/festivals",
+            params: { page: 1, per_page: 2 },
             headers: headers
 
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        
+
         expect(json['data'].length).to eq(2)
         expect(json['meta']['per_page']).to eq(2)
         expect(json['meta']['current_page']).to eq(1)
@@ -82,7 +82,7 @@ RSpec.describe "Api::V1::Festivals", type: :request do
 
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        
+
         expect(json['success']).to be true
         expect(json['data']['id']).to eq(festival.id)
         expect(json['data']['name']).to eq(festival.name)
@@ -133,22 +133,22 @@ RSpec.describe "Api::V1::Festivals", type: :request do
     context "with valid attributes" do
       it "creates a new festival" do
         expect {
-          post "/api/v1/festivals", 
-               params: valid_attributes.to_json, 
+          post "/api/v1/festivals",
+               params: valid_attributes.to_json,
                headers: headers
         }.to change(Festival, :count).by(1)
 
         expect(response).to have_http_status(:created)
         json = JSON.parse(response.body)
-        
+
         expect(json['success']).to be true
         expect(json['data']['name']).to eq("Test Festival")
         expect(json['message']).to include('作成しました')
       end
 
       it "creates default budget categories" do
-        post "/api/v1/festivals", 
-             params: valid_attributes.to_json, 
+        post "/api/v1/festivals",
+             params: valid_attributes.to_json,
              headers: headers
 
         festival = Festival.last
@@ -161,13 +161,13 @@ RSpec.describe "Api::V1::Festivals", type: :request do
         invalid_attributes = valid_attributes.deep_dup
         invalid_attributes[:festival][:name] = ""
 
-        post "/api/v1/festivals", 
-             params: invalid_attributes.to_json, 
+        post "/api/v1/festivals",
+             params: invalid_attributes.to_json,
              headers: headers
 
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
-        
+
         expect(json['success']).to be false
         expect(json['errors']).to be_present
       end
@@ -181,8 +181,8 @@ RSpec.describe "Api::V1::Festivals", type: :request do
       end
 
       it "returns forbidden error" do
-        post "/api/v1/festivals", 
-             params: valid_attributes.to_json, 
+        post "/api/v1/festivals",
+             params: valid_attributes.to_json,
              headers: regular_headers
 
         expect(response).to have_http_status(:forbidden)
@@ -204,16 +204,16 @@ RSpec.describe "Api::V1::Festivals", type: :request do
 
     context "with valid updates" do
       it "updates the festival" do
-        patch "/api/v1/festivals/#{festival.id}", 
-              params: update_attributes.to_json, 
+        patch "/api/v1/festivals/#{festival.id}",
+              params: update_attributes.to_json,
               headers: headers
 
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        
+
         expect(json['success']).to be true
         expect(json['data']['name']).to eq("Updated Festival Name")
-        
+
         festival.reload
         expect(festival.name).to eq("Updated Festival Name")
       end
@@ -224,8 +224,8 @@ RSpec.describe "Api::V1::Festivals", type: :request do
       let(:other_festival) { create(:festival, user: other_user) }
 
       it "returns forbidden error" do
-        patch "/api/v1/festivals/#{other_festival.id}", 
-              params: update_attributes.to_json, 
+        patch "/api/v1/festivals/#{other_festival.id}",
+              params: update_attributes.to_json,
               headers: headers
 
         expect(response).to have_http_status(:forbidden)
@@ -237,7 +237,7 @@ RSpec.describe "Api::V1::Festivals", type: :request do
     context "with permission" do
       it "deletes the festival" do
         festival_id = festival.id
-        
+
         expect {
           delete "/api/v1/festivals/#{festival_id}", headers: headers
         }.to change(Festival, :count).by(-1)
@@ -273,20 +273,20 @@ RSpec.describe "Api::V1::Festivals", type: :request do
 
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
-      
+
       expect(json['success']).to be true
       expect(json['data']).to include(
-        'overview', 'budget', 'tasks', 'vendors', 
+        'overview', 'budget', 'tasks', 'vendors',
         'venue', 'communication', 'trends', 'recommendations'
       )
     end
 
     it "accepts date range parameters" do
-      get "/api/v1/festivals/#{festival.id}/analytics", 
-          params: { 
-            start_date: 1.month.ago.to_date, 
-            end_date: Date.current 
-          }, 
+      get "/api/v1/festivals/#{festival.id}/analytics",
+          params: {
+            start_date: 1.month.ago.to_date,
+            end_date: Date.current
+          },
           headers: headers
 
       expect(response).to have_http_status(:ok)
@@ -299,7 +299,7 @@ RSpec.describe "Api::V1::Festivals", type: :request do
 
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
-      
+
       expect(json['success']).to be true
       expect(json['data']).to include('overview', 'budget_analytics', 'task_analytics')
     end
@@ -351,9 +351,9 @@ RSpec.describe "Api::V1::Festivals", type: :request do
   describe "API versioning" do
     it "accepts API version header" do
       versioned_headers = headers.merge('API-Version' => 'v1')
-      
+
       get "/api/v1/festivals", headers: versioned_headers
-      
+
       expect(response).to have_http_status(:ok)
     end
   end

@@ -17,10 +17,10 @@ class CreateApiKeys < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :api_keys, :api_key, unique: true
     add_index :api_keys, :key_type
-    add_index :api_keys, [:active, :expires_at]
+    add_index :api_keys, [ :active, :expires_at ]
     add_index :api_keys, :last_used_at
   end
 end

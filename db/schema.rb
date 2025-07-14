@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_13_030425) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_14_070200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -239,6 +239,40 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_13_030425) do
     t.datetime "updated_at", null: false
     t.boolean "public", default: false, null: false
     t.index ["user_id"], name: "index_festivals_on_user_id"
+  end
+
+  create_table "file_access_logs", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.integer "attachment_id", null: false
+    t.string "action", null: false
+    t.string "ip_address", null: false
+    t.text "user_agent", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["action", "created_at"], name: "index_file_access_logs_on_action_and_created_at"
+    t.index ["attachment_id"], name: "index_file_access_logs_on_attachment_id"
+    t.index ["created_at"], name: "index_file_access_logs_on_created_at"
+    t.index ["user_id", "created_at"], name: "index_file_access_logs_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_file_access_logs_on_user_id"
+  end
+
+  create_table "file_metadata", force: :cascade do |t|
+    t.bigint "uploaded_by_id", null: false
+    t.integer "attachment_id", null: false
+    t.string "original_filename", null: false
+    t.bigint "file_size", null: false
+    t.string "content_type", null: false
+    t.string "upload_ip", null: false
+    t.text "upload_user_agent", null: false
+    t.json "image_metadata"
+    t.json "processing_metadata"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["attachment_id"], name: "index_file_metadata_on_attachment_id", unique: true
+    t.index ["content_type"], name: "index_file_metadata_on_content_type"
+    t.index ["created_at"], name: "index_file_metadata_on_created_at"
+    t.index ["file_size"], name: "index_file_metadata_on_file_size"
+    t.index ["uploaded_by_id"], name: "index_file_metadata_on_uploaded_by_id"
   end
 
   create_table "forum_posts", force: :cascade do |t|
@@ -692,6 +726,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_13_030425) do
   add_foreign_key "expenses", "festivals"
   add_foreign_key "expenses", "users"
   add_foreign_key "festivals", "users"
+  add_foreign_key "file_access_logs", "users"
+  add_foreign_key "file_metadata", "users", column: "uploaded_by_id"
   add_foreign_key "forum_posts", "forum_threads"
   add_foreign_key "forum_posts", "users"
   add_foreign_key "forum_threads", "forums"

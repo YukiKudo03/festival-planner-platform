@@ -69,39 +69,39 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
-  
+
   # Include Devise helpers for testing
   config.include Devise::Test::ControllerHelpers, type: :controller
   config.include Devise::Test::IntegrationHelpers, type: :request
   config.include Devise::Test::IntegrationHelpers, type: :feature
-  
+
   # Include FactoryBot methods
   config.include FactoryBot::Syntax::Methods
-  
+
   # Include Rails time test helpers
   config.include ActiveSupport::Testing::TimeHelpers
-  
+
   # Configure ActiveJob to perform jobs inline in test environment
   config.before(:each) do
     ActiveJob::Base.queue_adapter = :test
   end
-  
+
   # Database cleaner configuration
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation)
   end
-  
+
   config.around(:each) do |example|
     DatabaseCleaner.cleaning do
       example.run
     end
   end
-  
+
   # Skip browser version checks in tests
   config.before(:each) do
     allow_any_instance_of(ApplicationController).to receive(:allow_browser).and_return(true)
-    
+
     # Mock session for controller tests
     if described_class&.ancestors&.include?(ActionController::Base)
       allow_any_instance_of(ActionDispatch::Request::Session).to receive(:enabled?).and_return(true)

@@ -1,9 +1,9 @@
 class User < ApplicationRecord
   include ApiAuthenticatable
-  
+
   has_many :api_keys, dependent: :destroy
   has_many :api_requests, dependent: :destroy
-  
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -30,19 +30,19 @@ class User < ApplicationRecord
     full_name.present? ? full_name : email
   end
 
-  has_many :owned_festivals, class_name: 'Festival', dependent: :destroy
+  has_many :owned_festivals, class_name: "Festival", dependent: :destroy
   has_many :tasks, dependent: :destroy
   has_many :vendor_applications, dependent: :destroy
   has_many :applied_festivals, through: :vendor_applications, source: :festival
-  
+
   # レビュー関連
-  has_many :application_reviews, foreign_key: 'reviewer_id', dependent: :destroy
+  has_many :application_reviews, foreign_key: "reviewer_id", dependent: :destroy
   has_many :application_comments, dependent: :destroy
   has_many :reviewed_applications, through: :application_reviews, source: :vendor_application
-  
+
   # 通知関連
-  has_many :received_notifications, class_name: 'Notification', foreign_key: 'recipient_id', dependent: :destroy
-  has_many :sent_notifications, class_name: 'Notification', foreign_key: 'sender_id', dependent: :nullify
+  has_many :received_notifications, class_name: "Notification", foreign_key: "recipient_id", dependent: :destroy
+  has_many :sent_notifications, class_name: "Notification", foreign_key: "sender_id", dependent: :nullify
   has_many :notification_settings, dependent: :destroy
 
   # Active Storage attachments
@@ -57,7 +57,7 @@ class User < ApplicationRecord
   has_many :chat_messages, dependent: :destroy
   has_many :chat_room_members, dependent: :destroy
   has_many :chat_rooms, through: :chat_room_members
-  
+
   # 支払い関連
   has_many :payments, dependent: :destroy
 
@@ -85,7 +85,7 @@ class User < ApplicationRecord
         notification_type: notification_type,
         email_enabled: true,
         web_enabled: true,
-        frequency: 'immediate'
+        frequency: "immediate"
       )
   end
 
@@ -99,7 +99,7 @@ class User < ApplicationRecord
   end
 
   def can_receive_line_notifications?
-    has_active_line_integrations? && 
+    has_active_line_integrations? &&
     line_integrations.any? { |integration| integration.can_send_notifications? }
   end
 
@@ -112,22 +112,22 @@ class User < ApplicationRecord
   # API関連メソッド
   def available_api_scopes
     base_scopes = %w[festivals:read tasks:read budgets:read]
-    
+
     case role
-    when 'admin', 'system_admin'
+    when "admin", "system_admin"
       ApiKey::SCOPES
-    when 'committee_member'
+    when "committee_member"
       base_scopes + %w[festivals:write tasks:write budgets:write vendors:read analytics:read]
-    when 'vendor'
+    when "vendor"
       base_scopes + %w[vendors:read payments:read]
     else
       base_scopes
     end
   end
 
-  def create_api_key!(name, key_type: 'personal', scopes: nil, options: {})
+  def create_api_key!(name, key_type: "personal", scopes: nil, options: {})
     scopes ||= available_api_scopes
-    
+
     api_keys.create!(
       name: name,
       key_type: key_type,
@@ -138,19 +138,19 @@ class User < ApplicationRecord
   end
 
   def active_api_keys
-    api_keys.active.where('expires_at IS NULL OR expires_at > ?', Time.current)
+    api_keys.active.where("expires_at IS NULL OR expires_at > ?", Time.current)
   end
 
   def api_usage_summary(period: 30.days)
     {
-      total_requests: api_requests.where('created_at > ?', period.ago).count,
+      total_requests: api_requests.where("created_at > ?", period.ago).count,
       total_api_keys: api_keys.count,
       active_api_keys: active_api_keys.count,
       last_api_access: last_api_access_at,
       top_endpoints: api_requests
-                      .where('created_at > ?', period.ago)
+                      .where("created_at > ?", period.ago)
                       .group(:endpoint)
-                      .order('count_all DESC')
+                      .order("count_all DESC")
                       .limit(5)
                       .count
     }

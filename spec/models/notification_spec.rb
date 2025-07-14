@@ -37,14 +37,14 @@ RSpec.describe Notification, type: :model do
       it 'orders notifications by created_at desc' do
         # Clear any existing notifications to avoid interference
         Notification.delete_all
-        
+
         # Disable model callbacks to avoid interference
         allow_any_instance_of(Task).to receive(:send_task_assigned_notification)
         allow_any_instance_of(Task).to receive(:send_status_change_notification)
-        
+
         older_notification = travel_to(2.hours.ago) { create(:notification, recipient: user) }
         newer_notification = travel_to(1.hour.ago) { create(:notification, recipient: user) }
-        
+
         notifications = Notification.recent
         expect(notifications.first).to eq(newer_notification)
         expect(notifications.last).to eq(older_notification)
@@ -55,7 +55,7 @@ RSpec.describe Notification, type: :model do
       it 'filters by notification type' do
         task_notification = create(:notification, notification_type: 'task_assigned')
         vendor_notification = create(:notification, notification_type: 'vendor_application_submitted')
-        
+
         expect(Notification.by_type('task_assigned')).to include(task_notification)
         expect(Notification.by_type('task_assigned')).not_to include(vendor_notification)
       end
@@ -66,7 +66,7 @@ RSpec.describe Notification, type: :model do
         other_user = create(:user)
         user_notification = create(:notification, recipient: user)
         other_notification = create(:notification, recipient: other_user)
-        
+
         expect(Notification.for_user(user)).to include(user_notification)
         expect(Notification.for_user(user)).not_to include(other_notification)
       end
@@ -103,7 +103,7 @@ RSpec.describe Notification, type: :model do
     describe '#mark_as_read!' do
       it 'sets read_at to current time when unread' do
         notification.update(read_at: nil)
-        
+
         travel_to Time.current do
           notification.mark_as_read!
           expect(notification.read_at).to be_within(1.second).of(Time.current)
@@ -113,7 +113,7 @@ RSpec.describe Notification, type: :model do
       it 'does not change read_at when already read' do
         original_time = 1.hour.ago
         notification.update(read_at: original_time)
-        
+
         notification.mark_as_read!
         expect(notification.read_at).to be_within(1.second).of(original_time)
       end
@@ -122,14 +122,14 @@ RSpec.describe Notification, type: :model do
     describe '#mark_as_unread!' do
       it 'sets read_at to nil when read' do
         notification.update(read_at: 1.hour.ago)
-        
+
         notification.mark_as_unread!
         expect(notification.read_at).to be_nil
       end
 
       it 'does not change read_at when already unread' do
         notification.update(read_at: nil)
-        
+
         notification.mark_as_unread!
         expect(notification.read_at).to be_nil
       end
@@ -145,10 +145,10 @@ RSpec.describe Notification, type: :model do
         unread2 = create(:notification, recipient: user, read_at: nil)
         already_read = create(:notification, recipient: user, read_at: 1.hour.ago)
         other_user_notification = create(:notification, read_at: nil)
-        
+
         travel_to Time.current do
           Notification.mark_all_as_read_for_user(user)
-          
+
           expect(unread1.reload.read_at).to be_within(1.second).of(Time.current)
           expect(unread2.reload.read_at).to be_within(1.second).of(Time.current)
           expect(already_read.reload.read_at).to be_within(1.second).of(1.hour.ago)
@@ -161,11 +161,11 @@ RSpec.describe Notification, type: :model do
       it 'deletes notifications older than specified days' do
         old_notification = create(:notification, created_at: 91.days.ago)
         recent_notification = create(:notification, created_at: 89.days.ago)
-        
+
         expect {
           Notification.cleanup_old_notifications(90)
         }.to change(Notification, :count).by(-1)
-        
+
         expect(Notification.exists?(old_notification.id)).to be false
         expect(Notification.exists?(recent_notification.id)).to be true
       end
@@ -204,7 +204,7 @@ RSpec.describe Notification, type: :model do
         booth_unassigned
         venue_layout_updated
       ]
-      
+
       expect(Notification::NOTIFICATION_TYPES).to eq(expected_types)
     end
   end

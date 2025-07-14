@@ -1,7 +1,7 @@
 class LineIntegrationsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_line_integration, only: [:show, :edit, :update, :destroy, :authenticate, :disconnect, :update_settings, :groups, :sync_groups, :test_connection]
-  before_action :authorize_line_integration, only: [:show, :edit, :update, :destroy, :authenticate, :disconnect, :update_settings, :groups, :sync_groups, :test_connection]
+  before_action :set_line_integration, only: [ :show, :edit, :update, :destroy, :authenticate, :disconnect, :update_settings, :groups, :sync_groups, :test_connection ]
+  before_action :authorize_line_integration, only: [ :show, :edit, :update, :destroy, :authenticate, :disconnect, :update_settings, :groups, :sync_groups, :test_connection ]
 
   def index
     @line_integrations = current_user.festivals.includes(:line_integrations).map(&:line_integrations).flatten
@@ -28,7 +28,7 @@ class LineIntegrationsController < ApplicationController
     @line_integration = @festival.line_integrations.build(line_integration_params.merge(user: current_user))
 
     if @line_integration.save
-      redirect_to @line_integration, notice: 'LINE連携が正常に作成されました。'
+      redirect_to @line_integration, notice: "LINE連携が正常に作成されました。"
     else
       render :new, status: :unprocessable_entity
     end
@@ -40,7 +40,7 @@ class LineIntegrationsController < ApplicationController
 
   def update
     if @line_integration.update(line_integration_params)
-      redirect_to @line_integration, notice: 'LINE連携が正常に更新されました。'
+      redirect_to @line_integration, notice: "LINE連携が正常に更新されました。"
     else
       render :edit, status: :unprocessable_entity
     end
@@ -48,27 +48,27 @@ class LineIntegrationsController < ApplicationController
 
   def destroy
     @line_integration.destroy
-    redirect_to line_integrations_path, notice: 'LINE連携が削除されました。'
+    redirect_to line_integrations_path, notice: "LINE連携が削除されました。"
   end
 
   # LINE-specific actions
   def authenticate
     begin
       auth_result = LineIntegrationService.new(@line_integration).authenticate_line_account
-      
+
       if auth_result[:success]
         @line_integration.update!(
           status: :active,
           is_active: true,
           line_user_id: auth_result[:line_user_id]
         )
-        redirect_to @line_integration, notice: 'LINE認証が完了しました。'
+        redirect_to @line_integration, notice: "LINE認証が完了しました。"
       else
         redirect_to @line_integration, alert: "LINE認証に失敗しました: #{auth_result[:error]}"
       end
     rescue => e
       Rails.logger.error "LINE authentication error: #{e.message}"
-      redirect_to @line_integration, alert: 'LINE認証中にエラーが発生しました。'
+      redirect_to @line_integration, alert: "LINE認証中にエラーが発生しました。"
     end
   end
 
@@ -79,12 +79,12 @@ class LineIntegrationsController < ApplicationController
       line_user_id: nil,
       webhook_url: nil
     )
-    redirect_to @line_integration, notice: 'LINE連携を無効にしました。'
+    redirect_to @line_integration, notice: "LINE連携を無効にしました。"
   end
 
   def update_settings
     if @line_integration.update(settings_params)
-      render json: { success: true, message: '設定が更新されました。' }
+      render json: { success: true, message: "設定が更新されました。" }
     else
       render json: { success: false, errors: @line_integration.errors.full_messages }
     end
@@ -92,53 +92,53 @@ class LineIntegrationsController < ApplicationController
 
   def groups
     @line_groups = @line_integration.line_groups.includes(:line_messages)
-    
+
     respond_to do |format|
       format.html
-      format.json { render json: @line_groups.as_json(include: [:line_messages]) }
+      format.json { render json: @line_groups.as_json(include: [ :line_messages ]) }
     end
   end
 
   def sync_groups
     begin
       result = @line_integration.sync_groups!
-      
+
       if result
-        redirect_to groups_line_integration_path(@line_integration), notice: 'グループ同期が完了しました。'
+        redirect_to groups_line_integration_path(@line_integration), notice: "グループ同期が完了しました。"
       else
-        redirect_to groups_line_integration_path(@line_integration), alert: 'グループ同期に失敗しました。'
+        redirect_to groups_line_integration_path(@line_integration), alert: "グループ同期に失敗しました。"
       end
     rescue => e
       Rails.logger.error "Group sync error: #{e.message}"
-      redirect_to groups_line_integration_path(@line_integration), alert: 'グループ同期中にエラーが発生しました。'
+      redirect_to groups_line_integration_path(@line_integration), alert: "グループ同期中にエラーが発生しました。"
     end
   end
 
   def test_connection
     begin
       result = @line_integration.test_connection
-      
+
       respond_to do |format|
         format.json do
           if result
-            render json: { success: true, message: 'LINE接続テストが成功しました。' }
+            render json: { success: true, message: "LINE接続テストが成功しました。" }
           else
-            render json: { success: false, message: 'LINE接続テストに失敗しました。' }
+            render json: { success: false, message: "LINE接続テストに失敗しました。" }
           end
         end
         format.html do
           if result
-            redirect_to @line_integration, notice: 'LINE接続テストが成功しました。'
+            redirect_to @line_integration, notice: "LINE接続テストが成功しました。"
           else
-            redirect_to @line_integration, alert: 'LINE接続テストに失敗しました。'
+            redirect_to @line_integration, alert: "LINE接続テストに失敗しました。"
           end
         end
       end
     rescue => e
       Rails.logger.error "Connection test error: #{e.message}"
       respond_to do |format|
-        format.json { render json: { success: false, message: 'テスト中にエラーが発生しました。' } }
-        format.html { redirect_to @line_integration, alert: 'テスト中にエラーが発生しました。' }
+        format.json { render json: { success: false, message: "テスト中にエラーが発生しました。" } }
+        format.html { redirect_to @line_integration, alert: "テスト中にエラーが発生しました。" }
       end
     end
   end
@@ -147,20 +147,20 @@ class LineIntegrationsController < ApplicationController
   def callback
     begin
       body = request.body.read
-      signature = request.env['HTTP_X_LINE_SIGNATURE']
-      
+      signature = request.env["HTTP_X_LINE_SIGNATURE"]
+
       # Verify webhook signature
       unless verify_webhook_signature(body, signature)
         head :unauthorized
         return
       end
 
-      events = JSON.parse(body)['events']
-      
+      events = JSON.parse(body)["events"]
+
       events.each do |event|
         LineWebhookProcessorJob.perform_later(event)
       end
-      
+
       head :ok
     rescue JSON::ParserError => e
       Rails.logger.error "LINE webhook JSON parse error: #{e.message}"
@@ -174,24 +174,24 @@ class LineIntegrationsController < ApplicationController
   def setup_guide
     @integration_steps = [
       {
-        title: 'LINE Developersでチャネル作成',
-        description: 'LINE DevelopersコンソールでメッセージングAPIチャネルを作成',
-        status: 'pending'
+        title: "LINE Developersでチャネル作成",
+        description: "LINE DevelopersコンソールでメッセージングAPIチャネルを作成",
+        status: "pending"
       },
       {
-        title: 'チャネル情報の設定',
-        description: 'チャネルID、チャネルシークレット、アクセストークンを取得',
-        status: 'pending'
+        title: "チャネル情報の設定",
+        description: "チャネルID、チャネルシークレット、アクセストークンを取得",
+        status: "pending"
       },
       {
-        title: 'Webhook URLの設定',
-        description: 'LINE DevelopersでWebhook URLを設定',
-        status: 'pending'
+        title: "Webhook URLの設定",
+        description: "LINE DevelopersでWebhook URLを設定",
+        status: "pending"
       },
       {
-        title: 'グループ招待',
-        description: 'LINEボットを祭りスタッフのグループに招待',
-        status: 'pending'
+        title: "グループ招待",
+        description: "LINEボットを祭りスタッフのグループに招待",
+        status: "pending"
       }
     ]
   end
@@ -201,9 +201,9 @@ class LineIntegrationsController < ApplicationController
       total_webhooks: LineMessage.count,
       processed_webhooks: LineMessage.processed.count,
       failed_webhooks: LineMessage.where.not(processing_errors: []).count,
-      recent_activity: LineMessage.where('created_at > ?', 24.hours.ago).count
+      recent_activity: LineMessage.where("created_at > ?", 24.hours.ago).count
     }
-    
+
     @recent_webhook_errors = LineMessage.where.not(processing_errors: [])
                                        .order(created_at: :desc)
                                        .limit(10)
@@ -212,11 +212,11 @@ class LineIntegrationsController < ApplicationController
   def register_webhook
     integration = LineIntegration.find(params[:integration_id])
     authorize_line_integration_access(integration)
-    
+
     begin
       webhook_url = line_integrations_callback_url
       result = LineIntegrationService.new(integration).register_webhook(webhook_url)
-      
+
       if result[:success]
         integration.update!(webhook_url: webhook_url)
         render json: { success: true, webhook_url: webhook_url }
@@ -225,7 +225,7 @@ class LineIntegrationsController < ApplicationController
       end
     rescue => e
       Rails.logger.error "Webhook registration error: #{e.message}"
-      render json: { success: false, error: 'Webhook登録中にエラーが発生しました。' }
+      render json: { success: false, error: "Webhook登録中にエラーが発生しました。" }
     end
   end
 
@@ -241,7 +241,7 @@ class LineIntegrationsController < ApplicationController
 
   def authorize_line_integration_access(integration)
     unless integration.user == current_user || integration.festival.user == current_user
-      redirect_to line_integrations_path, alert: '権限がありません。'
+      redirect_to line_integrations_path, alert: "権限がありません。"
     end
   end
 
@@ -269,7 +269,7 @@ class LineIntegrationsController < ApplicationController
 
   def verify_webhook_signature(body, signature)
     return true unless Rails.env.production? # Skip verification in development
-    
+
     # Implement LINE webhook signature verification
     # This would use the channel secret to verify the webhook signature
     true

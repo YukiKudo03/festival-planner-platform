@@ -18,7 +18,7 @@ RSpec.describe "Api::V1::Payments", type: :request do
 
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        
+
         expect(json['success']).to be true
         expect(json['data']).to be_an(Array)
         expect(json['data'].length).to eq(3)
@@ -27,28 +27,28 @@ RSpec.describe "Api::V1::Payments", type: :request do
 
       it "filters payments by status" do
         completed_payment = create(:payment, festival: festival, user: user, status: :completed)
-        
-        get "/api/v1/festivals/#{festival.id}/payments", 
-            params: { filters: { status: 'completed' }.to_json }, 
+
+        get "/api/v1/festivals/#{festival.id}/payments",
+            params: { filters: { status: 'completed' }.to_json },
             headers: headers
 
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        
+
         expect(json['data'].length).to eq(1)
         expect(json['data'][0]['status']).to eq('completed')
       end
 
       it "filters payments by payment method" do
         stripe_payment = create(:payment, festival: festival, user: user, payment_method: :stripe)
-        
-        get "/api/v1/festivals/#{festival.id}/payments", 
-            params: { filters: { payment_method: 'stripe' }.to_json }, 
+
+        get "/api/v1/festivals/#{festival.id}/payments",
+            params: { filters: { payment_method: 'stripe' }.to_json },
             headers: headers
 
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        
+
         expect(json['data'].length).to eq(1)
         expect(json['data'][0]['payment_method']).to eq('stripe')
       end
@@ -73,7 +73,7 @@ RSpec.describe "Api::V1::Payments", type: :request do
 
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        
+
         expect(json['success']).to be true
         expect(json['data']['id']).to eq(payment.id)
         expect(json['data']['amount']).to eq(payment.amount.to_s)
@@ -122,14 +122,14 @@ RSpec.describe "Api::V1::Payments", type: :request do
 
       it "creates a new payment" do
         expect {
-          post "/api/v1/festivals/#{festival.id}/payments", 
-               params: valid_payment_attributes.to_json, 
+          post "/api/v1/festivals/#{festival.id}/payments",
+               params: valid_payment_attributes.to_json,
                headers: headers
         }.to change(Payment, :count).by(1)
 
         expect(response).to have_http_status(:created)
         json = JSON.parse(response.body)
-        
+
         expect(json['success']).to be true
         expect(json['data']['amount']).to eq('5000.0')
         expect(json['data']['status']).to eq('processing')
@@ -137,8 +137,8 @@ RSpec.describe "Api::V1::Payments", type: :request do
       end
 
       it "calculates processing fees automatically" do
-        post "/api/v1/festivals/#{festival.id}/payments", 
-             params: valid_payment_attributes.to_json, 
+        post "/api/v1/festivals/#{festival.id}/payments",
+             params: valid_payment_attributes.to_json,
              headers: headers
 
         payment = Payment.last
@@ -151,13 +151,13 @@ RSpec.describe "Api::V1::Payments", type: :request do
         invalid_attributes = valid_payment_attributes.deep_dup
         invalid_attributes[:payment][:amount] = nil
 
-        post "/api/v1/festivals/#{festival.id}/payments", 
-             params: invalid_attributes.to_json, 
+        post "/api/v1/festivals/#{festival.id}/payments",
+             params: invalid_attributes.to_json,
              headers: headers
 
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
-        
+
         expect(json['success']).to be false
         expect(json['errors']).to include(match(/amount/i))
       end
@@ -166,8 +166,8 @@ RSpec.describe "Api::V1::Payments", type: :request do
         invalid_attributes = valid_payment_attributes.deep_dup
         invalid_attributes[:payment][:payment_method] = 'invalid_method'
 
-        post "/api/v1/festivals/#{festival.id}/payments", 
-             params: invalid_attributes.to_json, 
+        post "/api/v1/festivals/#{festival.id}/payments",
+             params: invalid_attributes.to_json,
              headers: headers
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -177,8 +177,8 @@ RSpec.describe "Api::V1::Payments", type: :request do
         invalid_attributes = valid_payment_attributes.deep_dup
         invalid_attributes[:payment][:amount] = 10 # Below minimum for most methods
 
-        post "/api/v1/festivals/#{festival.id}/payments", 
-             params: invalid_attributes.to_json, 
+        post "/api/v1/festivals/#{festival.id}/payments",
+             params: invalid_attributes.to_json,
              headers: headers
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -196,13 +196,13 @@ RSpec.describe "Api::V1::Payments", type: :request do
       end
 
       it "returns error when payment processing fails" do
-        post "/api/v1/festivals/#{festival.id}/payments", 
-             params: valid_payment_attributes.to_json, 
+        post "/api/v1/festivals/#{festival.id}/payments",
+             params: valid_payment_attributes.to_json,
              headers: headers
 
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
-        
+
         expect(json['success']).to be false
         expect(json['message']).to include('Card declined')
       end
@@ -223,13 +223,13 @@ RSpec.describe "Api::V1::Payments", type: :request do
       let(:pending_payment) { create(:payment, festival: festival, user: user, status: :pending) }
 
       it "updates pending payment" do
-        patch "/api/v1/festivals/#{festival.id}/payments/#{pending_payment.id}", 
-              params: update_attributes.to_json, 
+        patch "/api/v1/festivals/#{festival.id}/payments/#{pending_payment.id}",
+              params: update_attributes.to_json,
               headers: headers
 
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        
+
         expect(json['success']).to be true
         expect(json['data']['description']).to eq("Updated description")
       end
@@ -239,8 +239,8 @@ RSpec.describe "Api::V1::Payments", type: :request do
       let(:processed_payment) { create(:payment, festival: festival, user: user, status: :completed) }
 
       it "prevents modification of processed payment" do
-        patch "/api/v1/festivals/#{festival.id}/payments/#{processed_payment.id}", 
-              params: update_attributes.to_json, 
+        patch "/api/v1/festivals/#{festival.id}/payments/#{processed_payment.id}",
+              params: update_attributes.to_json,
               headers: headers
 
         expect(response).to have_http_status(:bad_request)
@@ -259,13 +259,13 @@ RSpec.describe "Api::V1::Payments", type: :request do
       end
 
       it "cancels the payment" do
-        delete "/api/v1/festivals/#{festival.id}/payments/#{processing_payment.id}/cancel", 
+        delete "/api/v1/festivals/#{festival.id}/payments/#{processing_payment.id}/cancel",
                params: { reason: 'User requested cancellation' }.to_json,
                headers: headers
 
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        
+
         expect(json['success']).to be true
         processing_payment.reload
         expect(processing_payment.status).to eq('cancelled')
@@ -301,7 +301,7 @@ RSpec.describe "Api::V1::Payments", type: :request do
 
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        
+
         expect(json['success']).to be true
         processing_payment.reload
         expect(processing_payment.status).to eq('completed')
@@ -339,7 +339,7 @@ RSpec.describe "Api::V1::Payments", type: :request do
 
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
-      
+
       expect(json['success']).to be true
       expect(json['data']['total_amount']).to eq(3000.0)
       expect(json['data']['total_transactions']).to eq(4)
@@ -349,11 +349,11 @@ RSpec.describe "Api::V1::Payments", type: :request do
     end
 
     it "accepts date range for summary" do
-      get "/api/v1/festivals/#{festival.id}/payments/summary", 
-          params: { 
-            start_date: 1.week.ago.to_date, 
-            end_date: Date.current 
-          }, 
+      get "/api/v1/festivals/#{festival.id}/payments/summary",
+          params: {
+            start_date: 1.week.ago.to_date,
+            end_date: Date.current
+          },
           headers: headers
 
       expect(response).to have_http_status(:ok)
@@ -366,10 +366,10 @@ RSpec.describe "Api::V1::Payments", type: :request do
 
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
-      
+
       expect(json['success']).to be true
       expect(json['data']['methods']).to be_an(Array)
-      
+
       method = json['data']['methods'].first
       expect(method).to include('id', 'name', 'description', 'fee_percentage')
     end
@@ -378,9 +378,9 @@ RSpec.describe "Api::V1::Payments", type: :request do
   describe "Payment security and validation" do
     it "prevents SQL injection in filters" do
       malicious_filter = { status: "'; DROP TABLE payments; --" }
-      
-      get "/api/v1/festivals/#{festival.id}/payments", 
-          params: { filters: malicious_filter.to_json }, 
+
+      get "/api/v1/festivals/#{festival.id}/payments",
+          params: { filters: malicious_filter.to_json },
           headers: headers
 
       expect(response).to have_http_status(:ok)
@@ -395,8 +395,8 @@ RSpec.describe "Api::V1::Payments", type: :request do
         }
       }
 
-      post "/api/v1/festivals/#{festival.id}/payments", 
-           params: invalid_payment.to_json, 
+      post "/api/v1/festivals/#{festival.id}/payments",
+           params: invalid_payment.to_json,
            headers: headers
 
       expect(response).to have_http_status(:unprocessable_entity)
@@ -413,13 +413,13 @@ RSpec.describe "Api::V1::Payments", type: :request do
           }
         }
 
-        post "/api/v1/festivals/#{festival.id}/payments", 
-             params: payment_data.to_json, 
+        post "/api/v1/festivals/#{festival.id}/payments",
+             params: payment_data.to_json,
              headers: headers
       end
 
       # Should eventually hit rate limit
-      expect([200, 201, 429]).to include(response.status)
+      expect([ 200, 201, 429 ]).to include(response.status)
     end
   end
 
@@ -427,8 +427,8 @@ RSpec.describe "Api::V1::Payments", type: :request do
     it "handles network timeouts gracefully" do
       allow(PaymentService).to receive(:process_payment).and_raise(Timeout::Error)
 
-      post "/api/v1/festivals/#{festival.id}/payments", 
-           params: valid_payment_attributes.to_json, 
+      post "/api/v1/festivals/#{festival.id}/payments",
+           params: valid_payment_attributes.to_json,
            headers: headers
 
       expect(response).to have_http_status(:unprocessable_entity)
@@ -439,8 +439,8 @@ RSpec.describe "Api::V1::Payments", type: :request do
     it "handles external service unavailability" do
       allow(PaymentService).to receive(:process_payment).and_raise(StandardError, "Service unavailable")
 
-      post "/api/v1/festivals/#{festival.id}/payments", 
-           params: valid_payment_attributes.to_json, 
+      post "/api/v1/festivals/#{festival.id}/payments",
+           params: valid_payment_attributes.to_json,
            headers: headers
 
       expect(response).to have_http_status(:unprocessable_entity)

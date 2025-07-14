@@ -138,7 +138,7 @@ RSpec.describe BudgetReport, type: :model do
       it 'returns variance analysis for each category' do
         result = budget_report.budget_variance_analysis
         expect(result).to be_an(Array)
-        
+
         variance_item = result.first
         expect(variance_item[:category]).to eq(category)
         expect(variance_item[:budgeted]).to eq(10000)
@@ -163,7 +163,7 @@ RSpec.describe BudgetReport, type: :model do
       it 'exports data to JSON format' do
         json_data = budget_report.export_to_json
         parsed_data = JSON.parse(json_data)
-        
+
         expect(parsed_data['festival']).to eq(festival.name)
         expect(parsed_data['summary']).to include('total_budget', 'total_expenses', 'total_revenues')
         expect(parsed_data).to include('categories', 'revenues', 'variance_analysis', 'alerts')
@@ -172,7 +172,7 @@ RSpec.describe BudgetReport, type: :model do
   end
 
   describe 'date filtering' do
-    let(:report_with_custom_dates) { 
+    let(:report_with_custom_dates) {
       BudgetReport.new(
         festival: festival,
         start_date: Date.current,

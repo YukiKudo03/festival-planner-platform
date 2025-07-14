@@ -13,22 +13,22 @@ class LineMessage < ApplicationRecord
   serialize :processing_errors, coder: JSON
 
   enum :intent_type, {
-    unknown: 'unknown',
-    task_creation: 'task_creation',
-    task_update: 'task_update',
-    task_completion: 'task_completion',
-    task_assignment: 'task_assignment',
-    status_inquiry: 'status_inquiry',
-    reminder_request: 'reminder_request',
-    general_message: 'general_message'
-  }, default: 'unknown'
+    unknown: "unknown",
+    task_creation: "task_creation",
+    task_update: "task_update",
+    task_completion: "task_completion",
+    task_assignment: "task_assignment",
+    status_inquiry: "status_inquiry",
+    reminder_request: "reminder_request",
+    general_message: "general_message"
+  }, default: "unknown"
 
   scope :unprocessed, -> { where(is_processed: false) }
   scope :processed, -> { where(is_processed: true) }
   scope :with_tasks, -> { where.not(task_id: nil) }
   scope :recent, -> { order(line_timestamp: :desc) }
   scope :by_intent, ->(intent) { where(intent_type: intent) }
-  scope :high_confidence, -> { where('confidence_score >= ?', 0.7) }
+  scope :high_confidence, -> { where("confidence_score >= ?", 0.7) }
 
   before_save :set_default_timestamp
 
@@ -53,21 +53,21 @@ class LineMessage < ApplicationRecord
   end
 
   def can_create_task?
-    !processed? && 
-    line_group.can_create_tasks? && 
-    intent_type.in?(['task_creation', 'task_assignment']) &&
+    !processed? &&
+    line_group.can_create_tasks? &&
+    intent_type.in?([ "task_creation", "task_assignment" ]) &&
     high_confidence?
   end
 
   def sender_name
-    sender_display_name.presence || user&.display_name || 'Unknown User'
+    sender_display_name.presence || user&.display_name || "Unknown User"
   end
 
   def process_message!
     return false if processed?
-    
+
     result = LineTaskParserService.new(self).process_message
-    
+
     if result[:success]
       update!(
         is_processed: true,
@@ -76,10 +76,10 @@ class LineMessage < ApplicationRecord
         parsed_content: result[:parsed_content],
         task: result[:task]
       )
-      
+
       # Send confirmation if task was created
       send_confirmation_message if result[:task].present?
-      
+
       true
     else
       add_processing_error(result[:error])
@@ -93,13 +93,13 @@ class LineMessage < ApplicationRecord
 
   def retry_processing!
     return false if processed?
-    
+
     # Clear previous errors
     self.processing_errors = []
     self.confidence_score = nil
-    self.intent_type = 'unknown'
+    self.intent_type = "unknown"
     save!
-    
+
     process_message!
   end
 
@@ -114,14 +114,14 @@ class LineMessage < ApplicationRecord
 
   def send_confirmation_message
     return unless has_task? && line_group.notification_enabled?
-    
+
     confirmation_text = build_confirmation_message
     line_group.send_message(confirmation_text)
   end
 
   def extract_mentions
     return [] unless message_text.present?
-    
+
     # Extract @mentions from message text
     message_text.scan(/@(\w+)/).flatten
   end
@@ -129,10 +129,10 @@ class LineMessage < ApplicationRecord
   def mentioned_users
     mentions = extract_mentions
     return [] if mentions.empty?
-    
+
     # Find users by display name or username
     User.where(
-      'first_name ILIKE ANY(ARRAY[?]) OR last_name ILIKE ANY(ARRAY[?]) OR email ILIKE ANY(ARRAY[?])',
+      "first_name ILIKE ANY(ARRAY[?]) OR last_name ILIKE ANY(ARRAY[?]) OR email ILIKE ANY(ARRAY[?])",
       mentions.map { |m| "%#{m}%" },
       mentions.map { |m| "%#{m}%" },
       mentions.map { |m| "%#{m}%" }
@@ -162,13 +162,13 @@ class LineMessage < ApplicationRecord
 
   def build_confirmation_message
     case intent_type
-    when 'task_creation'
+    when "task_creation"
       "✅ タスクを作成しました：「#{task.title}」\n" \
       "📅 期限：#{task.due_date&.strftime('%Y年%m月%d日') || '未設定'}\n" \
       "👤 担当者：#{task.user&.display_name || '未設定'}"
-    when 'task_completion'
+    when "task_completion"
       "🎉 タスクが完了しました：「#{task.title}」"
-    when 'task_assignment'
+    when "task_assignment"
       "📝 タスクが割り当てられました：「#{task.title}」\n" \
       "👤 担当者：#{task.user&.display_name}"
     else

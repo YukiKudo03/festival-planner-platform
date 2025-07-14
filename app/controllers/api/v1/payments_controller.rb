@@ -1,59 +1,59 @@
 class Api::V1::PaymentsController < Api::V1::BaseController
-  before_action :set_festival, only: [:create, :show, :update, :cancel]
-  before_action :set_payment, only: [:show, :update, :cancel, :confirm]
-  before_action :check_rate_limit, only: [:create, :update, :cancel]
-  
+  before_action :set_festival, only: [ :create, :show, :update, :cancel ]
+  before_action :set_payment, only: [ :show, :update, :cancel, :confirm ]
+  before_action :check_rate_limit, only: [ :create, :update, :cancel ]
+
   # GET /api/v1/festivals/:festival_id/payments
   def index
     payments = Payment.joins(:festival)
                      .where(festivals: { id: accessible_festival_ids })
-    
-    payments = apply_filters(payments, [:status, :payment_method, :created_after, :created_before])
+
+    payments = apply_filters(payments, [ :status, :payment_method, :created_after, :created_before ])
     payments = apply_sorting(payments, { created_at: :desc })
     payments = paginate_collection(payments)
-    
+
     render_pagination(payments, PaymentSerializer)
   end
-  
+
   # GET /api/v1/festivals/:festival_id/payments/:id
   def show
     unless @payment.accessible_by?(current_api_user)
-      render_error('この支払い情報にアクセスする権限がありません', :forbidden)
+      render_error("この支払い情報にアクセスする権限がありません", :forbidden)
       return
     end
-    
+
     render_success(PaymentSerializer.new(@payment, detailed: true).as_json)
   end
-  
+
   # POST /api/v1/festivals/:festival_id/payments
   def create
     unless @festival.accessible_by?(current_api_user)
-      render_error('このフェスティバルにアクセスする権限がありません', :forbidden)
+      render_error("このフェスティバルにアクセスする権限がありません", :forbidden)
       return
     end
-    
+
     @payment = @festival.payments.build(payment_params)
     @payment.user = current_api_user
-    @payment.status = 'pending'
-    
+    @payment.status = "pending"
+
     if @payment.save
       # Process payment through external service
       payment_result = process_payment(@payment)
-      
+
       if payment_result[:success]
         @payment.update!(
-          status: 'processing',
+          status: "processing",
           external_transaction_id: payment_result[:transaction_id],
           processed_at: Time.current
         )
-        
+
         render_success(
           PaymentSerializer.new(@payment, detailed: true).as_json,
-          '支払い処理を開始しました',
+          "支払い処理を開始しました",
           :created
         )
       else
-        @payment.update(status: 'failed', error_message: payment_result[:error])
+        @payment.update(status: "failed", error_message: payment_result[:error])
         render_error(
           "支払い処理に失敗しました: #{payment_result[:error]}",
           :unprocessable_entity
@@ -61,63 +61,63 @@ class Api::V1::PaymentsController < Api::V1::BaseController
       end
     else
       render_error(
-        '支払い情報の保存に失敗しました',
+        "支払い情報の保存に失敗しました",
         :unprocessable_entity,
         @payment.errors.full_messages
       )
     end
   end
-  
+
   # PATCH /api/v1/festivals/:festival_id/payments/:id
   def update
     unless @payment.can_be_modified_by?(current_api_user)
-      render_error('この支払い情報を変更する権限がありません', :forbidden)
+      render_error("この支払い情報を変更する権限がありません", :forbidden)
       return
     end
-    
-    if @payment.status != 'pending'
-      render_error('処理済みの支払い情報は変更できません', :bad_request)
+
+    if @payment.status != "pending"
+      render_error("処理済みの支払い情報は変更できません", :bad_request)
       return
     end
-    
+
     if @payment.update(payment_params)
       render_success(
         PaymentSerializer.new(@payment, detailed: true).as_json,
-        '支払い情報を更新しました'
+        "支払い情報を更新しました"
       )
     else
       render_error(
-        '支払い情報の更新に失敗しました',
+        "支払い情報の更新に失敗しました",
         :unprocessable_entity,
         @payment.errors.full_messages
       )
     end
   end
-  
+
   # DELETE /api/v1/festivals/:festival_id/payments/:id/cancel
   def cancel
     unless @payment.can_be_cancelled_by?(current_api_user)
-      render_error('この支払いをキャンセルする権限がありません', :forbidden)
+      render_error("この支払いをキャンセルする権限がありません", :forbidden)
       return
     end
-    
+
     unless @payment.cancellable?
-      render_error('この支払いはキャンセルできません', :bad_request)
+      render_error("この支払いはキャンセルできません", :bad_request)
       return
     end
-    
+
     cancellation_result = cancel_payment(@payment)
-    
+
     if cancellation_result[:success]
       @payment.update!(
-        status: 'cancelled',
+        status: "cancelled",
         cancelled_at: Time.current,
         cancellation_reason: params[:reason]
       )
-      
+
       render_success(
         PaymentSerializer.new(@payment, detailed: true).as_json,
-        '支払いをキャンセルしました'
+        "支払いをキャンセルしました"
       )
     else
       render_error(
@@ -126,43 +126,43 @@ class Api::V1::PaymentsController < Api::V1::BaseController
       )
     end
   end
-  
+
   # POST /api/v1/payments/:id/confirm
   def confirm
     unless @payment.confirmable_by?(current_api_user)
-      render_error('この支払いを確認する権限がありません', :forbidden)
+      render_error("この支払いを確認する権限がありません", :forbidden)
       return
     end
-    
+
     confirmation_result = confirm_payment(@payment)
-    
+
     if confirmation_result[:success]
       @payment.update!(
-        status: 'completed',
+        status: "completed",
         confirmed_at: Time.current,
         confirmation_code: confirmation_result[:confirmation_code]
       )
-      
+
       # Create success notification
-      create_payment_notification(@payment, 'payment_completed')
-      
+      create_payment_notification(@payment, "payment_completed")
+
       render_success(
         PaymentSerializer.new(@payment, detailed: true).as_json,
-        '支払いが完了しました'
+        "支払いが完了しました"
       )
     else
-      @payment.update(status: 'failed', error_message: confirmation_result[:error])
+      @payment.update(status: "failed", error_message: confirmation_result[:error])
       render_error(
         "支払いの確認に失敗しました: #{confirmation_result[:error]}",
         :unprocessable_entity
       )
     end
   end
-  
+
   # GET /api/v1/payments/methods
   def payment_methods
     methods = PaymentService.available_methods
-    
+
     render_success({
       methods: methods.map do |method|
         {
@@ -177,18 +177,18 @@ class Api::V1::PaymentsController < Api::V1::BaseController
       end
     })
   end
-  
+
   # GET /api/v1/festivals/:festival_id/payments/summary
   def summary
     unless @festival.accessible_by?(current_api_user)
-      render_error('このフェスティバルにアクセスする権限がありません', :forbidden)
+      render_error("このフェスティバルにアクセスする権限がありません", :forbidden)
       return
     end
-    
+
     date_range = build_date_range
     payments = @festival.payments
     payments = payments.where(created_at: date_range) if date_range
-    
+
     summary = {
       total_amount: payments.completed.sum(:amount),
       total_transactions: payments.count,
@@ -203,16 +203,16 @@ class Api::V1::PaymentsController < Api::V1::BaseController
                             .sum(:amount),
       processing_fees: payments.completed.sum(:processing_fee) || 0
     }
-    
+
     render_success(summary)
   end
-  
+
   private
-  
+
   def set_festival
     @festival = Festival.find(params[:festival_id]) if params[:festival_id]
   end
-  
+
   def set_payment
     if @festival
       @payment = @festival.payments.find(params[:id])
@@ -220,7 +220,7 @@ class Api::V1::PaymentsController < Api::V1::BaseController
       @payment = Payment.find(params[:id])
     end
   end
-  
+
   def payment_params
     params.require(:payment).permit(
       :amount, :payment_method, :description, :currency,
@@ -228,7 +228,7 @@ class Api::V1::PaymentsController < Api::V1::BaseController
       :metadata
     )
   end
-  
+
   def accessible_festival_ids
     if current_api_user.admin? || current_api_user.system_admin?
       Festival.pluck(:id)
@@ -236,7 +236,7 @@ class Api::V1::PaymentsController < Api::V1::BaseController
       current_api_user.accessible_festivals.pluck(:id)
     end
   end
-  
+
   def process_payment(payment)
     PaymentService.process_payment(
       payment: payment,
@@ -245,7 +245,7 @@ class Api::V1::PaymentsController < Api::V1::BaseController
   rescue StandardError => e
     { success: false, error: e.message }
   end
-  
+
   def cancel_payment(payment)
     PaymentService.cancel_payment(
       payment: payment,
@@ -254,13 +254,13 @@ class Api::V1::PaymentsController < Api::V1::BaseController
   rescue StandardError => e
     { success: false, error: e.message }
   end
-  
+
   def confirm_payment(payment)
     PaymentService.confirm_payment(payment)
   rescue StandardError => e
     { success: false, error: e.message }
   end
-  
+
   def create_payment_notification(payment, notification_type)
     payment.user.notifications.create!(
       notification_type: notification_type,
@@ -269,13 +269,13 @@ class Api::V1::PaymentsController < Api::V1::BaseController
       notifiable: payment
     )
   end
-  
+
   def build_date_range
     return nil unless params[:start_date] && params[:end_date]
-    
+
     start_date = Date.parse(params[:start_date])
     end_date = Date.parse(params[:end_date])
-    
+
     start_date..end_date
   rescue ArgumentError
     nil

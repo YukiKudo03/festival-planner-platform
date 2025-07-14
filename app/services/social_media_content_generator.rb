@@ -21,12 +21,12 @@ class SocialMediaContentGenerator
     return nil unless @festival.start_date
 
     {
-      type: 'save_the_date',
+      type: "save_the_date",
       content: build_save_the_date_content,
-      hashtags: base_hashtags + ['#SaveTheDate', '#予告'],
+      hashtags: base_hashtags + [ "#SaveTheDate", "#予告" ],
       scheduled_time: optimal_post_time(30.days.ago),
-      image_suggestion: 'festival_logo_or_venue',
-      platforms: ['facebook', 'twitter', 'instagram']
+      image_suggestion: "festival_logo_or_venue",
+      platforms: [ "facebook", "twitter", "instagram" ]
     }
   end
 
@@ -34,42 +34,42 @@ class SocialMediaContentGenerator
     return nil unless @festival.description.present?
 
     {
-      type: 'lineup_announcement',
+      type: "lineup_announcement",
       content: build_lineup_content,
-      hashtags: base_hashtags + ['#lineup', '#ラインナップ', '#出演者'],
+      hashtags: base_hashtags + [ "#lineup", "#ラインナップ", "#出演者" ],
       scheduled_time: optimal_post_time(14.days.ago),
-      image_suggestion: 'lineup_poster',
-      platforms: ['facebook', 'twitter', 'instagram']
+      image_suggestion: "lineup_poster",
+      platforms: [ "facebook", "twitter", "instagram" ]
     }
   end
 
   def generate_ticket_announcement
     {
-      type: 'ticket_announcement',
+      type: "ticket_announcement",
       content: build_ticket_content,
-      hashtags: base_hashtags + ['#チケット', '#申込', '#参加者募集'],
+      hashtags: base_hashtags + [ "#チケット", "#申込", "#参加者募集" ],
       scheduled_time: optimal_post_time(21.days.ago),
-      image_suggestion: 'ticket_info_graphic',
-      platforms: ['facebook', 'twitter', 'instagram']
+      image_suggestion: "ticket_info_graphic",
+      platforms: [ "facebook", "twitter", "instagram" ]
     }
   end
 
   def generate_countdown_series
     return [] unless @festival.start_date
 
-    countdown_days = [30, 14, 7, 3, 1]
-    
+    countdown_days = [ 30, 14, 7, 3, 1 ]
+
     countdown_days.map do |days|
       scheduled_date = @festival.start_date - days.days
       next if scheduled_date < Date.current
-      
+
       {
-        type: 'countdown',
+        type: "countdown",
         content: build_countdown_content(days),
-        hashtags: base_hashtags + ["#あと#{days}日", '#カウントダウン'],
+        hashtags: base_hashtags + [ "#あと#{days}日", "#カウントダウン" ],
         scheduled_time: optimal_post_time(scheduled_date),
         image_suggestion: "countdown_#{days}_days",
-        platforms: ['facebook', 'twitter', 'instagram']
+        platforms: [ "facebook", "twitter", "instagram" ]
       }
     end.compact
   end
@@ -79,20 +79,20 @@ class SocialMediaContentGenerator
 
     [
       {
-        type: 'morning_greeting',
+        type: "morning_greeting",
         content: build_morning_greeting,
-        hashtags: base_hashtags + ['#当日', '#開催中'],
+        hashtags: base_hashtags + [ "#当日", "#開催中" ],
         scheduled_time: @festival.start_date.beginning_of_day + 8.hours,
-        image_suggestion: 'morning_setup_or_venue',
-        platforms: ['facebook', 'twitter', 'instagram']
+        image_suggestion: "morning_setup_or_venue",
+        platforms: [ "facebook", "twitter", "instagram" ]
       },
       {
-        type: 'live_updates',
+        type: "live_updates",
         content: build_live_update_template,
-        hashtags: base_hashtags + ['#ライブ配信', '#リアルタイム'],
+        hashtags: base_hashtags + [ "#ライブ配信", "#リアルタイム" ],
         scheduled_time: @festival.start_date.beginning_of_day + 12.hours,
-        image_suggestion: 'live_event_photos',
-        platforms: ['facebook', 'twitter', 'instagram']
+        image_suggestion: "live_event_photos",
+        platforms: [ "facebook", "twitter", "instagram" ]
       }
     ]
   end
@@ -101,40 +101,40 @@ class SocialMediaContentGenerator
     return nil unless @festival.end_date
 
     {
-      type: 'thank_you',
+      type: "thank_you",
       content: build_thank_you_content,
-      hashtags: base_hashtags + ['#ありがとうございました', '#感謝', '#終了'],
+      hashtags: base_hashtags + [ "#ありがとうございました", "#感謝", "#終了" ],
       scheduled_time: (@festival.end_date || @festival.start_date).end_of_day + 2.hours,
-      image_suggestion: 'event_highlights_collage',
-      platforms: ['facebook', 'twitter', 'instagram']
+      image_suggestion: "event_highlights_collage",
+      platforms: [ "facebook", "twitter", "instagram" ]
     }
   end
 
   def generate_behind_scenes_content
     behind_scenes_posts = []
-    
+
     # Preparation phase
     if @festival.start_date > 7.days.from_now
       behind_scenes_posts << {
-        type: 'preparation',
+        type: "preparation",
         content: build_preparation_content,
-        hashtags: base_hashtags + ['#準備中', '#舞台裏', '#BehindTheScenes'],
-        image_suggestion: 'preparation_photos',
-        platforms: ['facebook', 'instagram']
+        hashtags: base_hashtags + [ "#準備中", "#舞台裏", "#BehindTheScenes" ],
+        image_suggestion: "preparation_photos",
+        platforms: [ "facebook", "instagram" ]
       }
     end
-    
+
     # Setup phase
     if @festival.start_date > 1.day.from_now
       behind_scenes_posts << {
-        type: 'setup',
+        type: "setup",
         content: build_setup_content,
-        hashtags: base_hashtags + ['#設営', '#準備完了', '#もうすぐ'],
-        image_suggestion: 'setup_photos',
-        platforms: ['facebook', 'twitter', 'instagram']
+        hashtags: base_hashtags + [ "#設営", "#準備完了", "#もうすぐ" ],
+        image_suggestion: "setup_photos",
+        platforms: [ "facebook", "twitter", "instagram" ]
       }
     end
-    
+
     behind_scenes_posts
   end
 
@@ -151,49 +151,49 @@ class SocialMediaContentGenerator
     return nil unless @festival.location.present?
 
     {
-      type: 'quiz',
+      type: "quiz",
       content: build_quiz_content,
-      hashtags: base_hashtags + ['#クイズ', '#参加型', '#楽しもう'],
-      image_suggestion: 'quiz_graphic',
-      platforms: ['facebook', 'twitter']
+      hashtags: base_hashtags + [ "#クイズ", "#参加型", "#楽しもう" ],
+      image_suggestion: "quiz_graphic",
+      platforms: [ "facebook", "twitter" ]
     }
   end
 
   def generate_poll_content
     {
-      type: 'poll',
+      type: "poll",
       content: build_poll_content,
-      hashtags: base_hashtags + ['#アンケート', '#投票', '#意見募集'],
-      poll_options: ['期待している出し物', '好きな時間帯', '参加予定の友達数'],
-      platforms: ['facebook', 'twitter', 'instagram']
+      hashtags: base_hashtags + [ "#アンケート", "#投票", "#意見募集" ],
+      poll_options: [ "期待している出し物", "好きな時間帯", "参加予定の友達数" ],
+      platforms: [ "facebook", "twitter", "instagram" ]
     }
   end
 
   def generate_user_generated_content_prompt
     {
-      type: 'ugc_prompt',
+      type: "ugc_prompt",
       content: build_ugc_prompt,
-      hashtags: base_hashtags + ['#投稿募集', '#みんなの写真', '#シェア'],
-      platforms: ['facebook', 'twitter', 'instagram']
+      hashtags: base_hashtags + [ "#投稿募集", "#みんなの写真", "#シェア" ],
+      platforms: [ "facebook", "twitter", "instagram" ]
     }
   end
 
   def generate_memory_sharing_prompt
     {
-      type: 'memory_sharing',
+      type: "memory_sharing",
       content: build_memory_sharing_content,
-      hashtags: base_hashtags + ['#思い出', '#昨年の様子', '#継続'],
-      platforms: ['facebook', 'instagram']
+      hashtags: base_hashtags + [ "#思い出", "#昨年の様子", "#継続" ],
+      platforms: [ "facebook", "instagram" ]
     }
   end
 
   def generate_platform_specific_content(platform)
     case platform
-    when 'facebook'
+    when "facebook"
       generate_facebook_specific_content
-    when 'twitter'
+    when "twitter"
       generate_twitter_specific_content
-    when 'instagram'
+    when "instagram"
       generate_instagram_specific_content
     else
       []
@@ -228,11 +228,11 @@ class SocialMediaContentGenerator
 
   def build_lineup_content
     content = "🎪 #{@festival.name} 開催内容発表！\n\n"
-    
+
     if @festival.description.present?
       content += "#{@festival.description}\n\n"
     end
-    
+
     # Add task-based content highlights
     if @festival.tasks.any?
       highlighted_tasks = @festival.tasks.limit(3)
@@ -242,7 +242,7 @@ class SocialMediaContentGenerator
       end
       content += "\n"
     end
-    
+
     content += "皆さまのお越しをお待ちしております！\n\n"
     content += "#ラインナップ #見どころ #期待"
   end
@@ -251,11 +251,11 @@ class SocialMediaContentGenerator
     content = "🎫 #{@festival.name} 参加者募集開始！\n\n"
     content += "📅 開催日：#{@festival.start_date&.strftime('%Y年%m月%d日')}\n"
     content += "📍 会場：#{@festival.location}\n\n"
-    
+
     if @festival.budget.present?
       content += "💰 参加費：詳細はお問い合わせください\n"
     end
-    
+
     content += "\n申込方法や詳細情報は公式サイトをチェック！\n"
     content += "🔗 #{festival_url(@festival)}\n\n" if defined?(festival_url)
     content += "#参加者募集 #申込開始 #お申し込み"
@@ -350,33 +350,33 @@ class SocialMediaContentGenerator
 
   def base_hashtags
     return @base_hashtags if @base_hashtags
-    
-    @base_hashtags = ["##{@festival.name.gsub(/\s+/, '')}"]
+
+    @base_hashtags = [ "##{@festival.name.gsub(/\s+/, '')}" ]
     @base_hashtags << "##{@festival.location.gsub(/[^\p{L}\p{N}]/, '')}" if @festival.location
-    @base_hashtags += ['#祭り', '#フェスティバル', '#地域イベント']
+    @base_hashtags += [ "#祭り", "#フェスティバル", "#地域イベント" ]
     @base_hashtags
   end
 
   def secondary_hashtags
-    tags = ['#地域活性化', '#コミュニティ', '#楽しい時間']
-    
+    tags = [ "#地域活性化", "#コミュニティ", "#楽しい時間" ]
+
     if @festival.start_date
       tags << "##{@festival.start_date.strftime('%Y年%m月')}"
     end
-    
+
     tags
   end
 
   def location_hashtags
     return [] unless @festival.location
-    
+
     location_parts = @festival.location.split(/[、,\s]+/)
     location_parts.map { |part| "##{part.gsub(/[^\p{L}\p{N}]/, '')}" }.reject(&:blank?)
   end
 
   def time_based_hashtags
     return [] unless @festival.start_date
-    
+
     date = @festival.start_date
     [
       "##{date.year}年",
@@ -386,21 +386,21 @@ class SocialMediaContentGenerator
   end
 
   def facebook_hashtags
-    ['#FacebookEvent', '#コミュニティイベント']
+    [ "#FacebookEvent", "#コミュニティイベント" ]
   end
 
   def twitter_hashtags
-    ['#ツイッター投稿', '#リアルタイム']
+    [ "#ツイッター投稿", "#リアルタイム" ]
   end
 
   def instagram_hashtags
-    ['#インスタ映え', '#写真', '#思い出']
+    [ "#インスタ映え", "#写真", "#思い出" ]
   end
 
   def find_trending_hashtags
     # This would integrate with social media APIs to find trending hashtags
     # For now, return some generic trending festival hashtags
-    ['#週末イベント', '#家族連れ歓迎', '#地元愛']
+    [ "#週末イベント", "#家族連れ歓迎", "#地元愛" ]
   end
 
   def optimal_post_time(date = Date.current)
@@ -408,7 +408,7 @@ class SocialMediaContentGenerator
     # Facebook: 1-3 PM on weekdays
     # Twitter: 8-10 AM and 7-9 PM
     # Instagram: 11 AM - 1 PM and 7-9 PM
-    
+
     if date.on_weekday?
       date.beginning_of_day + 14.hours # 2 PM
     else
@@ -420,10 +420,10 @@ class SocialMediaContentGenerator
     # Facebook allows longer content and better engagement features
     [
       {
-        type: 'facebook_event',
+        type: "facebook_event",
         content: build_facebook_event_content,
         hashtags: base_hashtags + facebook_hashtags,
-        platforms: ['facebook']
+        platforms: [ "facebook" ]
       }
     ]
   end
@@ -432,10 +432,10 @@ class SocialMediaContentGenerator
     # Twitter requires shorter, more frequent content
     [
       {
-        type: 'twitter_thread',
+        type: "twitter_thread",
         content: build_twitter_thread_content,
         hashtags: base_hashtags + twitter_hashtags,
-        platforms: ['twitter']
+        platforms: [ "twitter" ]
       }
     ]
   end
@@ -444,10 +444,10 @@ class SocialMediaContentGenerator
     # Instagram is visual-first
     [
       {
-        type: 'instagram_story',
+        type: "instagram_story",
         content: build_instagram_story_content,
         hashtags: base_hashtags + instagram_hashtags,
-        platforms: ['instagram']
+        platforms: [ "instagram" ]
       }
     ]
   end

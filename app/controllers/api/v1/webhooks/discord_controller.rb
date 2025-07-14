@@ -1,23 +1,22 @@
 class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
-  
   # POST /api/v1/webhooks/discord
   def receive
     # Discord webhook verification
     unless verify_discord_signature
-      webhook_error('Invalid Discord signature', :unauthorized)
+      webhook_error("Invalid Discord signature", :unauthorized)
       return
     end
 
     # Handle different Discord event types
-    case request.headers['X-GitHub-Event'] || params[:type]
-    when 'message'
+    case request.headers["X-GitHub-Event"] || params[:type]
+    when "message"
       handle_message_event
-    when 'interaction'
+    when "interaction"
       handle_interaction_event
-    when 'guild_member_add'
+    when "guild_member_add"
       handle_member_join_event
     else
-      webhook_success('Discord event received but not processed')
+      webhook_success("Discord event received but not processed")
     end
   end
 
@@ -26,9 +25,9 @@ class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
   def verify_discord_signature
     # Discord uses different signature verification
     # For now, we'll implement basic verification
-    signature = request.headers['X-Signature-Ed25519']
-    timestamp = request.headers['X-Signature-Timestamp']
-    
+    signature = request.headers["X-Signature-Ed25519"]
+    timestamp = request.headers["X-Signature-Timestamp"]
+
     return false unless signature && timestamp
 
     # Discord uses Ed25519 signature verification
@@ -47,12 +46,12 @@ class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
     message_content = params.dig(:data, :content) || params[:content]
     channel_id = params.dig(:data, :channel_id) || params[:channel_id]
     user_id = params.dig(:data, :author, :id) || params.dig(:author, :id)
-    
-    return webhook_success('Empty message') unless message_content.present?
+
+    return webhook_success("Empty message") unless message_content.present?
 
     # Find Discord integration
     discord_integration = find_discord_integration(channel_id)
-    return webhook_success('No integration found') unless discord_integration
+    return webhook_success("No integration found") unless discord_integration
 
     # Process task commands
     if task_command?(message_content)
@@ -63,13 +62,13 @@ class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
       send_status_update(discord_integration, channel_id)
     end
 
-    webhook_success('Message processed')
+    webhook_success("Message processed")
   end
 
   def handle_interaction_event
     # Handle Discord slash commands and button interactions
     interaction_type = params.dig(:data, :type) || params[:type]
-    
+
     case interaction_type
     when 1 # PING
       render json: { type: 1 } # PONG
@@ -78,36 +77,36 @@ class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
     when 3 # MESSAGE_COMPONENT
       handle_button_interaction
     else
-      webhook_success('Interaction received')
+      webhook_success("Interaction received")
     end
   end
 
   def handle_slash_command
     command_name = params.dig(:data, :name)
-    
+
     case command_name
-    when 'task'
+    when "task"
       handle_task_slash_command
-    when 'status'
+    when "status"
       handle_status_slash_command
-    when 'help'
+    when "help"
       handle_help_slash_command
     else
-      respond_to_interaction('Unknown command')
+      respond_to_interaction("Unknown command")
     end
   end
 
   def handle_task_slash_command
     options = params.dig(:data, :options) || []
-    
-    title = find_option_value(options, 'title')
-    assignee = find_option_value(options, 'assignee')
-    due_date = find_option_value(options, 'due_date')
-    priority = find_option_value(options, 'priority') || 'medium'
+
+    title = find_option_value(options, "title")
+    assignee = find_option_value(options, "assignee")
+    due_date = find_option_value(options, "due_date")
+    priority = find_option_value(options, "priority") || "medium"
 
     channel_id = params[:channel_id]
     discord_integration = find_discord_integration(channel_id)
-    
+
     if discord_integration && title
       task = create_task_from_command(discord_integration, {
         title: title,
@@ -115,26 +114,26 @@ class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
         due_date: due_date,
         priority: priority
       })
-      
+
       if task.persisted?
         respond_to_interaction("✅ タスク「#{task.title}」を作成しました！")
       else
         respond_to_interaction("❌ タスクの作成に失敗しました: #{task.errors.full_messages.join(', ')}")
       end
     else
-      respond_to_interaction('❌ タスクの作成に必要な情報が不足しています')
+      respond_to_interaction("❌ タスクの作成に必要な情報が不足しています")
     end
   end
 
   def handle_status_slash_command
     channel_id = params[:channel_id]
     discord_integration = find_discord_integration(channel_id)
-    
+
     if discord_integration
       status = generate_status_message(discord_integration.festival)
       respond_to_interaction(status)
     else
-      respond_to_interaction('❌ 統合設定が見つかりません')
+      respond_to_interaction("❌ 統合設定が見つかりません")
     end
   end
 
@@ -145,7 +144,7 @@ class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
 
   def handle_button_interaction
     custom_id = params.dig(:data, :custom_id)
-    
+
     case custom_id
     when /^complete_task_(\d+)$/
       task_id = $1.to_i
@@ -154,19 +153,19 @@ class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
       task_id = $1.to_i
       show_assignment_modal(task_id)
     else
-      respond_to_interaction('Unknown button interaction')
+      respond_to_interaction("Unknown button interaction")
     end
   end
 
   def handle_member_join_event
     guild_id = params[:guild_id]
     user = params[:user]
-    
+
     # Send welcome message with bot information
     welcome_message = generate_welcome_message(user[:username])
-    
+
     # This would send a DM or channel message to the new member
-    webhook_success('Member join processed')
+    webhook_success("Member join processed")
   end
 
   def find_discord_integration(channel_id)
@@ -194,7 +193,7 @@ class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
     return unless task_info
 
     task = create_task_from_command(discord_integration, task_info)
-    
+
     if task.persisted?
       send_discord_message(
         channel_id,
@@ -240,7 +239,7 @@ class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
     festival = discord_integration.festival
     task = festival.tasks.build(task_info)
     task.created_by = discord_integration.user
-    task.status = 'pending'
+    task.status = "pending"
     task.save
     task
   end
@@ -276,7 +275,7 @@ class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
 
       **⚠️ 優先度:**
       - urgent (緊急)
-      - high (重要)  
+      - high (重要)#{'  '}
       - medium (普通)
       - low (低)
     HELP
@@ -284,7 +283,7 @@ class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
 
   def generate_status_message(festival)
     tasks = festival.tasks
-    
+
     <<~STATUS
       📊 **#{festival.name} - タスク状況**
 
@@ -306,7 +305,7 @@ class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
 
       **使い方:**
       - `/help` でコマンド一覧を表示
-      - `/task` でタスクを作成  
+      - `/task` でタスクを作成#{'  '}
       - `/status` で進捗を確認
 
       ご不明な点がございましたら、お気軽にお尋ねください！
@@ -362,17 +361,17 @@ class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
   end
 
   def extract_priority_from_text(text)
-    return 'urgent' if text.match?(/緊急|至急|urgent/i)
-    return 'high' if text.match?(/重要|high/i)
-    return 'low' if text.match?(/後で|低優先度|low/i)
-    'medium'
+    return "urgent" if text.match?(/緊急|至急|urgent/i)
+    return "high" if text.match?(/重要|high/i)
+    return "low" if text.match?(/後で|低優先度|low/i)
+    "medium"
   end
 
   def complete_task_via_button(task_id)
     task = Task.find_by(id: task_id)
     if task
       task.update(
-        status: 'completed',
+        status: "completed",
         completed_at: Time.current,
         completed_by_id: params.dig(:member, :user, :id) # Discord user
       )
@@ -405,7 +404,7 @@ class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
         ]
       }
     }
-    
+
     render json: modal
   end
 
@@ -417,7 +416,7 @@ class Api::V1::Webhooks::DiscordController < Api::V1::Webhooks::BaseController
         flags: ephemeral ? 64 : 0
       }
     }
-    
+
     render json: response
   end
 

@@ -1,11 +1,11 @@
 class BudgetCategory < ApplicationRecord
   belongs_to :festival
   belongs_to :parent, polymorphic: true, optional: true
-  
+
   has_many :expenses, dependent: :destroy
   has_many :revenues, dependent: :destroy
   has_many :budget_approvals, dependent: :destroy
-  has_many :child_categories, class_name: 'BudgetCategory', foreign_key: 'parent_id', dependent: :destroy
+  has_many :child_categories, class_name: "BudgetCategory", foreign_key: "parent_id", dependent: :destroy
 
   validates :name, presence: true, length: { maximum: 100 }
   validates :description, length: { maximum: 500 }, allow_blank: true
@@ -16,16 +16,16 @@ class BudgetCategory < ApplicationRecord
 
   # 標準的な予算カテゴリ
   STANDARD_CATEGORIES = [
-    { name: '会場費', description: '会場使用料、設営費用など' },
-    { name: '設備費', description: '音響、照明、その他設備費用' },
-    { name: '人件費', description: 'スタッフ、警備、清掃などの人件費' },
-    { name: '材料費', description: 'デコレーション、消耗品など' },
-    { name: '広告・宣伝費', description: 'ポスター、チラシ、オンライン広告など' },
-    { name: '保険・許可費', description: '保険料、許可申請費用など' },
-    { name: '飲食費', description: 'スタッフ用飲食、ケータリングなど' },
-    { name: '交通費', description: '出演者、スタッフの交通費' },
-    { name: '出演料', description: 'アーティスト、パフォーマーへの謝礼' },
-    { name: '緊急予備費', description: '予期しない支出への対応費' }
+    { name: "会場費", description: "会場使用料、設営費用など" },
+    { name: "設備費", description: "音響、照明、その他設備費用" },
+    { name: "人件費", description: "スタッフ、警備、清掃などの人件費" },
+    { name: "材料費", description: "デコレーション、消耗品など" },
+    { name: "広告・宣伝費", description: "ポスター、チラシ、オンライン広告など" },
+    { name: "保険・許可費", description: "保険料、許可申請費用など" },
+    { name: "飲食費", description: "スタッフ用飲食、ケータリングなど" },
+    { name: "交通費", description: "出演者、スタッフの交通費" },
+    { name: "出演料", description: "アーティスト、パフォーマーへの謝礼" },
+    { name: "緊急予備費", description: "予期しない支出への対応費" }
   ].freeze
 
   def total_expenses
@@ -58,13 +58,13 @@ class BudgetCategory < ApplicationRecord
   end
 
   def hierarchy_path
-    path = [name]
+    path = [ name ]
     current = parent
     while current.is_a?(BudgetCategory)
       path.unshift(current.name)
       current = current.parent
     end
-    path.join(' > ')
+    path.join(" > ")
   end
 
   def can_be_modified_by?(user)
@@ -87,10 +87,10 @@ class BudgetCategory < ApplicationRecord
       approver: approver,
       requested_amount: amount,
       approved_amount: amount,
-      status: 'approved',
+      status: "approved",
       notes: notes
     )
-    
+
     update!(budget_limit: amount)
   end
 
@@ -99,7 +99,7 @@ class BudgetCategory < ApplicationRecord
       approver: approver,
       requested_amount: budget_limit,
       approved_amount: 0,
-      status: 'rejected',
+      status: "rejected",
       notes: notes
     )
   end

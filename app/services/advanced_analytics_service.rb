@@ -34,7 +34,7 @@ class AdvancedAnalyticsService
   # @param analysis_period [Hash] Time period for analysis
   # @return [Hash] Complete analytics dashboard data
   def generate_predictive_dashboard(festival, analysis_period: { start_date: 1.year.ago, end_date: Date.current })
-    return error_response('Festival is required') unless festival
+    return error_response("Festival is required") unless festival
 
     # Collect all analytics components
     attendance_forecast = generate_attendance_forecast(festival, analysis_period)
@@ -69,20 +69,20 @@ class AdvancedAnalyticsService
   # @param investment_scenarios [Array<Hash>] Different investment options
   # @return [Hash] ROI optimization recommendations
   def optimize_roi(festival, investment_scenarios: [])
-    return error_response('Festival is required') unless festival
+    return error_response("Festival is required") unless festival
 
     # Calculate current ROI baseline
     current_roi = calculate_current_roi(festival)
-    
+
     # Analyze historical ROI patterns
     historical_analysis = analyze_historical_roi(festival)
-    
+
     # Generate investment scenario analysis
     scenario_analysis = analyze_investment_scenarios(festival, investment_scenarios)
-    
+
     # Identify ROI optimization opportunities
     optimization_recommendations = generate_roi_optimization_recommendations(festival, current_roi, historical_analysis)
-    
+
     # Calculate potential improvements
     improvement_projections = calculate_roi_improvements(festival, optimization_recommendations)
 
@@ -106,24 +106,24 @@ class AdvancedAnalyticsService
   # @param festival [Festival] The festival for analysis
   # @param market_scope [String] Scope of market analysis (local/regional/national)
   # @return [Hash] Market trend analysis and recommendations
-  def analyze_market_trends(festival, market_scope: 'regional')
-    return error_response('Festival is required') unless festival
+  def analyze_market_trends(festival, market_scope: "regional")
+    return error_response("Festival is required") unless festival
 
     # Analyze industry trends
     industry_trends = analyze_industry_trends(festival, market_scope)
-    
+
     # Seasonal pattern analysis
     seasonal_patterns = analyze_seasonal_patterns(festival)
-    
+
     # Consumer behavior insights
     consumer_insights = analyze_consumer_behavior(festival, market_scope)
-    
+
     # Competitive landscape analysis
     competitive_landscape = analyze_competitive_landscape(festival, market_scope)
-    
+
     # Future market predictions
     market_predictions = generate_market_predictions(festival, industry_trends, seasonal_patterns)
-    
+
     # Strategic recommendations
     strategic_recommendations = generate_strategic_recommendations(festival, industry_trends, competitive_landscape)
 
@@ -150,23 +150,23 @@ class AdvancedAnalyticsService
   # @param benchmark_criteria [Array<String>] Criteria for comparison
   # @return [Hash] Benchmarking analysis and insights
   def benchmark_performance(festival, benchmark_criteria: BENCHMARK_CATEGORIES)
-    return error_response('Festival is required') unless festival
+    return error_response("Festival is required") unless festival
 
     benchmarking_results = {}
-    
+
     benchmark_criteria.each do |criterion|
       benchmarking_results[criterion] = perform_benchmark_analysis(festival, criterion)
     end
 
     # Calculate overall performance ranking
     overall_ranking = calculate_overall_ranking(festival, benchmarking_results)
-    
+
     # Identify best practices from top performers
     best_practices = identify_best_practices(festival, benchmarking_results)
-    
+
     # Generate improvement recommendations
     improvement_recommendations = generate_benchmark_improvements(festival, benchmarking_results)
-    
+
     # Calculate competitive positioning
     competitive_position = calculate_competitive_position(festival, benchmarking_results)
 
@@ -192,20 +192,20 @@ class AdvancedAnalyticsService
   # @param monitoring_metrics [Array<String>] Metrics to monitor
   # @return [Hash] Real-time monitoring data
   def generate_realtime_monitoring(festival, monitoring_metrics: PERFORMANCE_METRICS)
-    return error_response('Festival is required') unless festival
+    return error_response("Festival is required") unless festival
 
     monitoring_data = {}
-    
+
     monitoring_metrics.each do |metric|
       monitoring_data[metric] = calculate_realtime_metric(festival, metric)
     end
 
     # Calculate performance alerts
     performance_alerts = generate_performance_alerts(festival, monitoring_data)
-    
+
     # Generate recommendations for immediate action
     immediate_actions = generate_immediate_actions(festival, monitoring_data, performance_alerts)
-    
+
     # Calculate trend indicators
     trend_indicators = calculate_trend_indicators(festival, monitoring_data)
 
@@ -231,17 +231,17 @@ class AdvancedAnalyticsService
   def generate_attendance_forecast(festival, analysis_period)
     # Collect historical attendance data
     historical_data = collect_historical_attendance_data(festival, analysis_period)
-    
+
     # Apply AI prediction service
     ai_service = AiRecommendationService.new
     ai_prediction = ai_service.predict_attendance(festival, historical_data: historical_data)
-    
+
     # Generate confidence intervals
     confidence_intervals = calculate_confidence_intervals(ai_prediction, historical_data)
-    
+
     # Create daily/weekly breakdown
     daily_forecast = generate_daily_attendance_forecast(festival, ai_prediction)
-    
+
     {
       total_predicted_attendance: ai_prediction[:predicted_attendance],
       confidence_score: ai_prediction[:confidence_score],
@@ -257,19 +257,19 @@ class AdvancedAnalyticsService
   def calculate_revenue_projections(festival, analysis_period)
     # Base revenue from attendance predictions
     attendance_forecast = generate_attendance_forecast(festival, analysis_period)
-    
+
     # Calculate revenue streams
     ticket_revenue = calculate_ticket_revenue(festival, attendance_forecast)
     vendor_revenue = calculate_vendor_revenue(festival)
     sponsorship_revenue = calculate_sponsorship_revenue(festival)
     merchandise_revenue = calculate_merchandise_revenue(festival, attendance_forecast)
-    
+
     # Calculate costs
     total_costs = calculate_total_costs(festival)
-    
+
     # Generate profit projections
     profit_projections = calculate_profit_projections(ticket_revenue, vendor_revenue, sponsorship_revenue, merchandise_revenue, total_costs)
-    
+
     # Risk-adjusted projections
     risk_adjusted_projections = apply_risk_adjustments(profit_projections, festival)
 
@@ -293,13 +293,13 @@ class AdvancedAnalyticsService
   def assess_risk_indicators(festival)
     ai_service = AiRecommendationService.new
     risk_assessment = ai_service.assess_festival_risks(festival)
-    
+
     # Add additional financial risk indicators
     financial_risk_indicators = calculate_financial_risk_indicators(festival)
-    
+
     # Add operational risk indicators
     operational_risk_indicators = calculate_operational_risk_indicators(festival)
-    
+
     # Add external risk indicators
     external_risk_indicators = calculate_external_risk_indicators(festival)
 
@@ -316,17 +316,17 @@ class AdvancedAnalyticsService
   # Analyze performance trends over multiple periods
   def analyze_performance_trends(festival, analysis_period)
     trends = {}
-    
+
     PERFORMANCE_METRICS.each do |metric|
       trends[metric] = calculate_metric_trend(festival, metric, analysis_period)
     end
 
     # Calculate trend correlations
     trend_correlations = calculate_trend_correlations(trends)
-    
+
     # Identify trend patterns
     trend_patterns = identify_trend_patterns(trends)
-    
+
     # Generate trend predictions
     trend_predictions = generate_trend_predictions(trends)
 
@@ -343,19 +343,19 @@ class AdvancedAnalyticsService
   # Identify optimization opportunities across all areas
   def identify_optimization_opportunities(festival)
     opportunities = []
-    
+
     # Cost optimization opportunities
     cost_opportunities = identify_cost_optimization_opportunities(festival)
     opportunities.concat(cost_opportunities)
-    
+
     # Revenue optimization opportunities
     revenue_opportunities = identify_revenue_optimization_opportunities(festival)
     opportunities.concat(revenue_opportunities)
-    
+
     # Operational efficiency opportunities
     efficiency_opportunities = identify_efficiency_opportunities(festival)
     opportunities.concat(efficiency_opportunities)
-    
+
     # Customer experience opportunities
     experience_opportunities = identify_experience_opportunities(festival)
     opportunities.concat(experience_opportunities)
@@ -377,16 +377,16 @@ class AdvancedAnalyticsService
   def perform_competitor_analysis(festival)
     # Identify competitors
     competitors = identify_competitors(festival)
-    
+
     # Analyze competitor performance
     competitor_performance = analyze_competitor_performance(competitors, festival)
-    
+
     # Identify competitive advantages
     competitive_advantages = identify_competitive_advantages(festival, competitors)
-    
+
     # Identify competitive threats
     competitive_threats = identify_competitive_threats(festival, competitors)
-    
+
     # Generate competitive strategy recommendations
     competitive_strategies = generate_competitive_strategies(festival, competitor_performance)
 
@@ -404,14 +404,14 @@ class AdvancedAnalyticsService
   # Generate summary insights from all analytics
   def generate_summary_insights(festival, attendance_forecast, revenue_projections, risk_indicators)
     insights = []
-    
+
     # Attendance insights
     if attendance_forecast[:total_predicted_attendance] > (festival.venue&.capacity || 1000) * 0.9
       insights << {
-        type: 'capacity_warning',
-        priority: 'high',
-        message: 'Predicted attendance near venue capacity - consider crowd management measures',
-        impact: 'safety_revenue'
+        type: "capacity_warning",
+        priority: "high",
+        message: "Predicted attendance near venue capacity - consider crowd management measures",
+        impact: "safety_revenue"
       }
     end
 
@@ -419,10 +419,10 @@ class AdvancedAnalyticsService
     profit_margin = (revenue_projections[:profit_projections][:expected_profit] / revenue_projections[:total_projected_revenue]) rescue 0
     if profit_margin < 0.1
       insights << {
-        type: 'profit_concern',
-        priority: 'high',
-        message: 'Low profit margin projected - review cost structure and pricing',
-        impact: 'financial'
+        type: "profit_concern",
+        priority: "high",
+        message: "Low profit margin projected - review cost structure and pricing",
+        impact: "financial"
       }
     end
 
@@ -430,10 +430,10 @@ class AdvancedAnalyticsService
     overall_risk = risk_indicators[:overall_risk_assessment][:overall_risk_score] rescue 0.5
     if overall_risk > 0.7
       insights << {
-        type: 'high_risk',
-        priority: 'high',
-        message: 'High overall risk detected - implement comprehensive mitigation strategies',
-        impact: 'operational_financial'
+        type: "high_risk",
+        priority: "high",
+        message: "High overall risk detected - implement comprehensive mitigation strategies",
+        impact: "operational_financial"
       }
     end
 
@@ -442,9 +442,9 @@ class AdvancedAnalyticsService
 
     {
       total_insights: insights.count,
-      high_priority_insights: insights.select { |i| i[:priority] == 'high' },
+      high_priority_insights: insights.select { |i| i[:priority] == "high" },
       actionable_insights: insights.select { |i| i[:type].in?(%w[optimization opportunity improvement]) },
-      strategic_insights: insights.select { |i| i[:impact].include?('strategic') },
+      strategic_insights: insights.select { |i| i[:impact].include?("strategic") },
       summary_recommendations: generate_summary_recommendations(insights)
     }
   end
@@ -454,9 +454,9 @@ class AdvancedAnalyticsService
     # Get financial data
     total_revenue = calculate_total_revenue(festival)
     total_investment = calculate_total_investment(festival)
-    
+
     roi_percentage = total_investment > 0 ? ((total_revenue - total_investment) / total_investment * 100) : 0
-    
+
     {
       total_revenue: total_revenue,
       total_investment: total_investment,
@@ -474,10 +474,10 @@ class AdvancedAnalyticsService
     {
       historical_periods: 3,
       average_roi: 15.5,
-      roi_trend: 'improving',
-      best_performing_period: { period: '2024_summer', roi: 22.3 },
-      worst_performing_period: { period: '2024_winter', roi: 8.7 },
-      roi_volatility: 'medium',
+      roi_trend: "improving",
+      best_performing_period: { period: "2024_summer", roi: 22.3 },
+      worst_performing_period: { period: "2024_winter", roi: 8.7 },
+      roi_volatility: "medium",
       seasonal_patterns: {
         spring: 18.2,
         summer: 22.3,
@@ -492,11 +492,11 @@ class AdvancedAnalyticsService
     return [] if scenarios.empty?
 
     scenario_results = []
-    
+
     scenarios.each_with_index do |scenario, index|
       roi_impact = calculate_scenario_roi_impact(festival, scenario)
       risk_impact = calculate_scenario_risk_impact(festival, scenario)
-      
+
       scenario_results << {
         scenario_id: index + 1,
         scenario_name: scenario[:name] || "Scenario #{index + 1}",
@@ -516,9 +516,9 @@ class AdvancedAnalyticsService
     # This would collect real historical data
     # For now, return simulated data
     [
-      { attendance: 8500, date: 1.year.ago, weather: 'sunny', category: festival.respond_to?(:category) ? festival.category : 'general' },
-      { attendance: 7200, date: 8.months.ago, weather: 'rainy', category: festival.respond_to?(:category) ? festival.category : 'general' },
-      { attendance: 9100, date: 6.months.ago, weather: 'cloudy', category: festival.respond_to?(:category) ? festival.category : 'general' }
+      { attendance: 8500, date: 1.year.ago, weather: "sunny", category: festival.respond_to?(:category) ? festival.category : "general" },
+      { attendance: 7200, date: 8.months.ago, weather: "rainy", category: festival.respond_to?(:category) ? festival.category : "general" },
+      { attendance: 9100, date: 6.months.ago, weather: "cloudy", category: festival.respond_to?(:category) ? festival.category : "general" }
     ]
   end
 
@@ -526,13 +526,13 @@ class AdvancedAnalyticsService
   def calculate_confidence_intervals(prediction, historical_data)
     base_prediction = prediction[:predicted_attendance]
     confidence = prediction[:confidence_score]
-    
+
     # Calculate standard deviation from historical data
     std_dev = calculate_historical_std_dev(historical_data)
-    
+
     # Calculate confidence intervals
     margin_of_error = std_dev * (1 - confidence)
-    
+
     {
       confidence_95: {
         lower_bound: (base_prediction - margin_of_error * 1.96).round,
@@ -563,21 +563,21 @@ class AdvancedAnalyticsService
   def generate_daily_attendance_forecast(festival, prediction)
     duration = (festival.end_date - festival.start_date).to_i + 1
     total_attendance = prediction[:predicted_attendance]
-    
+
     daily_forecast = []
-    
+
     (0...duration).each do |day_index|
       date = festival.start_date + day_index.days
-      
+
       # Apply daily distribution patterns
       daily_multiplier = calculate_daily_multiplier(date, duration, day_index)
       daily_attendance = (total_attendance * daily_multiplier / duration).round
-      
+
       daily_forecast << {
         date: date.to_s,
         predicted_attendance: daily_attendance,
         day_of_festival: day_index + 1,
-        day_of_week: date.strftime('%A'),
+        day_of_week: date.strftime("%A"),
         confidence_factors: calculate_daily_confidence_factors(date, festival)
       }
     end
@@ -588,7 +588,7 @@ class AdvancedAnalyticsService
   # Calculate daily attendance multiplier
   def calculate_daily_multiplier(date, duration, day_index)
     base_multiplier = 1.0
-    
+
     # Weekend boost
     if date.saturday? || date.sunday?
       base_multiplier *= 1.3
@@ -609,21 +609,21 @@ class AdvancedAnalyticsService
   # Calculate daily confidence factors
   def calculate_daily_confidence_factors(date, festival)
     factors = []
-    
+
     if date.saturday? || date.sunday?
-      factors << { factor: 'weekend', impact: 'positive', confidence: 0.8 }
+      factors << { factor: "weekend", impact: "positive", confidence: 0.8 }
     end
 
     if date.holiday?
-      factors << { factor: 'holiday', impact: 'positive', confidence: 0.7 }
+      factors << { factor: "holiday", impact: "positive", confidence: 0.7 }
     end
 
     # Weather seasonality
     month = date.month
-    if month.in?([6, 7, 8]) # Summer
-      factors << { factor: 'summer_season', impact: 'positive', confidence: 0.6 }
-    elsif month.in?([12, 1, 2]) # Winter
-      factors << { factor: 'winter_season', impact: 'negative', confidence: 0.7 }
+    if month.in?([ 6, 7, 8 ]) # Summer
+      factors << { factor: "summer_season", impact: "positive", confidence: 0.6 }
+    elsif month.in?([ 12, 1, 2 ]) # Winter
+      factors << { factor: "winter_season", impact: "negative", confidence: 0.7 }
     end
 
     factors
@@ -631,28 +631,28 @@ class AdvancedAnalyticsService
 
   # Compare with historical average
   def compare_with_historical_average(prediction, historical_data)
-    return { comparison: 'no_historical_data' } if historical_data.empty?
+    return { comparison: "no_historical_data" } if historical_data.empty?
 
     historical_average = historical_data.map { |d| d[:attendance] }.sum.to_f / historical_data.count
     predicted_attendance = prediction[:predicted_attendance]
-    
+
     percentage_change = ((predicted_attendance - historical_average) / historical_average * 100).round(1)
-    
+
     {
       historical_average: historical_average.round,
       predicted_attendance: predicted_attendance,
       percentage_change: percentage_change,
-      trend: percentage_change > 5 ? 'increasing' : (percentage_change < -5 ? 'decreasing' : 'stable')
+      trend: percentage_change > 5 ? "increasing" : (percentage_change < -5 ? "decreasing" : "stable")
     }
   end
 
   # Calculate ticket revenue projections
   def calculate_ticket_revenue(festival, attendance_forecast)
     base_attendance = attendance_forecast[:total_predicted_attendance]
-    
+
     # Default ticket price if not available
     ticket_price = festival.respond_to?(:ticket_price) ? (festival.ticket_price || 0) : 0
-    
+
     # Calculate different price tiers if available
     revenue_scenarios = {
       conservative: (base_attendance * 0.8 * ticket_price).round(2),
@@ -673,7 +673,7 @@ class AdvancedAnalyticsService
   def calculate_vendor_revenue(festival)
     vendor_count = festival.vendor_applications&.approved&.count || 0
     avg_vendor_fee = 50000 # Default average vendor fee
-    
+
     # Calculate based on different vendor types
     food_vendors = vendor_count * 0.5
     retail_vendors = vendor_count * 0.3
@@ -697,7 +697,7 @@ class AdvancedAnalyticsService
     # Estimate based on vendor sales volume
     avg_vendor_sales = 200000 # Average vendor sales
     commission_rate = 0.05 # 5% commission
-    
+
     vendor_count * avg_vendor_sales * commission_rate
   end
 
@@ -705,7 +705,7 @@ class AdvancedAnalyticsService
   def calculate_sponsorship_revenue(festival)
     # Estimate based on festival size and profile
     venue_capacity = festival.venue&.capacity || 1000
-    
+
     sponsorship_tiers = {
       title_sponsor: venue_capacity > 5000 ? 500000 : (venue_capacity > 2000 ? 200000 : 50000),
       major_sponsors: venue_capacity > 5000 ? 200000 : (venue_capacity > 2000 ? 100000 : 25000),
@@ -733,11 +733,11 @@ class AdvancedAnalyticsService
   # Calculate merchandise revenue
   def calculate_merchandise_revenue(festival, attendance_forecast)
     attendance = attendance_forecast[:total_predicted_attendance]
-    
+
     # Estimate merchandise purchasing rate
     purchase_rate = 0.3 # 30% of attendees buy merchandise
     avg_purchase_amount = 2500 # Average ¥2,500 per purchase
-    
+
     merchandise_revenue = attendance * purchase_rate * avg_purchase_amount
 
     {
@@ -758,7 +758,7 @@ class AdvancedAnalyticsService
     # Estimate costs based on festival characteristics
     venue_capacity = festival.venue&.capacity || 1000
     duration = (festival.end_date - festival.start_date).to_i + 1
-    
+
     cost_estimates = {
       venue_costs: venue_capacity * 500 * duration,
       security_safety: venue_capacity * 200,
@@ -782,21 +782,21 @@ class AdvancedAnalyticsService
 
   # Calculate variable costs
   def calculate_variable_costs(cost_estimates)
-    variable_cost_categories = [:security_safety, :staff_costs, :infrastructure]
+    variable_cost_categories = [ :security_safety, :staff_costs, :infrastructure ]
     variable_cost_categories.sum { |category| cost_estimates[category] || 0 }
   end
 
   # Calculate fixed costs
   def calculate_fixed_costs(cost_estimates)
-    fixed_cost_categories = [:venue_costs, :permits_insurance]
+    fixed_cost_categories = [ :venue_costs, :permits_insurance ]
     fixed_cost_categories.sum { |category| cost_estimates[category] || 0 }
   end
 
   # Calculate profit projections
   def calculate_profit_projections(ticket_revenue, vendor_revenue, sponsorship_revenue, merchandise_revenue, total_costs)
-    total_revenue = ticket_revenue[:revenue_scenarios][:expected] + 
-                   vendor_revenue[:total_vendor_revenue] + 
-                   sponsorship_revenue[:total_sponsorship_revenue] + 
+    total_revenue = ticket_revenue[:revenue_scenarios][:expected] +
+                   vendor_revenue[:total_vendor_revenue] +
+                   sponsorship_revenue[:total_sponsorship_revenue] +
                    merchandise_revenue[:total_merchandise_revenue]
 
     {
@@ -811,7 +811,7 @@ class AdvancedAnalyticsService
   # Calculate break-even point
   def calculate_break_even_point(total_costs, ticket_revenue)
     ticket_price = ticket_revenue[:base_ticket_price]
-    return { message: 'Cannot calculate - free event' } if ticket_price == 0
+    return { message: "Cannot calculate - free event" } if ticket_price == 0
 
     break_even_attendance = (total_costs / ticket_price).ceil
 
@@ -847,32 +847,32 @@ class AdvancedAnalyticsService
   # Generate revenue scenarios
   def generate_revenue_scenarios(festival, attendance_forecast)
     base_attendance = attendance_forecast[:total_predicted_attendance]
-    
+
     scenarios = {
       pessimistic: {
         attendance_multiplier: 0.7,
         revenue_multiplier: 0.6,
-        description: 'Poor weather, low marketing reach, strong competition'
+        description: "Poor weather, low marketing reach, strong competition"
       },
       realistic: {
         attendance_multiplier: 1.0,
         revenue_multiplier: 1.0,
-        description: 'Expected conditions based on current planning'
+        description: "Expected conditions based on current planning"
       },
       optimistic: {
         attendance_multiplier: 1.3,
         revenue_multiplier: 1.4,
-        description: 'Excellent weather, viral marketing, unique attractions'
+        description: "Excellent weather, viral marketing, unique attractions"
       }
     }
 
     scenario_results = {}
-    
+
     scenarios.each do |scenario_name, scenario_data|
       adjusted_attendance = (base_attendance * scenario_data[:attendance_multiplier]).round
       base_revenue = calculate_total_revenue(festival)
       adjusted_revenue = (base_revenue * scenario_data[:revenue_multiplier]).round(2)
-      
+
       scenario_results[scenario_name] = {
         attendance: adjusted_attendance,
         revenue: adjusted_revenue,
@@ -891,7 +891,7 @@ class AdvancedAnalyticsService
       realistic: 0.6,
       optimistic: 0.2
     }
-    
+
     probabilities[scenario_name] || 0.33
   end
 
@@ -931,13 +931,13 @@ class AdvancedAnalyticsService
   def assess_cash_flow_risk(festival)
     # Estimate cash flow patterns
     duration_to_event = (festival.start_date - Date.current).to_i
-    
+
     if duration_to_event < 30
-      { risk_level: 'high', reason: 'Short time frame for revenue collection' }
+      { risk_level: "high", reason: "Short time frame for revenue collection" }
     elsif duration_to_event < 90
-      { risk_level: 'medium', reason: 'Moderate time frame for revenue collection' }
+      { risk_level: "medium", reason: "Moderate time frame for revenue collection" }
     else
-      { risk_level: 'low', reason: 'Adequate time frame for revenue collection' }
+      { risk_level: "low", reason: "Adequate time frame for revenue collection" }
     end
   end
 
@@ -947,24 +947,24 @@ class AdvancedAnalyticsService
     ticket_dependency = festival.respond_to?(:ticket_price) && festival.ticket_price > 0 ? 0.6 : 0.0
     vendor_dependency = 0.3
     sponsorship_dependency = 0.1
-    
-    max_dependency = [ticket_dependency, vendor_dependency, sponsorship_dependency].max
-    
+
+    max_dependency = [ ticket_dependency, vendor_dependency, sponsorship_dependency ].max
+
     if max_dependency > 0.7
-      { risk_level: 'high', primary_source: identify_primary_revenue_source(festival) }
+      { risk_level: "high", primary_source: identify_primary_revenue_source(festival) }
     elsif max_dependency > 0.5
-      { risk_level: 'medium', primary_source: identify_primary_revenue_source(festival) }
+      { risk_level: "medium", primary_source: identify_primary_revenue_source(festival) }
     else
-      { risk_level: 'low', primary_source: 'diversified' }
+      { risk_level: "low", primary_source: "diversified" }
     end
   end
 
   # Identify primary revenue source
   def identify_primary_revenue_source(festival)
     if festival.respond_to?(:ticket_price) && festival.ticket_price > 0
-      'ticket_sales'
+      "ticket_sales"
     else
-      'vendor_fees'
+      "vendor_fees"
     end
   end
 

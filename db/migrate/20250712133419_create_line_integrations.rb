@@ -17,9 +17,9 @@ class CreateLineIntegrations < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :line_integrations, :line_channel_id, unique: true
-    add_index :line_integrations, [:festival_id, :user_id], unique: true
+    add_index :line_integrations, [ :festival_id, :user_id ], unique: true
     add_index :line_integrations, :status
     add_index :line_integrations, :is_active
   end

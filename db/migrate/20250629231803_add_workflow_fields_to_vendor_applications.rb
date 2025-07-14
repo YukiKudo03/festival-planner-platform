@@ -6,7 +6,7 @@ class AddWorkflowFieldsToVendorApplications < ActiveRecord::Migration[8.0]
     add_column :vendor_applications, :notes, :text
     add_column :vendor_applications, :submitted_at, :datetime
     add_column :vendor_applications, :reviewed_at, :datetime
-    
+
     add_index :vendor_applications, :submission_deadline
     add_index :vendor_applications, :review_deadline
     add_index :vendor_applications, :priority

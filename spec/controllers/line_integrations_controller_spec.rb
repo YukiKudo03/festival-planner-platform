@@ -346,7 +346,7 @@ RSpec.describe LineIntegrationsController, type: :controller do
       it 'updates settings and returns success JSON' do
         patch :update_settings, params: settings_params, format: :json
         expect(response).to have_http_status(:success)
-        
+
         json_response = JSON.parse(response.body)
         expect(json_response['success']).to be true
         expect(json_response['message']).to eq('設定が更新されました。')
@@ -462,7 +462,7 @@ RSpec.describe LineIntegrationsController, type: :controller do
         it 'returns success JSON' do
           post :test_connection, params: { id: line_integration.id }, format: :json
           expect(response).to have_http_status(:success)
-          
+
           json_response = JSON.parse(response.body)
           expect(json_response['success']).to be true
           expect(json_response['message']).to eq('LINE接続テストが成功しました。')
@@ -509,7 +509,7 @@ RSpec.describe LineIntegrationsController, type: :controller do
 
       it 'logs error and returns error response' do
         expect(Rails.logger).to receive(:error).with(/Connection test error/)
-        
+
         post :test_connection, params: { id: line_integration.id }, format: :json
         json_response = JSON.parse(response.body)
         expect(json_response['success']).to be false
@@ -547,7 +547,7 @@ RSpec.describe LineIntegrationsController, type: :controller do
     context 'with valid webhook data' do
       it 'processes webhook events' do
         expect(LineWebhookProcessorJob).to receive(:perform_later).once
-        
+
         post :callback, body: webhook_body
         expect(response).to have_http_status(:ok)
       end
@@ -689,7 +689,7 @@ RSpec.describe LineIntegrationsController, type: :controller do
 
       it 'logs error and returns error JSON' do
         expect(Rails.logger).to receive(:error).with(/Webhook registration error/)
-        
+
         post :register_webhook, params: { integration_id: line_integration.id }, format: :json
         json_response = JSON.parse(response.body)
         expect(json_response['success']).to be false

@@ -185,7 +185,7 @@ RSpec.describe LineTaskParserService do
         expect {
           result = service.send(:create_task_from_message, intent_result)
           expect(result[:success]).to be true
-          
+
           task = result[:task]
           expect(task.title).to eq('会場設営')
           expect(task.description).to eq('会場の設営作業')
@@ -217,7 +217,7 @@ RSpec.describe LineTaskParserService do
         before do
           allow_any_instance_of(Task).to receive(:save).and_return(false)
           allow_any_instance_of(Task).to receive(:errors).and_return(
-            double('errors', full_messages: ['Title cannot be blank'])
+            double('errors', full_messages: [ 'Title cannot be blank' ])
           )
         end
 
@@ -246,7 +246,7 @@ RSpec.describe LineTaskParserService do
         result = service.send(:complete_task_from_message, intent_result)
         expect(result[:success]).to be true
         expect(result[:task]).to eq(task)
-        
+
         task.reload
         expect(task.status).to eq('completed')
         expect(task.completed_at).to be_present
@@ -284,7 +284,7 @@ RSpec.describe LineTaskParserService do
       it 'calculates status summary correctly' do
         result = service.send(:handle_status_inquiry, intent_result)
         expect(result[:success]).to be true
-        
+
         summary = result[:parsed_content][:status_summary]
         expect(summary[:pending]).to eq(2) # pending + overdue
         expect(summary[:completed]).to eq(1)
@@ -368,7 +368,7 @@ RSpec.describe LineTaskParserService do
       describe '#extract_mentions' do
         it 'extracts user mentions' do
           mentions = service.send(:extract_mentions, '@田中 @佐藤さん お疲れ様')
-          expect(mentions).to match_array(['田中', '佐藤さん'])
+          expect(mentions).to match_array([ '田中', '佐藤さん' ])
         end
       end
     end
@@ -379,17 +379,17 @@ RSpec.describe LineTaskParserService do
         let!(:user2) { create(:user, email: 'sato@example.com') }
 
         it 'finds user by name mention' do
-          result = service.send(:find_mentioned_user, ['田中'])
+          result = service.send(:find_mentioned_user, [ '田中' ])
           expect(result).to eq(user1)
         end
 
         it 'finds user by email mention' do
-          result = service.send(:find_mentioned_user, ['sato'])
+          result = service.send(:find_mentioned_user, [ 'sato' ])
           expect(result).to eq(user2)
         end
 
         it 'returns nil for non-existent user' do
-          result = service.send(:find_mentioned_user, ['存在しない'])
+          result = service.send(:find_mentioned_user, [ '存在しない' ])
           expect(result).to be_nil
         end
       end

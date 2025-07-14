@@ -1,14 +1,14 @@
 class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
-  before_action :set_payment_integration, only: [:show, :update, :destroy, :process_payment, 
-                                                  :create_refund, :test_connection, :analytics]
+  before_action :set_payment_integration, only: [ :show, :update, :destroy, :process_payment,
+                                                  :create_refund, :test_connection, :analytics ]
 
   # GET /api/v1/integrations/payments
   def index
     integrations = current_user.payment_integrations.includes(:festival)
     integrations = integrations.where(festival_id: params[:festival_id]) if params[:festival_id]
     integrations = integrations.where(provider: params[:provider]) if params[:provider]
-    integrations = integrations.where(active: true) if params[:active] == 'true'
-    
+    integrations = integrations.where(active: true) if params[:active] == "true"
+
     render json: {
       integrations: integrations.map { |integration| serialize_integration(integration) }
     }
@@ -24,25 +24,25 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
   # POST /api/v1/integrations/payments
   def create
     @integration = current_user.payment_integrations.build(integration_params)
-    
+
     if @integration.save
       # Test the connection
       test_result = test_payment_connection(@integration)
-      
+
       if test_result[:success]
         @integration.update(status: :connected)
-        
+
         render json: {
           integration: serialize_integration_detailed(@integration),
-          message: 'Payment integration created successfully',
+          message: "Payment integration created successfully",
           connection_test: test_result
         }, status: :created
       else
         @integration.update(status: :error, last_error: test_result[:message])
-        
+
         render json: {
           integration: serialize_integration_detailed(@integration),
-          message: 'Payment integration created but connection failed',
+          message: "Payment integration created but connection failed",
           connection_test: test_result
         }, status: :created
       end
@@ -59,7 +59,7 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
     if @integration.update(integration_params)
       render json: {
         integration: serialize_integration_detailed(@integration),
-        message: 'Payment integration updated successfully'
+        message: "Payment integration updated successfully"
       }
     else
       render json: {
@@ -73,7 +73,7 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
   def destroy
     @integration.destroy
     render json: {
-      message: 'Payment integration deleted successfully'
+      message: "Payment integration deleted successfully"
     }
   end
 
@@ -81,8 +81,8 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
   def process_payment
     unless @integration.payment_enabled?
       return render json: {
-        error: 'Payment integration is not enabled',
-        details: 'Please check integration status and credentials'
+        error: "Payment integration is not enabled",
+        details: "Please check integration status and credentials"
       }, status: :unprocessable_entity
     end
 
@@ -95,11 +95,11 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
       render json: {
         payment: result,
         integration: serialize_integration(@integration),
-        message: 'Payment processed successfully'
+        message: "Payment processed successfully"
       }
     else
       render json: {
-        error: 'Payment processing failed',
+        error: "Payment processing failed",
         details: result[:error],
         integration: serialize_integration(@integration)
       }, status: :unprocessable_entity
@@ -110,7 +110,7 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
   def create_payment_intent
     unless @integration.payment_enabled?
       return render json: {
-        error: 'Payment integration is not enabled'
+        error: "Payment integration is not enabled"
       }, status: :unprocessable_entity
     end
 
@@ -126,7 +126,7 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
       }
     else
       render json: {
-        error: 'Failed to create payment intent',
+        error: "Failed to create payment intent",
         details: result[:error]
       }, status: :unprocessable_entity
     end
@@ -136,7 +136,7 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
   def create_refund
     unless @integration.supports_refunds?
       return render json: {
-        error: 'Refunds are not supported for this payment provider'
+        error: "Refunds are not supported for this payment provider"
       }, status: :unprocessable_entity
     end
 
@@ -150,11 +150,11 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
       render json: {
         refund: result,
         integration: serialize_integration(@integration),
-        message: 'Refund processed successfully'
+        message: "Refund processed successfully"
       }
     else
       render json: {
-        error: 'Refund processing failed',
+        error: "Refund processing failed",
         details: result[:error]
       }, status: :unprocessable_entity
     end
@@ -173,13 +173,13 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
   # POST /api/v1/integrations/payments/:id/test_connection
   def test_connection
     result = test_payment_connection(@integration)
-    
+
     if result[:success]
       @integration.update(status: :connected, last_error: nil)
     else
       @integration.update(status: :error, last_error: result[:message])
     end
-    
+
     render json: {
       connection_test: result,
       integration: serialize_integration(@integration)
@@ -190,9 +190,9 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
   def analytics
     start_date = params[:start_date] ? Date.parse(params[:start_date]) : 30.days.ago
     end_date = params[:end_date] ? Date.parse(params[:end_date]) : Time.current
-    
+
     analytics = @integration.analytics_summary(start_date, end_date)
-    
+
     render json: {
       analytics: analytics,
       period: {
@@ -208,17 +208,17 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
     transactions = @integration.payment_transactions
                               .includes(:user, :festival)
                               .order(created_at: :desc)
-    
+
     # Apply filters
     transactions = transactions.where(status: params[:status]) if params[:status]
-    transactions = transactions.where('created_at >= ?', params[:start_date]) if params[:start_date]
-    transactions = transactions.where('created_at <= ?', params[:end_date]) if params[:end_date]
-    
+    transactions = transactions.where("created_at >= ?", params[:start_date]) if params[:start_date]
+    transactions = transactions.where("created_at <= ?", params[:end_date]) if params[:end_date]
+
     # Pagination
     page = params[:page]&.to_i || 1
-    per_page = [params[:per_page]&.to_i || 20, 100].min
+    per_page = [ params[:per_page]&.to_i || 20, 100 ].min
     transactions = transactions.page(page).per(per_page)
-    
+
     render json: {
       transactions: transactions.map { |transaction| serialize_transaction(transaction) },
       pagination: {
@@ -236,10 +236,10 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
     transaction = @integration.payment_transactions.find_by(
       transaction_id: params[:transaction_id]
     )
-    
+
     unless transaction
       return render json: {
-        error: 'Transaction not found'
+        error: "Transaction not found"
       }, status: :not_found
     end
 
@@ -259,21 +259,21 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
   def setup_webhooks
     unless @integration.supports_webhooks?
       return render json: {
-        error: 'Webhooks are not supported for this payment provider'
+        error: "Webhooks are not supported for this payment provider"
       }, status: :unprocessable_entity
     end
 
     success = @integration.setup_webhooks!
-    
+
     if success
       render json: {
-        message: 'Webhooks set up successfully',
+        message: "Webhooks set up successfully",
         webhook_url: @integration.webhook_url,
         integration: serialize_integration_detailed(@integration)
       }
     else
       render json: {
-        error: 'Failed to set up webhooks',
+        error: "Failed to set up webhooks",
         details: @integration.last_error
       }, status: :unprocessable_entity
     end
@@ -284,51 +284,51 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
     render json: {
       providers: [
         {
-          id: 'stripe',
-          name: 'Stripe',
-          description: 'Online payment processing for internet businesses',
-          features: ['cards', 'subscriptions', 'refunds', 'webhooks', 'international'],
-          currencies: ['USD', 'EUR', 'JPY', 'GBP', 'AUD', 'CAD'],
+          id: "stripe",
+          name: "Stripe",
+          description: "Online payment processing for internet businesses",
+          features: [ "cards", "subscriptions", "refunds", "webhooks", "international" ],
+          currencies: [ "USD", "EUR", "JPY", "GBP", "AUD", "CAD" ],
           fees: {
-            card_processing: '2.9% + 30¢',
-            international: '3.9% + 30¢'
+            card_processing: "2.9% + 30¢",
+            international: "3.9% + 30¢"
           },
-          setup_requirements: ['api_key', 'webhook_secret']
+          setup_requirements: [ "api_key", "webhook_secret" ]
         },
         {
-          id: 'square',
-          name: 'Square',
-          description: 'Payment processing for businesses of all sizes',
-          features: ['cards', 'in_person', 'subscriptions', 'refunds', 'webhooks'],
-          currencies: ['USD', 'CAD', 'GBP', 'AUD', 'JPY'],
+          id: "square",
+          name: "Square",
+          description: "Payment processing for businesses of all sizes",
+          features: [ "cards", "in_person", "subscriptions", "refunds", "webhooks" ],
+          currencies: [ "USD", "CAD", "GBP", "AUD", "JPY" ],
           fees: {
-            card_processing: '2.6% + 10¢',
-            in_person: '2.6%'
+            card_processing: "2.6% + 10¢",
+            in_person: "2.6%"
           },
-          setup_requirements: ['access_token', 'location_id']
+          setup_requirements: [ "access_token", "location_id" ]
         },
         {
-          id: 'paypal',
-          name: 'PayPal',
-          description: 'Global online payment system',
-          features: ['paypal_account', 'cards', 'subscriptions', 'refunds', 'international'],
-          currencies: ['USD', 'EUR', 'JPY', 'GBP', 'AUD', 'CAD', 'SGD'],
+          id: "paypal",
+          name: "PayPal",
+          description: "Global online payment system",
+          features: [ "paypal_account", "cards", "subscriptions", "refunds", "international" ],
+          currencies: [ "USD", "EUR", "JPY", "GBP", "AUD", "CAD", "SGD" ],
           fees: {
-            domestic: '2.9% + fixed_fee',
-            international: '4.4% + fixed_fee'
+            domestic: "2.9% + fixed_fee",
+            international: "4.4% + fixed_fee"
           },
-          setup_requirements: ['client_id', 'client_secret']
+          setup_requirements: [ "client_id", "client_secret" ]
         },
         {
-          id: 'bank_transfer',
-          name: 'Bank Transfer',
-          description: 'Direct bank transfer payments',
-          features: ['bank_transfer', 'low_fees'],
-          currencies: ['JPY'],
+          id: "bank_transfer",
+          name: "Bank Transfer",
+          description: "Direct bank transfer payments",
+          features: [ "bank_transfer", "low_fees" ],
+          currencies: [ "JPY" ],
           fees: {
-            transfer: 'Variable by bank'
+            transfer: "Variable by bank"
           },
-          setup_requirements: ['bank_account_details']
+          setup_requirements: [ "bank_account_details" ]
         }
       ]
     }
@@ -339,7 +339,7 @@ class Api::V1::Integrations::PaymentsController < Api::V1::BaseController
   def set_payment_integration
     @integration = current_user.payment_integrations.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    render json: { error: 'Payment integration not found' }, status: :not_found
+    render json: { error: "Payment integration not found" }, status: :not_found
   end
 
   def integration_params
