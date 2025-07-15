@@ -10,6 +10,27 @@ class IndustrySpecialization < ApplicationRecord
   has_many :industry_certifications, dependent: :destroy
   has_many :industry_metrics, dependent: :destroy
 
+  # Constants (defined early for use in validations)
+  INDUSTRY_TYPES = %w[
+    technology
+    healthcare
+    education
+    manufacturing
+    agriculture
+    finance
+    tourism_hospitality
+    retail
+    construction
+    automotive
+    food_beverage
+    entertainment
+    logistics
+    energy
+    telecommunications
+  ].freeze
+
+  SPECIALIZATION_LEVELS = %w[basic intermediate advanced expert].freeze
+
   # Validations
   validates :industry_type, presence: true, inclusion: { in: INDUSTRY_TYPES }
   validates :specialization_level, presence: true, inclusion: { in: SPECIALIZATION_LEVELS }
@@ -50,26 +71,6 @@ class IndustrySpecialization < ApplicationRecord
     archived: "archived"
   }
 
-  # Constants
-  INDUSTRY_TYPES = %w[
-    technology
-    healthcare
-    education
-    manufacturing
-    agriculture
-    finance
-    tourism_hospitality
-    retail
-    construction
-    automotive
-    food_beverage
-    entertainment
-    logistics
-    energy
-    telecommunications
-  ].freeze
-
-  SPECIALIZATION_LEVELS = %w[basic intermediate advanced expert].freeze
 
   INDUSTRY_NAMES = {
     "technology" => "テクノロジー",

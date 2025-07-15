@@ -13859,3 +13859,1028 @@ LINE 10:  WHERE a.attrelid = '"solid_queue_jobs"'::regclass
   [1m[36mActiveRecord::SchemaMigration Load (0.9ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
   [1m[36mActiveRecord::InternalMetadata Load (1.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
   [1m[36mActiveRecord::SchemaMigration Load (1.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (8.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (2.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.0ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.2ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[35mSQL (0.1ms)[0m  [1m[35mSET search_path TO public[0m
+  [1m[35m (157.8ms)[0m  [1m[35mDROP DATABASE IF EXISTS "festival_planner_platform_test"[0m
+  [1m[35m (118.5ms)[0m  [1m[35mCREATE DATABASE "festival_planner_platform_test" ENCODING = 'unicode'[0m
+  [1m[35mSQL (15.9ms)[0m  [1m[35mCREATE EXTENSION IF NOT EXISTS "plpgsql" SCHEMA pg_catalog[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "active_storage_attachments" CASCADE[0m
+  [1m[35m (5.0ms)[0m  [1m[35mCREATE TABLE "active_storage_attachments" ("id" bigserial primary key, "name" character varying NOT NULL, "record_type" character varying NOT NULL, "record_id" bigint NOT NULL, "blob_id" bigint NOT NULL, "created_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_active_storage_attachments_on_blob_id" ON "active_storage_attachments" ("blob_id")[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_active_storage_attachments_uniqueness" ON "active_storage_attachments" ("record_type", "record_id", "name", "blob_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "active_storage_blobs" CASCADE[0m
+  [1m[35m (1.5ms)[0m  [1m[35mCREATE TABLE "active_storage_blobs" ("id" bigserial primary key, "key" character varying NOT NULL, "filename" character varying NOT NULL, "content_type" character varying, "metadata" text, "service_name" character varying NOT NULL, "byte_size" bigint NOT NULL, "checksum" character varying, "created_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_active_storage_blobs_on_key" ON "active_storage_blobs" ("key")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "active_storage_variant_records" CASCADE[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE TABLE "active_storage_variant_records" ("id" bigserial primary key, "blob_id" bigint NOT NULL, "variation_digest" character varying NOT NULL)[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_active_storage_variant_records_uniqueness" ON "active_storage_variant_records" ("blob_id", "variation_digest")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "api_keys" CASCADE[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE TABLE "api_keys" ("id" bigserial primary key, "user_id" bigint NOT NULL, "name" character varying NOT NULL, "api_key" character varying NOT NULL, "key_type" character varying DEFAULT 'personal' NOT NULL, "scopes" text, "ip_whitelist" text, "rate_limits" text, "expires_at" timestamp(6), "active" boolean DEFAULT TRUE, "request_count" integer DEFAULT 0, "last_used_at" timestamp(6), "revoked_at" timestamp(6), "usage_stats" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_api_keys_on_active_and_expires_at" ON "api_keys" ("active", "expires_at")[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_api_keys_on_api_key" ON "api_keys" ("api_key")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_api_keys_on_key_type" ON "api_keys" ("key_type")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_api_keys_on_last_used_at" ON "api_keys" ("last_used_at")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_api_keys_on_user_id" ON "api_keys" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "api_requests" CASCADE[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE TABLE "api_requests" ("id" bigserial primary key, "api_key_id" bigint NOT NULL, "user_id" bigint, "endpoint" character varying NOT NULL, "method" character varying NOT NULL, "ip_address" character varying NOT NULL, "user_agent" text, "response_status" integer NOT NULL, "response_time_ms" float, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_api_requests_on_api_key_id_and_created_at" ON "api_requests" ("api_key_id", "created_at")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_api_requests_on_api_key_id" ON "api_requests" ("api_key_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_api_requests_on_created_at" ON "api_requests" ("created_at")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_api_requests_on_endpoint" ON "api_requests" ("endpoint")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_api_requests_on_ip_address" ON "api_requests" ("ip_address")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_api_requests_on_method" ON "api_requests" ("method")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_api_requests_on_response_status_and_created_at" ON "api_requests" ("response_status", "created_at")[0m
+  [1m[35m (2.0ms)[0m  [1m[35mCREATE INDEX "index_api_requests_on_response_status" ON "api_requests" ("response_status")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_api_requests_on_user_id" ON "api_requests" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "application_comments" CASCADE[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE TABLE "application_comments" ("id" bigserial primary key, "vendor_application_id" bigint NOT NULL, "user_id" bigint NOT NULL, "content" text NOT NULL, "internal" boolean DEFAULT FALSE NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_application_comments_on_internal" ON "application_comments" ("internal")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_application_comments_on_user_id_and_created_at" ON "application_comments" ("user_id", "created_at")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_application_comments_on_user_id" ON "application_comments" ("user_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "idx_on_vendor_application_id_created_at_84101e4b46" ON "application_comments" ("vendor_application_id", "created_at")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_application_comments_on_vendor_application_id" ON "application_comments" ("vendor_application_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "application_reviews" CASCADE[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE TABLE "application_reviews" ("id" bigserial primary key, "vendor_application_id" bigint NOT NULL, "reviewer_id" bigint NOT NULL, "action" integer NOT NULL, "comment" text, "conditions" text, "reviewed_at" timestamp(6), "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_application_reviews_on_action" ON "application_reviews" ("action")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_application_reviews_on_reviewer_id_and_reviewed_at" ON "application_reviews" ("reviewer_id", "reviewed_at")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_application_reviews_on_reviewer_id" ON "application_reviews" ("reviewer_id")[0m
+  [1m[35m (1.5ms)[0m  [1m[35mCREATE INDEX "idx_on_vendor_application_id_created_at_4e2add9370" ON "application_reviews" ("vendor_application_id", "created_at")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_application_reviews_on_vendor_application_id" ON "application_reviews" ("vendor_application_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "booths" CASCADE[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE TABLE "booths" ("id" bigserial primary key, "venue_area_id" bigint NOT NULL, "festival_id" bigint NOT NULL, "vendor_application_id" bigint NOT NULL, "name" character varying, "booth_number" character varying, "size" character varying, "width" decimal, "height" decimal, "x_position" decimal, "y_position" decimal, "rotation" decimal, "status" character varying, "power_required" boolean, "water_required" boolean, "special_requirements" text, "setup_instructions" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_booths_on_festival_id" ON "booths" ("festival_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_booths_on_vendor_application_id" ON "booths" ("vendor_application_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_booths_on_venue_area_id" ON "booths" ("venue_area_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "budget_approvals" CASCADE[0m
+  [1m[35m (2.8ms)[0m  [1m[35mCREATE TABLE "budget_approvals" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "budget_category_id" bigint NOT NULL, "approver_type" character varying NOT NULL, "approver_id" bigint NOT NULL, "requested_amount" decimal(10,2) NOT NULL, "approved_amount" decimal(10,2) DEFAULT 0.0 NOT NULL, "status" character varying DEFAULT 'pending' NOT NULL, "notes" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_approver" ON "budget_approvals" ("approver_type", "approver_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_approver_type_and_approver_id" ON "budget_approvals" ("approver_type", "approver_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_budget_category_id_and_status" ON "budget_approvals" ("budget_category_id", "status")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_budget_category_id" ON "budget_approvals" ("budget_category_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_festival_id_and_status" ON "budget_approvals" ("festival_id", "status")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_festival_id" ON "budget_approvals" ("festival_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_budget_approvals_on_status" ON "budget_approvals" ("status")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "budget_categories" CASCADE[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE TABLE "budget_categories" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "name" character varying, "description" text, "parent_type" character varying, "parent_id" bigint, "budget_limit" decimal, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_budget_categories_on_festival_id" ON "budget_categories" ("festival_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_budget_categories_on_parent" ON "budget_categories" ("parent_type", "parent_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "chat_messages" CASCADE[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE TABLE "chat_messages" ("id" bigserial primary key, "chat_room_id" bigint NOT NULL, "user_id" bigint NOT NULL, "content" text, "message_type" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_chat_messages_on_chat_room_id" ON "chat_messages" ("chat_room_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_chat_messages_on_user_id" ON "chat_messages" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "chat_room_members" CASCADE[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE TABLE "chat_room_members" ("id" bigserial primary key, "chat_room_id" bigint NOT NULL, "user_id" bigint NOT NULL, "role" character varying, "joined_at" timestamp(6), "last_read_at" timestamp(6), "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_chat_room_members_on_chat_room_id" ON "chat_room_members" ("chat_room_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_chat_room_members_on_user_id" ON "chat_room_members" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "chat_rooms" CASCADE[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE TABLE "chat_rooms" ("id" bigserial primary key, "name" character varying, "description" text, "room_type" character varying, "festival_id" bigint NOT NULL, "private" boolean, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (2.1ms)[0m  [1m[35mCREATE INDEX "index_chat_rooms_on_festival_id" ON "chat_rooms" ("festival_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "expenses" CASCADE[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE TABLE "expenses" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "budget_category_id" bigint NOT NULL, "user_id" bigint NOT NULL, "amount" decimal, "description" text, "expense_date" date, "payment_method" character varying, "vendor_name" character varying, "receipt_number" character varying, "status" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_expenses_on_budget_category_id" ON "expenses" ("budget_category_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_expenses_on_festival_id" ON "expenses" ("festival_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_expenses_on_user_id" ON "expenses" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "festivals" CASCADE[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE TABLE "festivals" ("id" bigserial primary key, "name" character varying, "description" text, "start_date" timestamp(6), "end_date" timestamp(6), "location" character varying, "budget" decimal, "status" integer, "user_id" bigint NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "public" boolean DEFAULT FALSE NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_festivals_on_user_id" ON "festivals" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "file_access_logs" CASCADE[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE TABLE "file_access_logs" ("id" bigserial primary key, "user_id" bigint NOT NULL, "attachment_id" integer NOT NULL, "action" character varying NOT NULL, "ip_address" character varying NOT NULL, "user_agent" text NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_file_access_logs_on_action_and_created_at" ON "file_access_logs" ("action", "created_at")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_file_access_logs_on_attachment_id" ON "file_access_logs" ("attachment_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_file_access_logs_on_created_at" ON "file_access_logs" ("created_at")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_file_access_logs_on_user_id_and_created_at" ON "file_access_logs" ("user_id", "created_at")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_file_access_logs_on_user_id" ON "file_access_logs" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "file_metadata" CASCADE[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE TABLE "file_metadata" ("id" bigserial primary key, "uploaded_by_id" bigint NOT NULL, "attachment_id" integer NOT NULL, "original_filename" character varying NOT NULL, "file_size" bigint NOT NULL, "content_type" character varying NOT NULL, "upload_ip" character varying NOT NULL, "upload_user_agent" text NOT NULL, "image_metadata" json, "processing_metadata" json, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_file_metadata_on_attachment_id" ON "file_metadata" ("attachment_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_file_metadata_on_content_type" ON "file_metadata" ("content_type")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_file_metadata_on_created_at" ON "file_metadata" ("created_at")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_file_metadata_on_file_size" ON "file_metadata" ("file_size")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_file_metadata_on_uploaded_by_id" ON "file_metadata" ("uploaded_by_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "forum_posts" CASCADE[0m
+  [1m[35m (1.5ms)[0m  [1m[35mCREATE TABLE "forum_posts" ("id" bigserial primary key, "forum_thread_id" bigint NOT NULL, "user_id" bigint NOT NULL, "content" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_forum_posts_on_forum_thread_id" ON "forum_posts" ("forum_thread_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_forum_posts_on_user_id" ON "forum_posts" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "forum_threads" CASCADE[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE TABLE "forum_threads" ("id" bigserial primary key, "forum_id" bigint NOT NULL, "user_id" bigint NOT NULL, "title" character varying, "content" text, "pinned" boolean, "locked" boolean, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_forum_threads_on_forum_id" ON "forum_threads" ("forum_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_forum_threads_on_user_id" ON "forum_threads" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "forums" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "forums" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "name" character varying, "description" text, "category" character varying, "private" boolean, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_forums_on_festival_id" ON "forums" ("festival_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "industry_specializations" CASCADE[0m
+  [1m[35m (1.6ms)[0m  [1m[35mCREATE TABLE "industry_specializations" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "industry_type" character varying NOT NULL, "specialization_level" character varying DEFAULT 'basic' NOT NULL, "status" character varying DEFAULT 'planning' NOT NULL, "certification_required" boolean DEFAULT FALSE, "description" text, "priority" character varying DEFAULT 'medium', "specialization_code" character varying, "activated_at" timestamp(6), "completed_at" timestamp(6), "completion_notes" text, "compliance_standards" text, "specialized_features" text, "industry_regulations" text, "certification_requirements" text, "performance_kpis" text, "vendor_criteria" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "idx_on_festival_id_industry_type_c6db393dc4" ON "industry_specializations" ("festival_id", "industry_type")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_industry_specializations_on_festival_id" ON "industry_specializations" ("festival_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_industry_specializations_on_industry_type" ON "industry_specializations" ("industry_type")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_industry_specializations_on_specialization_code" ON "industry_specializations" ("specialization_code")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_industry_specializations_on_status" ON "industry_specializations" ("status")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "layout_elements" CASCADE[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE TABLE "layout_elements" ("id" bigserial primary key, "venue_id" bigint NOT NULL, "element_type" character varying, "name" character varying, "description" text, "x_position" decimal, "y_position" decimal, "width" decimal, "height" decimal, "rotation" decimal, "color" character varying, "properties" text, "layer" integer, "locked" boolean, "visible" boolean, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_layout_elements_on_venue_id" ON "layout_elements" ("venue_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "line_groups" CASCADE[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE TABLE "line_groups" ("id" bigserial primary key, "line_integration_id" bigint NOT NULL, "line_group_id" character varying NOT NULL, "name" character varying NOT NULL, "description" text, "is_active" boolean DEFAULT TRUE, "member_count" integer DEFAULT 0, "last_activity_at" timestamp(6), "group_settings" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_line_groups_on_is_active" ON "line_groups" ("is_active")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_line_groups_on_last_activity_at" ON "line_groups" ("last_activity_at")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_line_groups_on_line_group_id" ON "line_groups" ("line_group_id")[0m
+  [1m[35m (2.6ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_line_groups_on_line_integration_id_and_line_group_id" ON "line_groups" ("line_integration_id", "line_group_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_line_groups_on_line_integration_id" ON "line_groups" ("line_integration_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "line_integrations" CASCADE[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE TABLE "line_integrations" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "user_id" bigint NOT NULL, "line_channel_id" character varying NOT NULL, "line_channel_secret" character varying NOT NULL, "line_access_token" character varying NOT NULL, "webhook_url" character varying, "settings" text, "status" integer DEFAULT 0, "is_active" boolean DEFAULT FALSE, "line_user_id" character varying, "notification_preferences" character varying, "last_sync_at" timestamp(6), "last_webhook_received_at" timestamp(6), "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_line_integrations_on_festival_id_and_user_id" ON "line_integrations" ("festival_id", "user_id")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_line_integrations_on_festival_id" ON "line_integrations" ("festival_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_line_integrations_on_is_active" ON "line_integrations" ("is_active")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_line_integrations_on_line_channel_id" ON "line_integrations" ("line_channel_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_line_integrations_on_status" ON "line_integrations" ("status")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_line_integrations_on_user_id" ON "line_integrations" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "line_messages" CASCADE[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE TABLE "line_messages" ("id" bigserial primary key, "line_group_id" bigint NOT NULL, "user_id" bigint, "line_message_id" character varying NOT NULL, "message_text" text NOT NULL, "message_type" character varying DEFAULT 'text', "parsed_content" text, "task_id" bigint, "is_processed" boolean DEFAULT FALSE, "sender_line_user_id" character varying, "sender_display_name" character varying, "line_timestamp" timestamp(6), "processing_errors" text, "intent_type" character varying, "confidence_score" decimal(5,3), "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_line_messages_on_intent_type" ON "line_messages" ("intent_type")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_line_messages_on_is_processed" ON "line_messages" ("is_processed")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_line_messages_on_line_group_id_and_line_timestamp" ON "line_messages" ("line_group_id", "line_timestamp")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_line_messages_on_line_group_id" ON "line_messages" ("line_group_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_line_messages_on_line_message_id" ON "line_messages" ("line_message_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_line_messages_on_sender_line_user_id" ON "line_messages" ("sender_line_user_id")[0m
+  [1m[35m (2.0ms)[0m  [1m[35mCREATE INDEX "index_line_messages_on_task_id" ON "line_messages" ("task_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_line_messages_on_user_id" ON "line_messages" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "municipal_authorities" CASCADE[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE TABLE "municipal_authorities" ("id" bigserial primary key, "name" character varying NOT NULL, "authority_type" character varying NOT NULL, "contact_person" character varying, "email" character varying, "phone" character varying, "address" text, "code" character varying, "api_endpoint" character varying, "api_key" character varying, "description" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_municipal_authorities_on_authority_type" ON "municipal_authorities" ("authority_type")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_municipal_authorities_on_code" ON "municipal_authorities" ("code")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_municipal_authorities_on_email" ON "municipal_authorities" ("email")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "notification_settings" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "notification_settings" ("id" bigserial primary key, "user_id" bigint NOT NULL, "notification_type" character varying NOT NULL, "email_enabled" boolean DEFAULT TRUE, "web_enabled" boolean DEFAULT TRUE, "frequency" character varying DEFAULT 'immediate', "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "line_enabled" boolean DEFAULT FALSE NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_notification_settings_on_line_enabled" ON "notification_settings" ("line_enabled")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_notification_settings_on_notification_type" ON "notification_settings" ("notification_type")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_notification_settings_on_user_id_and_notification_type" ON "notification_settings" ("user_id", "notification_type")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_notification_settings_on_user_id" ON "notification_settings" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "notifications" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "notifications" ("id" bigserial primary key, "recipient_id" bigint NOT NULL, "sender_id" bigint, "notifiable_type" character varying NOT NULL, "notifiable_id" bigint NOT NULL, "notification_type" character varying NOT NULL, "title" character varying NOT NULL, "message" text, "read_at" timestamp(6), "sent_at" timestamp(6), "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_notifications_on_notifiable" ON "notifications" ("notifiable_type", "notifiable_id")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_notifications_on_notifiable_type_and_notifiable_id" ON "notifications" ("notifiable_type", "notifiable_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_notifications_on_notification_type" ON "notifications" ("notification_type")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_notifications_on_recipient_id_and_created_at" ON "notifications" ("recipient_id", "created_at")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_notifications_on_recipient_id_and_read_at" ON "notifications" ("recipient_id", "read_at")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_notifications_on_recipient_id" ON "notifications" ("recipient_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_notifications_on_sender_id" ON "notifications" ("sender_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "payments" CASCADE[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE TABLE "payments" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "user_id" bigint NOT NULL, "amount" decimal(10,2) NOT NULL, "payment_method" character varying NOT NULL, "status" character varying DEFAULT 'pending' NOT NULL, "currency" character varying DEFAULT 'JPY', "description" text, "customer_email" character varying, "customer_name" character varying, "billing_address" text, "external_transaction_id" character varying, "processing_fee" decimal(8,2) DEFAULT 0.0, "metadata" json DEFAULT '{}', "processed_at" timestamp(6), "confirmed_at" timestamp(6), "cancelled_at" timestamp(6), "cancellation_reason" text, "error_message" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_payments_on_confirmed_at" ON "payments" ("confirmed_at")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_payments_on_external_transaction_id" ON "payments" ("external_transaction_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_payments_on_festival_id_and_status" ON "payments" ("festival_id", "status")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_payments_on_festival_id" ON "payments" ("festival_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_payments_on_payment_method" ON "payments" ("payment_method")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_payments_on_processed_at" ON "payments" ("processed_at")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_payments_on_status" ON "payments" ("status")[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_payments_on_user_id_and_status" ON "payments" ("user_id", "status")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_payments_on_user_id" ON "payments" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "reactions" CASCADE[0m
+  [1m[35m (1.4ms)[0m  [1m[35mCREATE TABLE "reactions" ("id" bigserial primary key, "reactable_type" character varying NOT NULL, "reactable_id" bigint NOT NULL, "user_id" bigint NOT NULL, "reaction_type" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_reactions_on_reactable" ON "reactions" ("reactable_type", "reactable_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_reactions_on_user_id" ON "reactions" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "revenues" CASCADE[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE TABLE "revenues" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "budget_category_id" bigint NOT NULL, "user_id" bigint NOT NULL, "amount" decimal, "description" text, "revenue_date" date, "source" character varying, "status" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "revenue_type" character varying DEFAULT 'other' NOT NULL)[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_revenues_on_budget_category_id" ON "revenues" ("budget_category_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_revenues_on_festival_id" ON "revenues" ("festival_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_revenues_on_user_id" ON "revenues" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "tasks" CASCADE[0m
+  [1m[35m (2.5ms)[0m  [1m[35mCREATE TABLE "tasks" ("id" bigserial primary key, "title" character varying, "description" text, "due_date" timestamp(6), "priority" integer, "status" integer, "user_id" bigint NOT NULL, "festival_id" bigint NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_tasks_on_festival_id" ON "tasks" ("festival_id")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_tasks_on_user_id" ON "tasks" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "tourism_collaborations" CASCADE[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE TABLE "tourism_collaborations" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "tourism_board_id" bigint NOT NULL, "coordinator_id" bigint NOT NULL, "collaboration_type" character varying NOT NULL, "status" character varying DEFAULT 'proposed' NOT NULL, "priority" character varying DEFAULT 'medium', "start_date" date NOT NULL, "end_date" date NOT NULL, "budget_allocation" decimal(12,2) NOT NULL, "expected_visitors" integer NOT NULL, "collaboration_number" character varying, "activated_at" timestamp(6), "completed_at" timestamp(6), "approved_at" timestamp(6), "approved_by" integer, "cancelled_at" timestamp(6), "cancelled_by" integer, "cancellation_reason" text, "completion_notes" text, "approval_notes" text, "description" text, "marketing_objectives" text, "target_demographics" text, "promotional_channels" text, "collaboration_benefits" text, "performance_metrics" text, "visitor_data" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_tourism_collaborations_on_collaboration_number" ON "tourism_collaborations" ("collaboration_number")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_tourism_collaborations_on_collaboration_type" ON "tourism_collaborations" ("collaboration_type")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_tourism_collaborations_on_coordinator_id" ON "tourism_collaborations" ("coordinator_id")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_tourism_collaborations_on_festival_id" ON "tourism_collaborations" ("festival_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_tourism_collaborations_on_start_date_and_end_date" ON "tourism_collaborations" ("start_date", "end_date")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_tourism_collaborations_on_status" ON "tourism_collaborations" ("status")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_tourism_collaborations_on_tourism_board_id" ON "tourism_collaborations" ("tourism_board_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "user_preferences" CASCADE[0m
+  [1m[35m (1.4ms)[0m  [1m[35mCREATE TABLE "user_preferences" ("id" bigserial primary key, "user_id" bigint NOT NULL, "language" character varying(10), "timezone" character varying(50), "dashboard_widgets" text, "dashboard_layout" text, "notification_preferences" text, "theme_settings" text, "quick_actions" text, "favorite_features" text, "high_contrast_mode" boolean DEFAULT FALSE, "screen_reader_optimized" boolean DEFAULT FALSE, "font_scale" smallint DEFAULT 100, "enable_animations" boolean DEFAULT TRUE, "auto_refresh_enabled" boolean DEFAULT TRUE, "auto_refresh_interval" integer DEFAULT 30, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_user_preferences_on_high_contrast_mode" ON "user_preferences" ("high_contrast_mode")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_user_preferences_on_language" ON "user_preferences" ("language")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_user_preferences_on_screen_reader_optimized" ON "user_preferences" ("screen_reader_optimized")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_user_preferences_on_timezone" ON "user_preferences" ("timezone")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_user_preferences_on_user_id" ON "user_preferences" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "users" CASCADE[0m
+  [1m[35m (1.6ms)[0m  [1m[35mCREATE TABLE "users" ("id" bigserial primary key, "email" character varying DEFAULT '' NOT NULL, "encrypted_password" character varying DEFAULT '' NOT NULL, "reset_password_token" character varying, "reset_password_sent_at" timestamp(6), "remember_created_at" timestamp(6), "first_name" character varying, "last_name" character varying, "phone" character varying, "bio" text, "role" integer DEFAULT 0, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "api_token" character varying, "api_token_expires_at" timestamp(6), "last_api_access_at" timestamp(6), "api_request_count" integer DEFAULT 0, "api_permissions" json DEFAULT '{}')[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_api_token" ON "users" ("api_token")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_users_on_api_token_expires_at" ON "users" ("api_token_expires_at")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_email" ON "users" ("email")[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_users_on_last_api_access_at" ON "users" ("last_api_access_at")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_reset_password_token" ON "users" ("reset_password_token")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "vendor_applications" CASCADE[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE TABLE "vendor_applications" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "user_id" bigint NOT NULL, "business_name" character varying, "business_type" character varying, "description" text, "requirements" text, "status" integer, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "submission_deadline" timestamp(6), "review_deadline" timestamp(6), "priority" integer DEFAULT 1, "notes" text, "submitted_at" timestamp(6), "reviewed_at" timestamp(6))[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_festival_id" ON "vendor_applications" ("festival_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_priority" ON "vendor_applications" ("priority")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_review_deadline" ON "vendor_applications" ("review_deadline")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_submission_deadline" ON "vendor_applications" ("submission_deadline")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_submitted_at" ON "vendor_applications" ("submitted_at")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_vendor_applications_on_user_id" ON "vendor_applications" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "venue_areas" CASCADE[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "venue_areas" ("id" bigserial primary key, "venue_id" bigint NOT NULL, "name" character varying NOT NULL, "description" text, "area_type" character varying NOT NULL, "width" decimal(8,2) NOT NULL, "height" decimal(8,2) NOT NULL, "x_position" decimal(8,2) NOT NULL, "y_position" decimal(8,2) NOT NULL, "rotation" decimal(5,2) DEFAULT 0.0, "color" character varying, "capacity" integer, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_venue_areas_on_area_type" ON "venue_areas" ("area_type")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_venue_areas_on_venue_id" ON "venue_areas" ("venue_id")[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_venue_areas_on_x_position_and_y_position" ON "venue_areas" ("x_position", "y_position")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE IF EXISTS "venues" CASCADE[0m
+  [1m[35m (1.4ms)[0m  [1m[35mCREATE TABLE "venues" ("id" bigserial primary key, "festival_id" bigint NOT NULL, "name" character varying NOT NULL, "description" text, "capacity" integer NOT NULL, "address" text, "latitude" decimal(10,6), "longitude" decimal(10,6), "facility_type" character varying NOT NULL, "contact_info" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_venues_on_facility_type" ON "venues" ("facility_type")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_venues_on_festival_id" ON "venues" ("festival_id")[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_venues_on_latitude_and_longitude" ON "venues" ("latitude", "longitude")[0m
+  [1m[35m (1.2ms)[0m  [1m[35mALTER TABLE "active_storage_attachments" ADD CONSTRAINT "fk_rails_c3b3935057"
+FOREIGN KEY ("blob_id")
+  REFERENCES "active_storage_blobs" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "active_storage_variant_records" ADD CONSTRAINT "fk_rails_993965df05"
+FOREIGN KEY ("blob_id")
+  REFERENCES "active_storage_blobs" ("id")
+[0m
+  [1m[35m (0.7ms)[0m  [1m[35mALTER TABLE "api_keys" ADD CONSTRAINT "fk_rails_32c28d0dc2"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.8ms)[0m  [1m[35mALTER TABLE "api_requests" ADD CONSTRAINT "fk_rails_d4bb352bd7"
+FOREIGN KEY ("api_key_id")
+  REFERENCES "api_keys" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "api_requests" ADD CONSTRAINT "fk_rails_a68585556a"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "application_comments" ADD CONSTRAINT "fk_rails_5a5b6d4e04"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "application_comments" ADD CONSTRAINT "fk_rails_71d1bd1b52"
+FOREIGN KEY ("vendor_application_id")
+  REFERENCES "vendor_applications" ("id")
+[0m
+  [1m[35m (0.8ms)[0m  [1m[35mALTER TABLE "application_reviews" ADD CONSTRAINT "fk_rails_e66acce10b"
+FOREIGN KEY ("reviewer_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "application_reviews" ADD CONSTRAINT "fk_rails_5eb184daf9"
+FOREIGN KEY ("vendor_application_id")
+  REFERENCES "vendor_applications" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "booths" ADD CONSTRAINT "fk_rails_fc1955b739"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "booths" ADD CONSTRAINT "fk_rails_5a302757a8"
+FOREIGN KEY ("vendor_application_id")
+  REFERENCES "vendor_applications" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "booths" ADD CONSTRAINT "fk_rails_6685e6f25a"
+FOREIGN KEY ("venue_area_id")
+  REFERENCES "venue_areas" ("id")
+[0m
+  [1m[35m (0.8ms)[0m  [1m[35mALTER TABLE "budget_approvals" ADD CONSTRAINT "fk_rails_25535ebca8"
+FOREIGN KEY ("budget_category_id")
+  REFERENCES "budget_categories" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "budget_approvals" ADD CONSTRAINT "fk_rails_febcdf0f5f"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "budget_categories" ADD CONSTRAINT "fk_rails_a66a75355a"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "chat_messages" ADD CONSTRAINT "fk_rails_3070841b05"
+FOREIGN KEY ("chat_room_id")
+  REFERENCES "chat_rooms" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "chat_messages" ADD CONSTRAINT "fk_rails_918ef7acc4"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.7ms)[0m  [1m[35mALTER TABLE "chat_room_members" ADD CONSTRAINT "fk_rails_6345dbba03"
+FOREIGN KEY ("chat_room_id")
+  REFERENCES "chat_rooms" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "chat_room_members" ADD CONSTRAINT "fk_rails_de55eaa4a9"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "chat_rooms" ADD CONSTRAINT "fk_rails_8c27b7873e"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "expenses" ADD CONSTRAINT "fk_rails_e7241256d1"
+FOREIGN KEY ("budget_category_id")
+  REFERENCES "budget_categories" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "expenses" ADD CONSTRAINT "fk_rails_05d86a2a16"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "expenses" ADD CONSTRAINT "fk_rails_c3ee69df61"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (1.4ms)[0m  [1m[35mALTER TABLE "festivals" ADD CONSTRAINT "fk_rails_e798b43fcb"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "file_access_logs" ADD CONSTRAINT "fk_rails_05ea70f6fe"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "file_metadata" ADD CONSTRAINT "fk_rails_226d7c4c0a"
+FOREIGN KEY ("uploaded_by_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "forum_posts" ADD CONSTRAINT "fk_rails_4ff57ffa34"
+FOREIGN KEY ("forum_thread_id")
+  REFERENCES "forum_threads" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "forum_posts" ADD CONSTRAINT "fk_rails_c76798dc77"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "forum_threads" ADD CONSTRAINT "fk_rails_9178ac1ed2"
+FOREIGN KEY ("forum_id")
+  REFERENCES "forums" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "forum_threads" ADD CONSTRAINT "fk_rails_bc51c711fd"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "forums" ADD CONSTRAINT "fk_rails_bd36b1486c"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.7ms)[0m  [1m[35mALTER TABLE "industry_specializations" ADD CONSTRAINT "fk_rails_f36f449e74"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "layout_elements" ADD CONSTRAINT "fk_rails_ffd0e5cde6"
+FOREIGN KEY ("venue_id")
+  REFERENCES "venues" ("id")
+[0m
+  [1m[35m (0.7ms)[0m  [1m[35mALTER TABLE "line_groups" ADD CONSTRAINT "fk_rails_9f554a6dd2"
+FOREIGN KEY ("line_integration_id")
+  REFERENCES "line_integrations" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "line_integrations" ADD CONSTRAINT "fk_rails_08e6e7dd1c"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "line_integrations" ADD CONSTRAINT "fk_rails_d417e463e4"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "line_messages" ADD CONSTRAINT "fk_rails_6f00f587b8"
+FOREIGN KEY ("line_group_id")
+  REFERENCES "line_groups" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "line_messages" ADD CONSTRAINT "fk_rails_680f36b461"
+FOREIGN KEY ("task_id")
+  REFERENCES "tasks" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "line_messages" ADD CONSTRAINT "fk_rails_83ca74835c"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "notification_settings" ADD CONSTRAINT "fk_rails_0c95e91db7"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "notifications" ADD CONSTRAINT "fk_rails_4aea6afa11"
+FOREIGN KEY ("recipient_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "notifications" ADD CONSTRAINT "fk_rails_8780923399"
+FOREIGN KEY ("sender_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "payments" ADD CONSTRAINT "fk_rails_b8bd0b55d0"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "payments" ADD CONSTRAINT "fk_rails_081dc04a02"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "reactions" ADD CONSTRAINT "fk_rails_9f02fc96a0"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "revenues" ADD CONSTRAINT "fk_rails_0f47f89a71"
+FOREIGN KEY ("budget_category_id")
+  REFERENCES "budget_categories" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "revenues" ADD CONSTRAINT "fk_rails_c3e62f53a6"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "revenues" ADD CONSTRAINT "fk_rails_cca0f1dd77"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "tasks" ADD CONSTRAINT "fk_rails_89d2a3e6ba"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "tasks" ADD CONSTRAINT "fk_rails_4d2a9e4d7e"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "tourism_collaborations" ADD CONSTRAINT "fk_rails_d4941f1ba0"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "tourism_collaborations" ADD CONSTRAINT "fk_rails_1eb73fd19c"
+FOREIGN KEY ("tourism_board_id")
+  REFERENCES "municipal_authorities" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "tourism_collaborations" ADD CONSTRAINT "fk_rails_c1f5e908b7"
+FOREIGN KEY ("coordinator_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "user_preferences" ADD CONSTRAINT "fk_rails_a69bfcfd81"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "vendor_applications" ADD CONSTRAINT "fk_rails_37c4f63f62"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (0.5ms)[0m  [1m[35mALTER TABLE "vendor_applications" ADD CONSTRAINT "fk_rails_62503e48bf"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "venue_areas" ADD CONSTRAINT "fk_rails_884f6f47e7"
+FOREIGN KEY ("venue_id")
+  REFERENCES "venues" ("id")
+[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "venues" ADD CONSTRAINT "fk_rails_f909993903"
+FOREIGN KEY ("festival_id")
+  REFERENCES "festivals" ("id")
+[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL PRIMARY KEY)[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[35m (0.3ms)[0m  [1m[32mINSERT INTO "schema_migrations" (version) VALUES (20250714070200)[0m
+  [1m[35m (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" (version) VALUES
+(20250714070100),
+(20250713030425),
+(20250713030410),
+(20250712140348),
+(20250712133430),
+(20250712133425),
+(20250712133419),
+(20250712034200),
+(20250712034138),
+(20250712034044),
+(20250712000001),
+(20250704192933),
+(20250704192724),
+(20250704121904),
+(20250704121323),
+(20250703100843),
+(20250703100836),
+(20250703100829),
+(20250703100821),
+(20250703100028),
+(20250703095949),
+(20250702123306),
+(20250702123259),
+(20250702123251),
+(20250702123244),
+(20250702112039),
+(20250702112033),
+(20250702112027),
+(20250702110721),
+(20250702110709),
+(20250702110704),
+(20250702110658),
+(20250629231803),
+(20250629231758),
+(20250629231752),
+(20250629144921),
+(20250629144916),
+(20250629005146),
+(20250629005142),
+(20250629005049);[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE TABLE "ar_internal_metadata" ("key" character varying NOT NULL PRIMARY KEY, "value" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.2ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::InternalMetadata Create (0.5ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('environment', 'test', '2025-07-14 10:48:06.327959', '2025-07-14 10:48:06.327960') RETURNING "key"[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::InternalMetadata Load (0.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::InternalMetadata Create (0.1ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('schema_sha1', '99d909d3ca9fc12e1d969d8a453473873f98bb8b', '2025-07-14 10:48:06.329440', '2025-07-14 10:48:06.329441') RETURNING "key"[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (1.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+[dotenv] Saved a snapshot of [32mENV[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (8.4ms)[0m  [1m[35mALTER TABLE "active_storage_variant_records" DISABLE TRIGGER ALL;ALTER TABLE "api_keys" DISABLE TRIGGER ALL;ALTER TABLE "api_requests" DISABLE TRIGGER ALL;ALTER TABLE "application_reviews" DISABLE TRIGGER ALL;ALTER TABLE "booths" DISABLE TRIGGER ALL;ALTER TABLE "chat_messages" DISABLE TRIGGER ALL;ALTER TABLE "chat_room_members" DISABLE TRIGGER ALL;ALTER TABLE "budget_categories" DISABLE TRIGGER ALL;ALTER TABLE "expenses" DISABLE TRIGGER ALL;ALTER TABLE "chat_rooms" DISABLE TRIGGER ALL;ALTER TABLE "festivals" DISABLE TRIGGER ALL;ALTER TABLE "forum_threads" DISABLE TRIGGER ALL;ALTER TABLE "file_metadata" DISABLE TRIGGER ALL;ALTER TABLE "layout_elements" DISABLE TRIGGER ALL;ALTER TABLE "line_integrations" DISABLE TRIGGER ALL;ALTER TABLE "forums" DISABLE TRIGGER ALL;ALTER TABLE "industry_specializations" DISABLE TRIGGER ALL;ALTER TABLE "notifications" DISABLE TRIGGER ALL;ALTER TABLE "payments" DISABLE TRIGGER ALL;ALTER TABLE "municipal_authorities" DISABLE TRIGGER ALL;ALTER TABLE "line_messages" DISABLE TRIGGER ALL;ALTER TABLE "notification_settings" DISABLE TRIGGER ALL;ALTER TABLE "revenues" DISABLE TRIGGER ALL;ALTER TABLE "tourism_collaborations" DISABLE TRIGGER ALL;ALTER TABLE "reactions" DISABLE TRIGGER ALL;ALTER TABLE "vendor_applications" DISABLE TRIGGER ALL;ALTER TABLE "venue_areas" DISABLE TRIGGER ALL;ALTER TABLE "venues" DISABLE TRIGGER ALL;ALTER TABLE "user_preferences" DISABLE TRIGGER ALL;ALTER TABLE "active_storage_blobs" DISABLE TRIGGER ALL;ALTER TABLE "active_storage_attachments" DISABLE TRIGGER ALL;ALTER TABLE "users" DISABLE TRIGGER ALL;ALTER TABLE "application_comments" DISABLE TRIGGER ALL;ALTER TABLE "budget_approvals" DISABLE TRIGGER ALL;ALTER TABLE "file_access_logs" DISABLE TRIGGER ALL;ALTER TABLE "forum_posts" DISABLE TRIGGER ALL;ALTER TABLE "line_groups" DISABLE TRIGGER ALL;ALTER TABLE "tasks" DISABLE TRIGGER ALL;ALTER TABLE "schema_migrations" DISABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" DISABLE TRIGGER ALL[0m
+  [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mCOMMIT[0m
+  [1m[35m (1.4ms)[0m  [1m[34m            SELECT schemaname || '.' || tablename
+            FROM pg_tables
+            WHERE
+              tablename !~ '_prt_' AND
+              tablename <> 'schema_migrations'
+  AND tablename <> 'ar_internal_metadata'
+ AND
+              schemaname = ANY (current_schemas(false))
+[0m
+  [1m[35m (0.5ms)[0m  [1m[34mselect table_name from information_schema.views where table_schema = 'festival_planner_platform_test'[0m
+  [1m[35m (87.6ms)[0m  [1m[35mTRUNCATE TABLE "active_storage_variant_records", "api_keys", "api_requests", "application_reviews", "booths", "chat_messages", "chat_room_members", "budget_categories", "expenses", "chat_rooms", "festivals", "forum_threads", "file_metadata", "layout_elements", "line_integrations", "forums", "industry_specializations", "notifications", "payments", "municipal_authorities", "line_messages", "notification_settings", "revenues", "tourism_collaborations", "reactions", "vendor_applications", "venue_areas", "venues", "user_preferences", "active_storage_blobs", "active_storage_attachments", "users", "application_comments", "budget_approvals", "file_access_logs", "forum_posts", "line_groups", "tasks" RESTART IDENTITY restrict;[0m
+  [1m[36mTRANSACTION (0.6ms)[0m  [1m[35mBEGIN[0m
+  [1m[35m (3.0ms)[0m  [1m[35mALTER TABLE "active_storage_variant_records" ENABLE TRIGGER ALL;ALTER TABLE "forum_threads" ENABLE TRIGGER ALL;ALTER TABLE "layout_elements" ENABLE TRIGGER ALL;ALTER TABLE "notifications" ENABLE TRIGGER ALL;ALTER TABLE "vendor_applications" ENABLE TRIGGER ALL;ALTER TABLE "schema_migrations" ENABLE TRIGGER ALL;ALTER TABLE "ar_internal_metadata" ENABLE TRIGGER ALL;ALTER TABLE "api_keys" ENABLE TRIGGER ALL;ALTER TABLE "api_requests" ENABLE TRIGGER ALL;ALTER TABLE "application_reviews" ENABLE TRIGGER ALL;ALTER TABLE "booths" ENABLE TRIGGER ALL;ALTER TABLE "chat_messages" ENABLE TRIGGER ALL;ALTER TABLE "chat_room_members" ENABLE TRIGGER ALL;ALTER TABLE "budget_categories" ENABLE TRIGGER ALL;ALTER TABLE "expenses" ENABLE TRIGGER ALL;ALTER TABLE "chat_rooms" ENABLE TRIGGER ALL;ALTER TABLE "festivals" ENABLE TRIGGER ALL;ALTER TABLE "file_metadata" ENABLE TRIGGER ALL;ALTER TABLE "line_integrations" ENABLE TRIGGER ALL;ALTER TABLE "forums" ENABLE TRIGGER ALL;ALTER TABLE "industry_specializations" ENABLE TRIGGER ALL;ALTER TABLE "payments" ENABLE TRIGGER ALL;ALTER TABLE "municipal_authorities" ENABLE TRIGGER ALL;ALTER TABLE "line_messages" ENABLE TRIGGER ALL;ALTER TABLE "notification_settings" ENABLE TRIGGER ALL;ALTER TABLE "revenues" ENABLE TRIGGER ALL;ALTER TABLE "tourism_collaborations" ENABLE TRIGGER ALL;ALTER TABLE "reactions" ENABLE TRIGGER ALL;ALTER TABLE "venue_areas" ENABLE TRIGGER ALL;ALTER TABLE "venues" ENABLE TRIGGER ALL;ALTER TABLE "user_preferences" ENABLE TRIGGER ALL;ALTER TABLE "active_storage_blobs" ENABLE TRIGGER ALL;ALTER TABLE "active_storage_attachments" ENABLE TRIGGER ALL;ALTER TABLE "users" ENABLE TRIGGER ALL;ALTER TABLE "application_comments" ENABLE TRIGGER ALL;ALTER TABLE "budget_approvals" ENABLE TRIGGER ALL;ALTER TABLE "file_access_logs" ENABLE TRIGGER ALL;ALTER TABLE "forum_posts" ENABLE TRIGGER ALL;ALTER TABLE "line_groups" ENABLE TRIGGER ALL;ALTER TABLE "tasks" ENABLE TRIGGER ALL[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TO SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK TO SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK TO SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK TO SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mSAVEPOINT active_record_2[0m
+  [1m[36mUser Exists? (1.6ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE "users"."email" = $1 LIMIT $2[0m  [["email", "[FILTERED]"], ["LIMIT", 1]]
+  [1m[36mUser Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE "users"."api_token" = $1 LIMIT $2[0m  [["api_token", "[FILTERED]"], ["LIMIT", 1]]
+  [1m[36mUser Create (2.2ms)[0m  [1m[32mINSERT INTO "users" ("email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at", "api_token", "api_token_expires_at", "last_api_access_at", "api_request_count", "api_permissions") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) RETURNING "id"[0m  [["email", "[FILTERED]"], ["encrypted_password", "[FILTERED]"], ["reset_password_token", "[FILTERED]"], ["reset_password_sent_at", "[FILTERED]"], ["remember_created_at", nil], ["first_name", "Deja"], ["last_name", "Waelchi"], ["phone", nil], ["bio", nil], ["role", 0], ["created_at", "2025-07-14 10:59:04.829838"], ["updated_at", "2025-07-14 10:59:04.829838"], ["api_token", "[FILTERED]"], ["api_token_expires_at", "[FILTERED]"], ["last_api_access_at", nil], ["api_request_count", 0], ["api_permissions", "{}"]]
+  [1m[36mNotificationSetting Load (4.2ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "task_deadline_reminder"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "task_deadline_reminder"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (2.5ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "task_deadline_reminder"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.853289"], ["updated_at", "2025-07-14 10:59:04.853289"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.3ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "task_overdue"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "task_overdue"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.4ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "task_overdue"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.857807"], ["updated_at", "2025-07-14 10:59:04.857807"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.2ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "task_assigned"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "task_assigned"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.4ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "task_assigned"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.859703"], ["updated_at", "2025-07-14 10:59:04.859703"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.2ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "task_status_changed"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (2.9ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "task_status_changed"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.6ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "task_status_changed"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.864060"], ["updated_at", "2025-07-14 10:59:04.864060"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.2ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "festival_created"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "festival_created"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.5ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "festival_created"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.866118"], ["updated_at", "2025-07-14 10:59:04.866118"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.2ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "festival_updated"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "festival_updated"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.4ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "festival_updated"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.867881"], ["updated_at", "2025-07-14 10:59:04.867881"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "vendor_application_submitted"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "vendor_application_submitted"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "vendor_application_submitted"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.869365"], ["updated_at", "2025-07-14 10:59:04.869365"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "vendor_application_approved"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "vendor_application_approved"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "vendor_application_approved"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.870548"], ["updated_at", "2025-07-14 10:59:04.870548"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "vendor_application_rejected"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.5ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "vendor_application_rejected"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "vendor_application_rejected"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.871966"], ["updated_at", "2025-07-14 10:59:04.871966"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "system_announcement"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "system_announcement"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "system_announcement"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.873206"], ["updated_at", "2025-07-14 10:59:04.873206"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "forum_reply"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "forum_reply"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "forum_reply"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.874402"], ["updated_at", "2025-07-14 10:59:04.874402"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "forum_mention"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "forum_mention"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (1.6ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "forum_mention"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.875592"], ["updated_at", "2025-07-14 10:59:04.875592"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "forum_thread_created"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "forum_thread_created"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "forum_thread_created"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.881297"], ["updated_at", "2025-07-14 10:59:04.881297"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "chat_message"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "chat_message"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "chat_message"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.882479"], ["updated_at", "2025-07-14 10:59:04.882479"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "chat_mention"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "chat_mention"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.3ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "chat_mention"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.883613"], ["updated_at", "2025-07-14 10:59:04.883613"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "expense_approved"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "expense_approved"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "expense_approved"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.884916"], ["updated_at", "2025-07-14 10:59:04.884916"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "expense_rejected"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "expense_rejected"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "expense_rejected"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.886054"], ["updated_at", "2025-07-14 10:59:04.886054"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "revenue_confirmed"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "revenue_confirmed"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "revenue_confirmed"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.887145"], ["updated_at", "2025-07-14 10:59:04.887145"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "revenue_received"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "revenue_received"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "revenue_received"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.888283"], ["updated_at", "2025-07-14 10:59:04.888283"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "revenue_status_changed"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "revenue_status_changed"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "revenue_status_changed"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.889451"], ["updated_at", "2025-07-14 10:59:04.889451"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "budget_exceeded"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "budget_exceeded"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "budget_exceeded"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.890630"], ["updated_at", "2025-07-14 10:59:04.890630"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "budget_warning"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "budget_warning"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "budget_warning"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.891791"], ["updated_at", "2025-07-14 10:59:04.891791"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "budget_approval_requested"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "budget_approval_requested"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "budget_approval_requested"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.892902"], ["updated_at", "2025-07-14 10:59:04.892902"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "budget_approval_approved"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "budget_approval_approved"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "budget_approval_approved"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.893949"], ["updated_at", "2025-07-14 10:59:04.893949"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "budget_approval_rejected"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "budget_approval_rejected"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "budget_approval_rejected"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.895048"], ["updated_at", "2025-07-14 10:59:04.895048"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "booth_assigned"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "booth_assigned"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "booth_assigned"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.896125"], ["updated_at", "2025-07-14 10:59:04.896125"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "booth_unassigned"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "booth_unassigned"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "booth_unassigned"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.897127"], ["updated_at", "2025-07-14 10:59:04.897127"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "venue_layout_updated"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 1], ["notification_type", "venue_layout_updated"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 1], ["notification_type", "venue_layout_updated"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.898150"], ["updated_at", "2025-07-14 10:59:04.898150"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_2[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TO SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_2[0m
+  [1m[36mUser Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE "users"."email" = $1 LIMIT $2[0m  [["email", "[FILTERED]"], ["LIMIT", 1]]
+  [1m[36mUser Exists? (0.1ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE "users"."api_token" = $1 LIMIT $2[0m  [["api_token", "[FILTERED]"], ["LIMIT", 1]]
+  [1m[36mUser Create (0.2ms)[0m  [1m[32mINSERT INTO "users" ("email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at", "api_token", "api_token_expires_at", "last_api_access_at", "api_request_count", "api_permissions") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) RETURNING "id"[0m  [["email", "[FILTERED]"], ["encrypted_password", "[FILTERED]"], ["reset_password_token", "[FILTERED]"], ["reset_password_sent_at", "[FILTERED]"], ["remember_created_at", nil], ["first_name", "Elbert"], ["last_name", "Homenick"], ["phone", nil], ["bio", nil], ["role", 0], ["created_at", "2025-07-14 10:59:04.903756"], ["updated_at", "2025-07-14 10:59:04.903756"], ["api_token", "[FILTERED]"], ["api_token_expires_at", "[FILTERED]"], ["last_api_access_at", nil], ["api_request_count", 0], ["api_permissions", "{}"]]
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "task_deadline_reminder"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "task_deadline_reminder"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "task_deadline_reminder"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.905351"], ["updated_at", "2025-07-14 10:59:04.905351"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "task_overdue"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "task_overdue"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "task_overdue"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.906443"], ["updated_at", "2025-07-14 10:59:04.906443"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "task_assigned"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "task_assigned"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "task_assigned"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.907639"], ["updated_at", "2025-07-14 10:59:04.907639"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "task_status_changed"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "task_status_changed"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "task_status_changed"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.908711"], ["updated_at", "2025-07-14 10:59:04.908711"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "festival_created"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "festival_created"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "festival_created"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.909719"], ["updated_at", "2025-07-14 10:59:04.909719"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "festival_updated"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "festival_updated"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "festival_updated"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.910753"], ["updated_at", "2025-07-14 10:59:04.910753"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "vendor_application_submitted"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "vendor_application_submitted"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "vendor_application_submitted"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.911750"], ["updated_at", "2025-07-14 10:59:04.911750"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "vendor_application_approved"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "vendor_application_approved"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "vendor_application_approved"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.912815"], ["updated_at", "2025-07-14 10:59:04.912815"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "vendor_application_rejected"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "vendor_application_rejected"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "vendor_application_rejected"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.913828"], ["updated_at", "2025-07-14 10:59:04.913828"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "system_announcement"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "system_announcement"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "system_announcement"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.914865"], ["updated_at", "2025-07-14 10:59:04.914865"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "forum_reply"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "forum_reply"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "forum_reply"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.915852"], ["updated_at", "2025-07-14 10:59:04.915852"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "forum_mention"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "forum_mention"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "forum_mention"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.916850"], ["updated_at", "2025-07-14 10:59:04.916850"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "forum_thread_created"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "forum_thread_created"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "forum_thread_created"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.917876"], ["updated_at", "2025-07-14 10:59:04.917876"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "chat_message"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "chat_message"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "chat_message"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.918878"], ["updated_at", "2025-07-14 10:59:04.918878"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "chat_mention"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "chat_mention"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "chat_mention"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.919894"], ["updated_at", "2025-07-14 10:59:04.919894"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "expense_approved"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "expense_approved"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "expense_approved"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.920875"], ["updated_at", "2025-07-14 10:59:04.920875"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "expense_rejected"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "expense_rejected"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "expense_rejected"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.921919"], ["updated_at", "2025-07-14 10:59:04.921919"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "revenue_confirmed"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "revenue_confirmed"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "revenue_confirmed"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.922960"], ["updated_at", "2025-07-14 10:59:04.922960"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "revenue_received"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "revenue_received"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "revenue_received"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.923992"], ["updated_at", "2025-07-14 10:59:04.923992"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "revenue_status_changed"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "revenue_status_changed"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "revenue_status_changed"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.924980"], ["updated_at", "2025-07-14 10:59:04.924980"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "budget_exceeded"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "budget_exceeded"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "budget_exceeded"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.925997"], ["updated_at", "2025-07-14 10:59:04.925997"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "budget_warning"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "budget_warning"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "budget_warning"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.926977"], ["updated_at", "2025-07-14 10:59:04.926977"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "budget_approval_requested"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "budget_approval_requested"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "budget_approval_requested"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.927979"], ["updated_at", "2025-07-14 10:59:04.927979"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "budget_approval_approved"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "budget_approval_approved"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "budget_approval_approved"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.928992"], ["updated_at", "2025-07-14 10:59:04.928992"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "budget_approval_rejected"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "budget_approval_rejected"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "budget_approval_rejected"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.929982"], ["updated_at", "2025-07-14 10:59:04.929982"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "booth_assigned"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "booth_assigned"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "booth_assigned"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.930961"], ["updated_at", "2025-07-14 10:59:04.930961"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "booth_unassigned"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "booth_unassigned"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "booth_unassigned"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.931980"], ["updated_at", "2025-07-14 10:59:04.931980"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "venue_layout_updated"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 2], ["notification_type", "venue_layout_updated"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 2], ["notification_type", "venue_layout_updated"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.932971"], ["updated_at", "2025-07-14 10:59:04.932971"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_2[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TO SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.0ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_2[0m
+  [1m[36mUser Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE "users"."email" = $1 LIMIT $2[0m  [["email", "[FILTERED]"], ["LIMIT", 1]]
+  [1m[36mUser Exists? (0.1ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE "users"."api_token" = $1 LIMIT $2[0m  [["api_token", "[FILTERED]"], ["LIMIT", 1]]
+  [1m[36mUser Create (0.2ms)[0m  [1m[32mINSERT INTO "users" ("email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "first_name", "last_name", "phone", "bio", "role", "created_at", "updated_at", "api_token", "api_token_expires_at", "last_api_access_at", "api_request_count", "api_permissions") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) RETURNING "id"[0m  [["email", "[FILTERED]"], ["encrypted_password", "[FILTERED]"], ["reset_password_token", "[FILTERED]"], ["reset_password_sent_at", "[FILTERED]"], ["remember_created_at", nil], ["first_name", "Moses"], ["last_name", "Hammes"], ["phone", nil], ["bio", nil], ["role", 0], ["created_at", "2025-07-14 10:59:04.937357"], ["updated_at", "2025-07-14 10:59:04.937357"], ["api_token", "[FILTERED]"], ["api_token_expires_at", "[FILTERED]"], ["last_api_access_at", nil], ["api_request_count", 0], ["api_permissions", "{}"]]
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "task_deadline_reminder"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "task_deadline_reminder"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "task_deadline_reminder"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.938816"], ["updated_at", "2025-07-14 10:59:04.938816"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "task_overdue"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "task_overdue"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "task_overdue"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.939886"], ["updated_at", "2025-07-14 10:59:04.939886"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "task_assigned"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "task_assigned"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "task_assigned"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.940896"], ["updated_at", "2025-07-14 10:59:04.940896"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "task_status_changed"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "task_status_changed"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "task_status_changed"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.941903"], ["updated_at", "2025-07-14 10:59:04.941903"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "festival_created"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "festival_created"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "festival_created"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.942914"], ["updated_at", "2025-07-14 10:59:04.942914"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "festival_updated"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "festival_updated"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "festival_updated"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.943967"], ["updated_at", "2025-07-14 10:59:04.943967"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "vendor_application_submitted"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "vendor_application_submitted"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "vendor_application_submitted"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.944981"], ["updated_at", "2025-07-14 10:59:04.944981"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "vendor_application_approved"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "vendor_application_approved"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "vendor_application_approved"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.946022"], ["updated_at", "2025-07-14 10:59:04.946022"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "vendor_application_rejected"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "vendor_application_rejected"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "vendor_application_rejected"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.947011"], ["updated_at", "2025-07-14 10:59:04.947011"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "system_announcement"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "system_announcement"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "system_announcement"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.948012"], ["updated_at", "2025-07-14 10:59:04.948012"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "forum_reply"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "forum_reply"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "forum_reply"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.949013"], ["updated_at", "2025-07-14 10:59:04.949013"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "forum_mention"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "forum_mention"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "forum_mention"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.950014"], ["updated_at", "2025-07-14 10:59:04.950014"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "forum_thread_created"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "forum_thread_created"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "forum_thread_created"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.951023"], ["updated_at", "2025-07-14 10:59:04.951023"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "chat_message"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "chat_message"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "chat_message"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.952067"], ["updated_at", "2025-07-14 10:59:04.952067"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "chat_mention"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "chat_mention"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.4ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "chat_mention"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.953087"], ["updated_at", "2025-07-14 10:59:04.953087"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "expense_approved"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "expense_approved"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "expense_approved"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.954345"], ["updated_at", "2025-07-14 10:59:04.954345"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "expense_rejected"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "expense_rejected"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "expense_rejected"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.955377"], ["updated_at", "2025-07-14 10:59:04.955377"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "revenue_confirmed"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "revenue_confirmed"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "revenue_confirmed"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.956539"], ["updated_at", "2025-07-14 10:59:04.956539"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "revenue_received"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "revenue_received"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.4ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "revenue_received"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.958028"], ["updated_at", "2025-07-14 10:59:04.958028"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "revenue_status_changed"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "revenue_status_changed"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "revenue_status_changed"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.959669"], ["updated_at", "2025-07-14 10:59:04.959669"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "budget_exceeded"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "budget_exceeded"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "budget_exceeded"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.960944"], ["updated_at", "2025-07-14 10:59:04.960944"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "budget_warning"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "budget_warning"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "budget_warning"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.962287"], ["updated_at", "2025-07-14 10:59:04.962287"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "budget_approval_requested"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "budget_approval_requested"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "budget_approval_requested"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.963686"], ["updated_at", "2025-07-14 10:59:04.963686"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "budget_approval_approved"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "budget_approval_approved"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (2.0ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "budget_approval_approved"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.964800"], ["updated_at", "2025-07-14 10:59:04.964800"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "budget_approval_rejected"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "budget_approval_rejected"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.2ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "budget_approval_rejected"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.967785"], ["updated_at", "2025-07-14 10:59:04.967785"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "booth_assigned"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "booth_assigned"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "booth_assigned"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.968845"], ["updated_at", "2025-07-14 10:59:04.968845"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "booth_unassigned"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "booth_unassigned"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "booth_unassigned"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.969898"], ["updated_at", "2025-07-14 10:59:04.969898"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Load (0.1ms)[0m  [1m[34mSELECT "notification_settings".* FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "venue_layout_updated"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_3[0m
+  [1m[36mNotificationSetting Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "notification_settings" WHERE "notification_settings"."user_id" = $1 AND "notification_settings"."notification_type" = $2 LIMIT $3[0m  [["user_id", 3], ["notification_type", "venue_layout_updated"], ["LIMIT", 1]]
+  [1m[36mNotificationSetting Create (0.1ms)[0m  [1m[32mINSERT INTO "notification_settings" ("user_id", "notification_type", "email_enabled", "web_enabled", "frequency", "created_at", "updated_at", "line_enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id"[0m  [["user_id", 3], ["notification_type", "venue_layout_updated"], ["email_enabled", "[FILTERED]"], ["web_enabled", true], ["frequency", "immediate"], ["created_at", "2025-07-14 10:59:04.970904"], ["updated_at", "2025-07-14 10:59:04.970904"], ["line_enabled", false]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_3[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_2[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TO SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TO SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TO SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TO SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TO SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TO SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK TO SAVEPOINT active_record_1[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK[0m

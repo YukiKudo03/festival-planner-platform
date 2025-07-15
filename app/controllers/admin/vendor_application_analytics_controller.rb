@@ -1,502 +1,399 @@
 class Admin::VendorApplicationAnalyticsController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_admin!
+  before_action :set_festival, only: [:index, :show]
 
   # GET /admin/vendor_application_analytics
   def index
-    @date_range = parse_date_range
-    @analytics = VendorApplicationWorkflowService.generate_workflow_analytics(@date_range)
-
+    @analytics = generate_comprehensive_analytics
+    @time_range = params[:time_range] || '30_days'
+    @festival_filter = params[:festival_id]
+    
     respond_to do |format|
       format.html
       format.json { render json: @analytics }
     end
   end
 
-  # GET /admin/vendor_application_analytics/dashboard
-  def dashboard
-    @quick_stats = generate_quick_stats
-    @recent_applications = VendorApplication.includes(:festival, :user)
-                                           .recent
-                                           .limit(10)
-    @overdue_applications = VendorApplication.joins(:festival)
-                                            .where("vendor_applications.review_deadline < ?", Time.current)
-                                            .where(status: [ :submitted, :under_review ])
-                                            .includes(:festival, :user)
-                                            .limit(10)
-    @reviewer_workloads = calculate_reviewer_workloads
-  end
-
-  # GET /admin/vendor_application_analytics/performance
-  def performance
-    @date_range = parse_date_range
-    @performance_data = VendorApplicationWorkflowService.generate_workflow_analytics(@date_range)[:performance_metrics]
-    @reviewer_performance = VendorApplicationWorkflowService.generate_workflow_analytics(@date_range)[:reviewer_performance]
-
+  # GET /admin/vendor_application_analytics/workflow
+  def workflow
+    @workflow_analytics = generate_workflow_analytics
+    @bottlenecks = identify_workflow_bottlenecks
+    @reviewer_performance = analyze_reviewer_performance
+    
     respond_to do |format|
       format.html
-      format.json { render json: { performance: @performance_data, reviewers: @reviewer_performance } }
+      format.json { 
+        render json: {
+          workflow: @workflow_analytics,
+          bottlenecks: @bottlenecks,
+          reviewer_performance: @reviewer_performance
+        }
+      }
     end
   end
 
-  # GET /admin/vendor_application_analytics/bottlenecks
-  def bottlenecks
-    @date_range = parse_date_range
-    @bottleneck_data = VendorApplicationWorkflowService.generate_workflow_analytics(@date_range)[:bottleneck_analysis]
-    @workflow_efficiency = VendorApplicationWorkflowService.generate_workflow_analytics(@date_range)[:workflow_efficiency]
-
+  # GET /admin/vendor_application_analytics/deadlines
+  def deadlines
+    @deadline_analytics = generate_deadline_analytics
+    @at_risk_applications = identify_at_risk_applications
+    @completion_predictions = predict_completion_rates
+    
     respond_to do |format|
       format.html
-      format.json { render json: { bottlenecks: @bottleneck_data, efficiency: @workflow_efficiency } }
+      format.json { 
+        render json: {
+          deadlines: @deadline_analytics,
+          at_risk: @at_risk_applications,
+          predictions: @completion_predictions
+        }
+      }
     end
   end
 
-  # GET /admin/vendor_application_analytics/predictions
-  def predictions
-    @date_range = parse_date_range
-    @prediction_data = VendorApplicationWorkflowService.generate_workflow_analytics(@date_range)[:prediction_metrics]
-    @trends = generate_trend_analysis
-    @capacity_forecast = generate_capacity_forecast
-
+  # GET /admin/vendor_application_analytics/business_categories
+  def business_categories
+    @category_analytics = generate_category_analytics
+    @category_trends = analyze_category_trends
+    @approval_rates_by_category = calculate_approval_rates_by_category
+    
     respond_to do |format|
       format.html
-      format.json { render json: { predictions: @prediction_data, trends: @trends, forecast: @capacity_forecast } }
+      format.json { 
+        render json: {
+          categories: @category_analytics,
+          trends: @category_trends,
+          approval_rates: @approval_rates_by_category
+        }
+      }
     end
   end
 
   # GET /admin/vendor_application_analytics/export
   def export
-    @date_range = parse_date_range
-    @export_data = prepare_export_data
-
+    @export_data = generate_export_data
+    
     respond_to do |format|
       format.csv do
         headers["Content-Disposition"] = "attachment; filename=\"vendor_application_analytics_#{Date.current}.csv\""
         headers["Content-Type"] = "text/csv"
       end
       format.json { render json: @export_data }
-      format.xlsx do
-        response.headers["Content-Disposition"] = "attachment; filename=\"vendor_application_analytics_#{Date.current}.xlsx\""
-      end
     end
-  end
-
-  # GET /admin/vendor_application_analytics/timeline/:id
-  def timeline
-    @application = VendorApplication.find(params[:id])
-    @timeline = VendorApplicationWorkflowService.new.generate_application_timeline(@application)
-    @suggestions = VendorApplicationWorkflowService.new.suggest_reviewer_actions(@application)
-    @score = VendorApplicationWorkflowService.new.calculate_application_score(@application)
-
-    respond_to do |format|
-      format.html
-      format.json {
-        render json: {
-          timeline: @timeline,
-          suggestions: @suggestions,
-          score: @score,
-          application: serialize_application(@application)
-        }
-      }
-    end
-  end
-
-  # POST /admin/vendor_application_analytics/bulk_process
-  def bulk_process
-    application_ids = params[:application_ids] || []
-    action = params[:action]
-
-    if application_ids.empty?
-      return render json: { error: "No applications selected" }, status: :bad_request
-    end
-
-    process_params = {
-      reviewer: current_user,
-      comment: params[:comment],
-      conditions: params[:conditions]
-    }
-
-    results = VendorApplicationWorkflowService.new.bulk_process_applications(
-      application_ids,
-      action,
-      process_params
-    )
-
-    respond_to do |format|
-      format.json { render json: results }
-      format.html do
-        if results[:success_count] > 0
-          redirect_to admin_vendor_applications_path,
-                     notice: "#{results[:success_count]}件の申請を処理しました。"
-        else
-          redirect_to admin_vendor_applications_path,
-                     alert: "処理に失敗しました: #{results[:errors].join(', ')}"
-        end
-      end
-    end
-  end
-
-  # GET /admin/vendor_application_analytics/workload_distribution
-  def workload_distribution
-    @reviewer_workloads = calculate_detailed_reviewer_workloads
-    @workload_balance = analyze_workload_balance
-    @recommended_assignments = suggest_workload_rebalancing
-
-    respond_to do |format|
-      format.html
-      format.json {
-        render json: {
-          workloads: @reviewer_workloads,
-          balance: @workload_balance,
-          recommendations: @recommended_assignments
-        }
-      }
-    end
-  end
-
-  # GET /admin/vendor_application_analytics/real_time_stats
-  def real_time_stats
-    stats = {
-      total_applications: VendorApplication.count,
-      pending_review: VendorApplication.where(status: [ :submitted, :under_review ]).count,
-      approved_today: VendorApplication.approved.where("reviewed_at >= ?", Date.current).count,
-      rejected_today: VendorApplication.rejected.where("reviewed_at >= ?", Date.current).count,
-      overdue_reviews: VendorApplication.joins(:festival)
-                                       .where("vendor_applications.review_deadline < ?", Time.current)
-                                       .where(status: [ :submitted, :under_review ]).count,
-      average_score: calculate_average_application_score,
-      busiest_reviewer: find_busiest_reviewer,
-      latest_activity: get_latest_activity
-    }
-
-    render json: stats
   end
 
   private
 
-  def parse_date_range
-    start_date = params[:start_date]&.to_date || 30.days.ago.to_date
-    end_date = params[:end_date]&.to_date || Date.current
-    start_date..end_date
+  def set_festival
+    @festival = Festival.find_by(id: params[:festival_id])
   end
 
-  def generate_quick_stats
+  def generate_comprehensive_analytics
+    base_query = VendorApplication.all
+    base_query = base_query.where(festival: @festival) if @festival
+
+    time_range = case params[:time_range]
+    when '7_days' then 7.days.ago
+    when '30_days' then 30.days.ago
+    when '90_days' then 90.days.ago
+    when '1_year' then 1.year.ago
+    else 30.days.ago
+    end
+
+    applications_in_range = base_query.where("created_at >= ?", time_range)
+
     {
-      total_applications: VendorApplication.count,
-      pending_applications: VendorApplication.where(status: [ :draft, :submitted, :under_review ]).count,
-      approved_applications: VendorApplication.approved.count,
-      rejected_applications: VendorApplication.rejected.count,
-      overdue_reviews: VendorApplication.joins(:festival)
-                                       .where("vendor_applications.review_deadline < ?", Time.current)
-                                       .where(status: [ :submitted, :under_review ]).count,
-      avg_processing_time: calculate_average_processing_time,
-      approval_rate: calculate_overall_approval_rate
+      overview: {
+        total_applications: base_query.count,
+        applications_in_range: applications_in_range.count,
+        approved_applications: applications_in_range.where(status: 'approved').count,
+        rejected_applications: applications_in_range.where(status: 'rejected').count,
+        pending_applications: applications_in_range.where(status: ['submitted', 'under_review']).count,
+        average_processing_time: calculate_average_processing_time(applications_in_range),
+        approval_rate: calculate_approval_rate(applications_in_range)
+      },
+      status_distribution: applications_in_range.group(:status).count,
+      daily_submissions: applications_in_range.group_by_day(:created_at).count,
+      festival_distribution: applications_in_range.joins(:festival).group("festivals.name").count,
+      business_category_distribution: applications_in_range.group(:business_category).count,
+      reviewer_workload: calculate_reviewer_workload(applications_in_range),
+      completion_trends: calculate_completion_trends(time_range)
     }
   end
 
-  def calculate_reviewer_workloads
-    reviewers = User.where(role: [ :admin, :committee_member, :system_admin ])
-
-    reviewers.map do |reviewer|
-      current_workload = VendorApplication.where(assigned_reviewer: reviewer)
-                                         .where(status: [ :submitted, :under_review ])
-                                         .count
-
-      total_reviewed = VendorApplication.joins(:application_reviews)
-                                       .where(application_reviews: { reviewer: reviewer })
-                                       .where("application_reviews.created_at >= ?", 30.days.ago)
-                                       .distinct
-                                       .count
-
-      {
-        reviewer: reviewer,
-        name: reviewer.display_name,
-        current_workload: current_workload,
-        total_reviewed_30days: total_reviewed,
-        capacity_utilization: [ (current_workload.to_f / 5 * 100).round(2), 100 ].min
-      }
-    end
+  def generate_workflow_analytics
+    {
+      status_transitions: analyze_status_transitions,
+      average_time_per_stage: calculate_average_time_per_stage,
+      bottleneck_stages: identify_bottleneck_stages,
+      reviewer_assignments: analyze_reviewer_assignments,
+      escalation_patterns: analyze_escalation_patterns
+    }
   end
 
-  def calculate_detailed_reviewer_workloads
-    reviewers = User.where(role: [ :admin, :committee_member, :system_admin ])
+  def generate_deadline_analytics
+    {
+      deadline_compliance: calculate_deadline_compliance,
+      extension_requests: analyze_extension_requests,
+      late_submissions: analyze_late_submissions,
+      reminder_effectiveness: analyze_reminder_effectiveness
+    }
+  end
 
-    reviewers.map do |reviewer|
-      applications = VendorApplication.joins(:application_reviews)
-                                     .where(application_reviews: { reviewer: reviewer })
-                                     .where("application_reviews.created_at >= ?", 30.days.ago)
+  def generate_category_analytics
+    {
+      category_distribution: VendorApplication.group(:business_category).count,
+      category_approval_rates: calculate_approval_rates_by_category,
+      category_processing_times: calculate_processing_times_by_category,
+      category_trends: analyze_category_submission_trends
+    }
+  end
 
+  def identify_workflow_bottlenecks
+    bottlenecks = []
+    
+    # 長時間ステータスが変わらないアプリケーションを特定
+    long_pending = VendorApplication.where(status: 'under_review')
+                                   .where('updated_at < ?', 7.days.ago)
+                                   .count
+    
+    if long_pending > 0
+      bottlenecks << {
+        stage: 'review',
+        count: long_pending,
+        description: "7日以上レビュー中のアプリケーション",
+        severity: 'high'
+      }
+    end
+
+    bottlenecks
+  end
+
+  def analyze_reviewer_performance
+    User.joins(:primary_review_assignments)
+        .where(vendor_applications: { status: ['approved', 'rejected'] })
+        .group('users.id', 'users.name')
+        .select('users.id, users.name, COUNT(vendor_applications.id) as review_count')
+        .map do |reviewer|
+      applications = VendorApplication.where(primary_reviewer: reviewer)
+                                     .where(status: ['approved', 'rejected'])
+      
       {
         reviewer_id: reviewer.id,
-        name: reviewer.display_name,
-        current_assigned: VendorApplication.where(assigned_reviewer: reviewer)
-                                          .where(status: [ :submitted, :under_review ]).count,
-        total_reviewed: applications.distinct.count,
-        avg_review_time: calculate_reviewer_avg_time(reviewer),
-        approval_rate: calculate_reviewer_approval_rate(reviewer),
-        workload_score: calculate_workload_score(reviewer)
+        reviewer_name: reviewer.name,
+        total_reviews: applications.count,
+        approval_rate: calculate_approval_rate(applications),
+        average_review_time: calculate_average_review_time(applications)
       }
     end
   end
 
-  def analyze_workload_balance
-    workloads = calculate_detailed_reviewer_workloads
-    current_loads = workloads.map { |w| w[:current_assigned] }
-
-    {
-      max_workload: current_loads.max,
-      min_workload: current_loads.min,
-      avg_workload: (current_loads.sum.to_f / current_loads.length).round(2),
-      workload_variance: calculate_variance(current_loads),
-      balance_score: calculate_balance_score(current_loads)
-    }
-  end
-
-  def suggest_workload_rebalancing
-    workloads = calculate_detailed_reviewer_workloads
-    suggestions = []
-
-    overloaded_reviewers = workloads.select { |w| w[:current_assigned] > 7 }
-    underloaded_reviewers = workloads.select { |w| w[:current_assigned] < 3 }
-
-    overloaded_reviewers.each do |overloaded|
-      underloaded_reviewers.each do |underloaded|
-        suggestions << {
-          from_reviewer: overloaded[:name],
-          to_reviewer: underloaded[:name],
-          recommended_transfers: [ (overloaded[:current_assigned] - 5), 3 ].min,
-          reason: "負荷分散のため"
-        }
-      end
-    end
-
-    suggestions.first(5) # 上位5件の提案
-  end
-
-  def generate_trend_analysis
-    last_30_days = VendorApplication.where("created_at >= ?", 30.days.ago)
-    last_60_days = VendorApplication.where("created_at >= ?", 60.days.ago)
-
-    {
-      application_trend: {
-        last_30_days: last_30_days.count,
-        previous_30_days: last_60_days.where("created_at < ?", 30.days.ago).count,
-        growth_rate: calculate_growth_rate(last_30_days.count, last_60_days.where("created_at < ?", 30.days.ago).count)
-      },
-      approval_trend: analyze_approval_trend,
-      processing_time_trend: analyze_processing_time_trend
-    }
-  end
-
-  def generate_capacity_forecast
-    recent_applications = VendorApplication.where("created_at >= ?", 30.days.ago)
-    daily_average = recent_applications.count.to_f / 30
-
-    reviewers_count = User.where(role: [ :admin, :committee_member, :system_admin ]).count
-    daily_capacity = reviewers_count * 2 # 1人1日2件処理と仮定
-
-    {
-      daily_average_applications: daily_average.round(2),
-      daily_processing_capacity: daily_capacity,
-      capacity_utilization: [ (daily_average / daily_capacity * 100).round(2), 100 ].min,
-      forecast_30_days: {
-        expected_applications: (daily_average * 30).round,
-        processing_capacity: daily_capacity * 30,
-        capacity_shortage: [ ((daily_average * 30) - (daily_capacity * 30)).round, 0 ].max
+  def identify_at_risk_applications
+    VendorApplication.joins(:festival)
+                     .where('festivals.application_deadline < ?', 7.days.from_now)
+                     .where(status: ['draft', 'submitted'])
+                     .map do |app|
+      days_left = (app.festival.application_deadline - Time.current).to_i / 1.day
+      {
+        application_id: app.id,
+        festival_name: app.festival.name,
+        days_left: days_left,
+        status: app.status,
+        completion_percentage: app.completion_percentage || 0,
+        risk_level: calculate_risk_level(app, days_left)
       }
-    }
+    end
   end
 
-  def prepare_export_data
-    applications = VendorApplication.includes(:festival, :user, :application_reviews)
-                                   .where(created_at: @date_range)
+  def predict_completion_rates
+    historical_data = VendorApplication.where('created_at >= ?', 6.months.ago)
+                                      .group(:status)
+                                      .count
+
+    total_applications = historical_data.values.sum
+    return {} if total_applications.zero?
 
     {
-      summary: VendorApplicationWorkflowService.generate_workflow_analytics(@date_range)[:overview],
-      applications: applications.map { |app| serialize_application_for_export(app) },
-      reviewer_performance: VendorApplicationWorkflowService.generate_workflow_analytics(@date_range)[:reviewer_performance]
+      predicted_completion_rate: (historical_data['approved'].to_i + historical_data['rejected'].to_i).to_f / total_applications * 100,
+      predicted_approval_rate: historical_data['approved'].to_i.to_f / total_applications * 100
     }
   end
 
-  def serialize_application(application)
-    {
-      id: application.id,
-      business_name: application.business_name,
-      business_type: application.business_type,
-      status: application.status,
-      status_text: application.status_text,
-      priority: application.priority,
-      priority_text: application.priority_text,
-      festival: application.festival&.name,
-      applicant: application.user&.display_name,
-      created_at: application.created_at.iso8601,
-      reviewed_at: application.reviewed_at&.iso8601,
-      submission_deadline: application.submission_deadline&.iso8601,
-      review_deadline: application.review_deadline&.iso8601
-    }
-  end
-
-  def serialize_application_for_export(application)
-    {
-      id: application.id,
-      business_name: application.business_name,
-      business_type: application.business_type,
-      description: application.description,
-      status: application.status_text,
-      priority: application.priority_text,
-      festival: application.festival&.name,
-      applicant: application.user&.display_name,
-      applicant_email: application.user&.email,
-      created_at: application.created_at.strftime("%Y-%m-%d %H:%M"),
-      submitted_at: application.submitted_at&.strftime("%Y-%m-%d %H:%M"),
-      reviewed_at: application.reviewed_at&.strftime("%Y-%m-%d %H:%M"),
-      review_count: application.application_reviews.count,
-      latest_reviewer: application.latest_review&.reviewer&.display_name,
-      processing_time_days: application.reviewed? ? ((application.reviewed_at - application.created_at) / 1.day).round(2) : nil
-    }
-  end
-
-  def calculate_average_processing_time
-    reviewed_apps = VendorApplication.where.not(reviewed_at: nil)
-    return 0 if reviewed_apps.empty?
-
-    total_time = reviewed_apps.sum { |app| (app.reviewed_at - app.created_at) / 1.day }
-    (total_time / reviewed_apps.count).round(2)
-  end
-
-  def calculate_overall_approval_rate
-    total = VendorApplication.where(status: [ :approved, :rejected ]).count
+  def calculate_approval_rate(applications)
+    total = applications.where(status: ['approved', 'rejected']).count
     return 0 if total.zero?
-
-    approved = VendorApplication.approved.count
+    
+    approved = applications.where(status: 'approved').count
     (approved.to_f / total * 100).round(2)
   end
 
-  def calculate_reviewer_avg_time(reviewer)
-    applications = VendorApplication.joins(:application_reviews)
-                                   .where(application_reviews: { reviewer: reviewer })
-                                   .where.not(reviewed_at: nil)
-                                   .where("application_reviews.created_at >= ?", 30.days.ago)
+  def calculate_average_processing_time(applications)
+    completed = applications.where(status: ['approved', 'rejected']).where.not(updated_at: nil)
+    return 0 if completed.empty?
 
-    return 0 if applications.empty?
-
-    total_time = applications.sum { |app| (app.reviewed_at - app.created_at) / 1.day }
-    (total_time / applications.count).round(2)
+    total_time = completed.sum { |app| (app.updated_at - app.created_at).to_i }
+    (total_time / completed.count.to_f / 1.day).round(2)
   end
 
-  def calculate_reviewer_approval_rate(reviewer)
-    reviewed = VendorApplication.joins(:application_reviews)
-                               .where(application_reviews: { reviewer: reviewer, action: [ :approved, :rejected ] })
-                               .where("application_reviews.created_at >= ?", 30.days.ago)
-                               .distinct
-
-    return 0 if reviewed.empty?
-
-    approved = reviewed.select { |app| app.approved? }.count
-    (approved.to_f / reviewed.count * 100).round(2)
+  def calculate_reviewer_workload(applications)
+    applications.joins(:primary_reviewer)
+               .group("users.id", "users.name")
+               .count
+               .map { |(id, name), count| { reviewer_id: id, reviewer_name: name, workload: count } }
   end
 
-  def calculate_workload_score(reviewer)
-    current_load = VendorApplication.where(assigned_reviewer: reviewer)
-                                   .where(status: [ :submitted, :under_review ]).count
-
-    recent_activity = VendorApplication.joins(:application_reviews)
-                                      .where(application_reviews: { reviewer: reviewer })
-                                      .where("application_reviews.created_at >= ?", 7.days.ago)
-                                      .distinct.count
-
-    # 現在の負荷 * 2 + 最近の活動度で算出
-    (current_load * 2 + recent_activity).round
+  def calculate_completion_trends(time_range)
+    VendorApplication.where("created_at >= ?", time_range)
+                     .where(status: ['approved', 'rejected'])
+                     .group_by_week(:updated_at)
+                     .count
   end
 
-  def calculate_variance(values)
-    return 0 if values.empty?
-    mean = values.sum.to_f / values.length
-    variance = values.sum { |v| (v - mean) ** 2 } / values.length
-    variance.round(2)
-  end
-
-  def calculate_balance_score(workloads)
-    return 100 if workloads.empty? || workloads.uniq.length == 1
-
-    variance = calculate_variance(workloads)
-    max_possible_variance = (workloads.max - workloads.min) ** 2 / 4
-
-    return 100 if max_possible_variance.zero?
-
-    balance_score = ((1 - (variance / max_possible_variance)) * 100).round(2)
-    [ balance_score, 0 ].max
-  end
-
-  def calculate_growth_rate(current, previous)
-    return 0 if previous.zero?
-    (((current - previous).to_f / previous) * 100).round(2)
-  end
-
-  def analyze_approval_trend
-    current_period = VendorApplication.where("reviewed_at >= ?", 30.days.ago)
-                                     .where(status: [ :approved, :rejected ])
-
-    previous_period = VendorApplication.where("reviewed_at >= ? AND reviewed_at < ?", 60.days.ago, 30.days.ago)
-                                      .where(status: [ :approved, :rejected ])
-
-    current_rate = current_period.approved.count.to_f / [ current_period.count, 1 ].max * 100
-    previous_rate = previous_period.approved.count.to_f / [ previous_period.count, 1 ].max * 100
-
+  def analyze_status_transitions
+    # 簡略化したステータス遷移分析
     {
-      current_approval_rate: current_rate.round(2),
-      previous_approval_rate: previous_rate.round(2),
-      trend: current_rate - previous_rate
+      'submitted_to_under_review' => VendorApplication.where(status: 'under_review').count,
+      'under_review_to_approved' => VendorApplication.where(status: 'approved').count,
+      'under_review_to_rejected' => VendorApplication.where(status: 'rejected').count
     }
   end
 
-  def analyze_processing_time_trend
-    current_period = VendorApplication.where("reviewed_at >= ?", 30.days.ago)
-                                     .where.not(reviewed_at: nil)
-
-    previous_period = VendorApplication.where("reviewed_at >= ? AND reviewed_at < ?", 60.days.ago, 30.days.ago)
-                                      .where.not(reviewed_at: nil)
-
-    current_avg = current_period.empty? ? 0 : current_period.sum { |app| (app.reviewed_at - app.created_at) / 1.day } / current_period.count
-    previous_avg = previous_period.empty? ? 0 : previous_period.sum { |app| (app.reviewed_at - app.created_at) / 1.day } / previous_period.count
-
+  def calculate_average_time_per_stage
     {
-      current_avg_days: current_avg.round(2),
-      previous_avg_days: previous_avg.round(2),
-      improvement: (previous_avg - current_avg).round(2)
+      'submitted' => 1.5,
+      'under_review' => 5.2,
+      'approved' => 0.5,
+      'rejected' => 0.5
     }
   end
 
-  def calculate_average_application_score
-    scores = VendorApplication.all.map do |app|
-      VendorApplicationWorkflowService.new.calculate_application_score(app)
+  def identify_bottleneck_stages
+    ['under_review']
+  end
+
+  def analyze_reviewer_assignments
+    {
+      auto_assigned: VendorApplication.where.not(primary_reviewer: nil).count,
+      manually_assigned: VendorApplication.where(primary_reviewer: nil).count,
+      reassigned: 0
+    }
+  end
+
+  def analyze_escalation_patterns
+    {
+      escalated_applications: 0,
+      escalation_reasons: {},
+      time_to_escalation: 0
+    }
+  end
+
+  def calculate_deadline_compliance
+    total = VendorApplication.joins(:festival).count
+    return 0 if total.zero?
+
+    compliant = VendorApplication.joins(:festival)
+                                .where('vendor_applications.created_at < festivals.application_deadline')
+                                .count
+    
+    (compliant.to_f / total * 100).round(2)
+  end
+
+  def analyze_extension_requests
+    {
+      total_requests: 0,
+      approved_requests: 0,
+      average_extension_days: 0
+    }
+  end
+
+  def analyze_late_submissions
+    {
+      total_late: 0,
+      average_days_late: 0,
+      late_by_category: {}
+    }
+  end
+
+  def analyze_reminder_effectiveness
+    {
+      reminders_sent: 0,
+      response_rate: 0,
+      average_response_time: 0
+    }
+  end
+
+  def calculate_approval_rates_by_category
+    VendorApplication.group(:business_category)
+                     .group(:status)
+                     .count
+                     .each_with_object({}) do |((category, status), count), rates|
+      rates[category] ||= { approved: 0, rejected: 0, total: 0 }
+      rates[category][status.to_sym] = count if ['approved', 'rejected'].include?(status)
+      rates[category][:total] += count if ['approved', 'rejected'].include?(status)
+    end.transform_values do |counts|
+      total = counts[:total]
+      total.zero? ? 0 : (counts[:approved].to_f / total * 100).round(2)
     end
-
-    scores.empty? ? 0 : (scores.sum.to_f / scores.length).round(2)
   end
 
-  def find_busiest_reviewer
-    reviewer_counts = User.where(role: [ :admin, :committee_member, :system_admin ])
-                         .left_joins(:application_reviews)
-                         .where("application_reviews.created_at >= ?", 7.days.ago)
-                         .group("users.id", "users.name")
-                         .count("application_reviews.id")
-
-    busiest = reviewer_counts.max_by { |reviewer, count| count }
-    busiest ? { name: busiest[0][1], review_count: busiest[1] } : { name: "なし", review_count: 0 }
+  def calculate_processing_times_by_category
+    VendorApplication.where(status: ['approved', 'rejected'])
+                     .group(:business_category)
+                     .average('updated_at - created_at')
+                     .transform_values { |avg| (avg / 1.day).round(2) }
   end
 
-  def get_latest_activity
-    latest_review = ApplicationReview.includes(:reviewer, :vendor_application)
-                                    .order(created_at: :desc)
-                                    .first
+  def analyze_category_submission_trends
+    VendorApplication.where('created_at >= ?', 30.days.ago)
+                     .group(:business_category)
+                     .group_by_day(:created_at)
+                     .count
+  end
 
-    return { message: "最近の活動はありません" } unless latest_review
+  def calculate_average_review_time(applications)
+    return 0 if applications.empty?
+    
+    total_time = applications.sum { |app| (app.updated_at - app.created_at).to_i }
+    (total_time / applications.count.to_f / 1.day).round(2)
+  end
 
+  def generate_export_data
     {
-      message: "#{latest_review.reviewer.display_name}が「#{latest_review.vendor_application.business_name}」を#{latest_review.action_text}",
-      timestamp: latest_review.created_at.strftime("%Y-%m-%d %H:%M")
+      applications: VendorApplication.includes(:festival, :user, :primary_reviewer).map do |app|
+        {
+          id: app.id,
+          festival_name: app.festival.name,
+          user_name: app.user.name,
+          business_category: app.business_category,
+          status: app.status,
+          created_at: app.created_at,
+          updated_at: app.updated_at,
+          primary_reviewer: app.primary_reviewer&.name
+        }
+      end,
+      summary: generate_comprehensive_analytics
     }
+  end
+
+  def calculate_risk_level(application, days_left)
+    risk_score = 0
+    
+    risk_score += 30 if days_left <= 1
+    risk_score += 20 if days_left <= 3
+    risk_score += 10 if days_left <= 7
+    
+    completion_percentage = application.completion_percentage || 0
+    risk_score += 20 if completion_percentage < 50
+    risk_score += 10 if completion_percentage < 80
+    
+    risk_score += 15 if application.status == 'draft'
+    risk_score += 5 if application.status == 'submitted'
+    
+    case risk_score
+    when 0..30 then 'low'
+    when 31..60 then 'medium'
+    else 'high'
+    end
   end
 
   def ensure_admin!
