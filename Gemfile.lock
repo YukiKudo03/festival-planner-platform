@@ -256,7 +256,7 @@ GEM
       logger (~> 1.6)
     letter_opener (1.10.0)
       launchy (>= 2.2, < 4)
-    line-bot-api (2.0.0)
+    line-bot-api (2.1.0)
       base64 (~> 0.2)
       multipart-post (~> 2.4)
     lint_roller (1.1.0)
